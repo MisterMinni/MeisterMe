@@ -69,7 +69,6 @@ const modules: NavItem[] = [
 ];
 
 export function AppShell({ children }: { children?: ReactNode }) {
-  const [menuOpen, setMenuOpen] = useState(false);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { data: profile } = useProfile();
   const { data: session } = useSession();
