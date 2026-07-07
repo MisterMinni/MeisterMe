@@ -17,7 +17,7 @@ export const Route = createFileRoute("/_authenticated/app/rechnungsgrundlagen/")
       <div>
         <PageHeader title="Rechnungsgrundlagen" subtitle="Aus Zeiten, Material und Angeboten. E-Rechnung/ZUGFeRD & DATEV bald verfügbar." />
         {!data || data.length === 0 ? (
-          <EmptyState icon={Receipt} title="Keine Rechnungsgrundlagen" desc="Öffne ein Projekt und erstelle im Tab „Rechnung" eine Grundlage." />
+          <EmptyState icon={Receipt} title="Keine Rechnungsgrundlagen" desc="Öffne ein Projekt und erstelle im Tab Rechnung eine Grundlage." />
         ) : (
           <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-card">
             <table className="w-full text-sm">

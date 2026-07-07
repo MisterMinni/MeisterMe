@@ -15,7 +15,7 @@ export const Route = createFileRoute("/_authenticated/app/aufmass/")({
       <div>
         <PageHeader title="Aufmaß" subtitle="Alle Räume und Flächen aus allen Projekten. Zum Bearbeiten das jeweilige Projekt öffnen." />
         {!data || data.length === 0 ? (
-          <EmptyState icon={Ruler} title="Noch keine Aufmaße" desc="Öffne ein Projekt und lege dort im Tab „Aufmaß" die Räume an." />
+          <EmptyState icon={Ruler} title="Noch keine Aufmaße" desc="Öffne ein Projekt und lege dort im Tab Aufmaß die Räume an." />
         ) : (
           <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-card">
             <table className="w-full text-sm">
