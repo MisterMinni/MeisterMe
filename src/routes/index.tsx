@@ -20,7 +20,7 @@ import {
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "HandwerkPilot – KI-Software für Handwerksbetriebe" },
+      { title: "MeisterMe – KI-Software für Handwerksbetriebe" },
       {
         name: "description",
         content:
@@ -208,7 +208,7 @@ function Landing() {
             <div className="inline-block rounded-full bg-brand/10 px-3 py-1 text-xs font-semibold text-brand">KI, die versteht wie Handwerker sprechen</div>
             <h2 className="mt-4 font-display text-3xl font-bold sm:text-4xl">Einsprechen. Fertig.</h2>
             <p className="mt-4 text-lg text-muted-foreground">
-              Der Monteur spricht auf der Baustelle einen Bericht ein – HandwerkPilot macht daraus Tätigkeit, Aufmaß, Materialliste, Zeit, Rechnungsposten und eine Kunden-Zusammenfassung.
+              Der Monteur spricht auf der Baustelle einen Bericht ein – MeisterMe macht daraus Tätigkeit, Aufmaß, Materialliste, Zeit, Rechnungsposten und eine Kunden-Zusammenfassung.
             </p>
             <ul className="mt-6 space-y-2 text-sm">
               {[
@@ -329,7 +329,7 @@ function Landing() {
       <footer className="border-t border-border bg-background py-10">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 sm:flex-row sm:px-6">
           <Logo />
-          <div className="text-xs text-muted-foreground">© {new Date().getFullYear()} HandwerkPilot – Made in Germany</div>
+          <div className="text-xs text-muted-foreground">© {new Date().getFullYear()} MeisterMe – Made in Germany</div>
           <div className="flex gap-6 text-xs text-muted-foreground">
             <Link to="/preise">Preise</Link>
             <Link to="/funktionen">Funktionen</Link>

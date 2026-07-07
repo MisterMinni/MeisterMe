@@ -1,5 +1,5 @@
 
-# HandwerkPilot – Bauplan
+# MeisterMe – Bauplan
 
 Deutschsprachige, mobile-first SaaS für Handwerksbetriebe. Alle 20 Module werden angelegt; der Kern-MVP-Flow (Kunde → Projekt → Aufmaß → Angebot → Einsatzbericht mit KI → Zeit/Material → Kundenmail + Rechnungsgrundlage) ist voll funktional, Rand-Module (Outlook-Sync, DATEV, GAEB, GoBD, E-Rechnung, Großhändler-APIs) sind als saubere UI-Platzhalter angelegt.
 

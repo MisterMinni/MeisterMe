@@ -7,7 +7,7 @@ import { Receipt, ArrowRight } from "lucide-react";
 import { formatEur, formatDate } from "@/lib/handwerk";
 
 export const Route = createFileRoute("/_authenticated/app/rechnungsgrundlagen/")({
-  head: () => ({ meta: [{ title: "Rechnungsgrundlagen – HandwerkPilot" }] }),
+  head: () => ({ meta: [{ title: "Rechnungsgrundlagen – MeisterMe" }] }),
   component: () => {
     const { data } = useQuery({
       queryKey: ["invoice-drafts"],

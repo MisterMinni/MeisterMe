@@ -7,7 +7,7 @@ import { formatDate } from "@/lib/handwerk";
 import { Badge } from "@/components/ui/badge";
 
 export const Route = createFileRoute("/_authenticated/app/kommunikation")({
-  head: () => ({ meta: [{ title: "Kommunikation – HandwerkPilot" }] }),
+  head: () => ({ meta: [{ title: "Kommunikation – MeisterMe" }] }),
   component: () => {
     const { data } = useQuery({
       queryKey: ["communications"],

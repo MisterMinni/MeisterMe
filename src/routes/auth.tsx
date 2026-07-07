@@ -12,7 +12,7 @@ import { HardHat, ArrowLeft } from "lucide-react";
 const search = z.object({ mode: z.enum(["login", "signup"]).optional() });
 
 export const Route = createFileRoute("/auth")({
-  head: () => ({ meta: [{ title: "Anmelden – HandwerkPilot" }] }),
+  head: () => ({ meta: [{ title: "Anmelden – MeisterMe" }] }),
   validateSearch: (s) => search.parse(s),
   component: AuthPage,
 });
@@ -38,7 +38,7 @@ function AuthPage() {
           },
         });
         if (error) throw error;
-        toast.success("Konto erstellt – willkommen bei HandwerkPilot!");
+        toast.success("Konto erstellt – willkommen bei MeisterMe!");
         navigate({ to: "/app" });
       } else {
         const { error } = await supabase.auth.signInWithPassword({

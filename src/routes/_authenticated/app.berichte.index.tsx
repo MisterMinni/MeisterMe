@@ -8,7 +8,7 @@ import { ClipboardList, Plus, ArrowRight } from "lucide-react";
 import { formatDate } from "@/lib/handwerk";
 
 export const Route = createFileRoute("/_authenticated/app/berichte/")({
-  head: () => ({ meta: [{ title: "Einsatzberichte – HandwerkPilot" }] }),
+  head: () => ({ meta: [{ title: "Einsatzberichte – MeisterMe" }] }),
   component: () => {
     const { data: reports } = useQuery({
       queryKey: ["reports-list"],

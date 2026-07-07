@@ -12,7 +12,7 @@ import { Plus, Users, Phone, Mail, MapPin, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/app/kunden/")({
-  head: () => ({ meta: [{ title: "Kunden – HandwerkPilot" }] }),
+  head: () => ({ meta: [{ title: "Kunden – MeisterMe" }] }),
   component: KundenList,
 });
 

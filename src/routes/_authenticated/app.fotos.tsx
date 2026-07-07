@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { formatDate } from "@/lib/handwerk";
 
 export const Route = createFileRoute("/_authenticated/app/fotos")({
-  head: () => ({ meta: [{ title: "Fotos – HandwerkPilot" }] }),
+  head: () => ({ meta: [{ title: "Fotos – MeisterMe" }] }),
   component: () => {
     const { data } = useQuery({
       queryKey: ["all-photos"],

@@ -9,7 +9,7 @@ import { OFFER_STATUS, formatEur, formatDate } from "@/lib/handwerk";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/app/angebote/")({
-  head: () => ({ meta: [{ title: "Angebote – HandwerkPilot" }] }),
+  head: () => ({ meta: [{ title: "Angebote – MeisterMe" }] }),
   component: AngeboteList,
 });
 

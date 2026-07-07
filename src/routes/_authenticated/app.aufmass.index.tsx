@@ -5,7 +5,7 @@ import { PageHeader, EmptyState } from "@/components/PageHeader";
 import { Ruler, ArrowRight } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/app/aufmass/")({
-  head: () => ({ meta: [{ title: "Aufmaß – HandwerkPilot" }] }),
+  head: () => ({ meta: [{ title: "Aufmaß – MeisterMe" }] }),
   component: () => {
     const { data } = useQuery({
       queryKey: ["all-measurements"],

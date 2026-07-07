@@ -12,7 +12,7 @@ import { formatEur } from "@/lib/handwerk";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/app/kalkulation")({
-  head: () => ({ meta: [{ title: "Kalkulation – HandwerkPilot" }] }),
+  head: () => ({ meta: [{ title: "Kalkulation – MeisterMe" }] }),
   component: Kalk,
 });
 

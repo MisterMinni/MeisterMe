@@ -8,7 +8,7 @@ import { Plus, Briefcase, ArrowRight } from "lucide-react";
 import { PROJECT_STATUS, GEWERKE, formatDate } from "@/lib/handwerk";
 
 export const Route = createFileRoute("/_authenticated/app/projekte/")({
-  head: () => ({ meta: [{ title: "Projekte – HandwerkPilot" }] }),
+  head: () => ({ meta: [{ title: "Projekte – MeisterMe" }] }),
   component: ProjekteList,
 });
 
