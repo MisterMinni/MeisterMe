@@ -106,30 +106,7 @@ export function AppShell({ children }: { children?: ReactNode }) {
       {/* Topbar */}
       <header className="sticky top-0 z-30 border-b border-border bg-sidebar text-sidebar-foreground shadow-sm">
         <div className="mx-auto flex h-16 max-w-[1600px] items-center gap-3 px-4 lg:px-6">
-          <Link to="/app" className="flex items-center gap-2 pr-2">
-            <Logo variant="light" />
-          </Link>
-
-          {!isHome && (
-            <>
-              <span className="hidden text-sidebar-foreground/40 md:inline">/</span>
-              <Link
-                to="/app"
-                className="hidden items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-white md:inline-flex"
-              >
-                <Home className="h-4 w-4" /> Dashboard
-              </Link>
-              {currentModule && (
-                <>
-                  <span className="hidden text-sidebar-foreground/40 md:inline">/</span>
-                  <span className="hidden items-center gap-1.5 text-sm font-semibold text-white md:inline-flex">
-                    <currentModule.icon className="h-4 w-4 text-brand" />
-                    {currentModule.label}
-                  </span>
-                </>
-              )}
-            </>
-          )}
+          <GlobalSearch modules={visibleModules} onNavigate={(to) => navigate({ to: to as never })} />
 
           <div className="flex-1" />
 
