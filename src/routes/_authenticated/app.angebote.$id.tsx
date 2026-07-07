@@ -176,7 +176,7 @@ function AiHelper({ gewerk, onPositions }: { gewerk: string; onPositions: (p: Po
       <DialogContent>
         <DialogHeader><DialogTitle>Angebot aus Kundenanfrage vorbereiten</DialogTitle></DialogHeader>
         <p className="text-sm text-muted-foreground">Füge hier die Kundenanfrage ein – die KI erstellt daraus einen Angebotsentwurf.</p>
-        <Textarea rows={8} value={text} onChange={(e) => setText(e.target.value)} placeholder="z.B. „Wir möchten unser 25 m² Wohnzimmer neu tapezieren, alte Rauhfaser entfernen und weiß streichen…"" />
+        <Textarea rows={8} value={text} onChange={(e) => setText(e.target.value)} placeholder="Wir möchten unser 25 m² Wohnzimmer neu tapezieren, alte Rauhfaser entfernen und weiß streichen…" />
         <Button onClick={run} disabled={loading || !text} className="bg-brand text-brand-foreground hover:bg-brand/90">
           {loading ? "KI arbeitet…" : "Positionen erzeugen"}
         </Button>
