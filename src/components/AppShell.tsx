@@ -34,34 +34,41 @@ import type { LucideIcon } from "lucide-react";
 
 type NavItem = { to: string; label: string; icon: LucideIcon; exact?: boolean; highlight?: boolean };
 
-const nav: NavItem[] = [
-  { to: "/app", label: "Dashboard", icon: LayoutDashboard, exact: true },
-  { to: "/app/kunden", label: "Kunden", icon: Users },
-  { to: "/app/projekte", label: "Projekte", icon: Briefcase },
-  { to: "/app/angebote", label: "Angebote", icon: FileText },
-  { to: "/app/aufmass", label: "Aufmaß", icon: Ruler },
-  { to: "/app/berichte", label: "Einsatzberichte", icon: ClipboardList },
-  { to: "/app/ki-sprachbericht", label: "KI-Sprachbericht", icon: Mic, highlight: true },
-  { to: "/app/zeiten", label: "Zeiterfassung", icon: Clock },
-  { to: "/app/material", label: "Material", icon: Package },
-  { to: "/app/fotos", label: "Fotos", icon: Camera },
-  { to: "/app/aufgaben", label: "Aufgaben", icon: Calendar },
-  { to: "/app/rechnungsgrundlagen", label: "Rechnungen", icon: Receipt },
-  { to: "/app/kalkulation", label: "Kalkulation", icon: Calculator },
-  { to: "/app/kommunikation", label: "Kommunikation", icon: Mail },
-  { to: "/app/dokumente", label: "Dokumente", icon: FolderOpen },
-  { to: "/app/buero", label: "Büro", icon: Building2 },
-  { to: "/app/integrationen/outlook", label: "Outlook", icon: Plug },
-  { to: "/app/einstellungen", label: "Einstellungen", icon: Settings },
-];
+type NavItemFull = NavItem & { roles?: AppRole[] };
 
-const mobileNav = nav.slice(0, 5);
+const ALL_ROLES: AppRole[] = ["admin", "buero", "bauleiter", "monteur", "azubi"];
+
+const nav: NavItemFull[] = [
+  { to: "/app", label: "Dashboard", icon: LayoutDashboard, exact: true, roles: ALL_ROLES },
+  { to: "/app/kunden", label: "Kunden", icon: Users, roles: ["admin", "buero", "bauleiter"] },
+  { to: "/app/projekte", label: "Projekte", icon: Briefcase, roles: ALL_ROLES },
+  { to: "/app/angebote", label: "Angebote", icon: FileText, roles: ["admin", "buero", "bauleiter"] },
+  { to: "/app/aufmass", label: "Aufmaß", icon: Ruler, roles: ["admin", "buero", "bauleiter", "monteur"] },
+  { to: "/app/berichte", label: "Einsatzberichte", icon: ClipboardList, roles: ALL_ROLES },
+  { to: "/app/ki-sprachbericht", label: "KI-Sprachbericht", icon: Mic, highlight: true, roles: ALL_ROLES },
+  { to: "/app/zeiten", label: "Zeiterfassung", icon: Clock, roles: ALL_ROLES },
+  { to: "/app/material", label: "Material", icon: Package, roles: ALL_ROLES },
+  { to: "/app/fotos", label: "Fotos", icon: Camera, roles: ALL_ROLES },
+  { to: "/app/aufgaben", label: "Aufgaben", icon: Calendar, roles: ALL_ROLES },
+  { to: "/app/rechnungsgrundlagen", label: "Rechnungen", icon: Receipt, roles: ["admin", "buero"] },
+  { to: "/app/kalkulation", label: "Kalkulation", icon: Calculator, roles: ["admin", "buero", "bauleiter"] },
+  { to: "/app/kommunikation", label: "Kommunikation", icon: Mail, roles: ["admin", "buero", "bauleiter"] },
+  { to: "/app/dokumente", label: "Dokumente", icon: FolderOpen, roles: ALL_ROLES },
+  { to: "/app/buero", label: "Büro", icon: Building2, roles: ["admin", "buero"] },
+  { to: "/app/team", label: "Team", icon: UsersRound, roles: ["admin"] },
+  { to: "/app/integrationen/outlook", label: "Outlook", icon: Plug, roles: ["admin", "buero"] },
+  { to: "/app/einstellungen", label: "Einstellungen", icon: Settings, roles: ALL_ROLES },
+];
 
 export function AppShell({ children }: { children?: ReactNode }) {
   const [open, setOpen] = useState(false);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { data: profile } = useProfile();
+  const role = useMyRole();
   const navigate = useNavigate();
+
+  const visibleNav = nav.filter((n) => !role || !n.roles || n.roles.includes(role));
+  const mobileNav = visibleNav.slice(0, 5);
 
   async function signOut() {
     await supabase.auth.signOut();
@@ -71,6 +78,7 @@ export function AppShell({ children }: { children?: ReactNode }) {
 
   const isActive = (to: string, exact?: boolean) =>
     exact ? pathname === to : pathname === to || pathname.startsWith(to + "/");
+
 
   return (
     <div className="min-h-screen bg-secondary/40">
