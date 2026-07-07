@@ -103,7 +103,7 @@ function Einstellungen() {
               <li><strong>Monteur</strong> – eigene Termine, Einsätze, Zeiten, Fotos</li>
               <li><strong>Azubi</strong> – eingeschränkter Zugriff, Lern-/Hilfemodus</li>
             </ul>
-            <p className="mt-3 text-xs text-muted-foreground">Nutzerverwaltung mit Rolleneinladung: bald verfügbar.</p>
+            <p className="mt-3 text-xs text-muted-foreground">Mitarbeiter anlegen und Rollen vergeben unter <a href="/app/team" className="text-brand underline">Team</a>.</p>
           </section>
         </div>
       </div>

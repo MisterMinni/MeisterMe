@@ -14,7 +14,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { PROJECT_STATUS, GEWERKE, formatEur, formatDate } from "@/lib/handwerk";
 import { estimateMaterialFromMeasurement } from "@/lib/ai.functions";
 import { useServerFn } from "@tanstack/react-start";
-import { ArrowLeft, Plus, Ruler, Camera, ClipboardList, FileText, Receipt, ListTodo, Trash2, Sparkles, Upload } from "lucide-react";
+import { ArrowLeft, Plus, Ruler, Camera, ClipboardList, FileText, Receipt, ListTodo, Trash2, Sparkles, Upload, MessageCircle } from "lucide-react";
+import { ProjectChat } from "@/components/ProjectChat";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/app/projekte/$id")({
@@ -75,6 +76,7 @@ function ProjektDetail() {
           <TabsTrigger value="fotos"><Camera className="mr-1 h-3 w-3" /> Fotos</TabsTrigger>
           <TabsTrigger value="aufgaben"><ListTodo className="mr-1 h-3 w-3" /> Aufgaben</TabsTrigger>
           <TabsTrigger value="rechnung"><Receipt className="mr-1 h-3 w-3" /> Rechnung</TabsTrigger>
+          <TabsTrigger value="chat"><MessageCircle className="mr-1 h-3 w-3" /> Chat</TabsTrigger>
         </TabsList>
 
         <TabsContent value="uebersicht">
@@ -105,6 +107,7 @@ function ProjektDetail() {
         <TabsContent value="fotos"><FotoPanel projectId={id} /></TabsContent>
         <TabsContent value="aufgaben"><AufgabenPanel projectId={id} /></TabsContent>
         <TabsContent value="rechnung"><RechnungPanel projectId={id} customerId={p.customer_id} /></TabsContent>
+        <TabsContent value="chat"><ProjectChat projectId={id} /></TabsContent>
       </Tabs>
     </div>
   );
