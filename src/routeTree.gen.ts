@@ -16,8 +16,11 @@ import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/ap
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app.index'
 import { Route as AuthenticatedAppProjekteIndexRouteImport } from './routes/_authenticated/app.projekte.index'
 import { Route as AuthenticatedAppKundenIndexRouteImport } from './routes/_authenticated/app.kunden.index'
+import { Route as AuthenticatedAppAngeboteIndexRouteImport } from './routes/_authenticated/app.angebote.index'
 import { Route as AuthenticatedAppProjekteNeuRouteImport } from './routes/_authenticated/app.projekte.neu'
+import { Route as AuthenticatedAppProjekteIdRouteImport } from './routes/_authenticated/app.projekte.$id'
 import { Route as AuthenticatedAppKundenIdRouteImport } from './routes/_authenticated/app.kunden.$id'
+import { Route as AuthenticatedAppAngeboteIdRouteImport } from './routes/_authenticated/app.angebote.$id'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
@@ -55,10 +58,22 @@ const AuthenticatedAppKundenIndexRoute =
     path: '/kunden/',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
+const AuthenticatedAppAngeboteIndexRoute =
+  AuthenticatedAppAngeboteIndexRouteImport.update({
+    id: '/angebote/',
+    path: '/angebote/',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
 const AuthenticatedAppProjekteNeuRoute =
   AuthenticatedAppProjekteNeuRouteImport.update({
     id: '/projekte/neu',
     path: '/projekte/neu',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppProjekteIdRoute =
+  AuthenticatedAppProjekteIdRouteImport.update({
+    id: '/projekte/$id',
+    path: '/projekte/$id',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
 const AuthenticatedAppKundenIdRoute =
@@ -67,14 +82,23 @@ const AuthenticatedAppKundenIdRoute =
     path: '/kunden/$id',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
+const AuthenticatedAppAngeboteIdRoute =
+  AuthenticatedAppAngeboteIdRouteImport.update({
+    id: '/angebote/$id',
+    path: '/angebote/$id',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/app': typeof AuthenticatedAppRouteWithChildren
   '/app/': typeof AuthenticatedAppIndexRoute
+  '/app/angebote/$id': typeof AuthenticatedAppAngeboteIdRoute
   '/app/kunden/$id': typeof AuthenticatedAppKundenIdRoute
+  '/app/projekte/$id': typeof AuthenticatedAppProjekteIdRoute
   '/app/projekte/neu': typeof AuthenticatedAppProjekteNeuRoute
+  '/app/angebote/': typeof AuthenticatedAppAngeboteIndexRoute
   '/app/kunden/': typeof AuthenticatedAppKundenIndexRoute
   '/app/projekte/': typeof AuthenticatedAppProjekteIndexRoute
 }
@@ -82,8 +106,11 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/app': typeof AuthenticatedAppIndexRoute
+  '/app/angebote/$id': typeof AuthenticatedAppAngeboteIdRoute
   '/app/kunden/$id': typeof AuthenticatedAppKundenIdRoute
+  '/app/projekte/$id': typeof AuthenticatedAppProjekteIdRoute
   '/app/projekte/neu': typeof AuthenticatedAppProjekteNeuRoute
+  '/app/angebote': typeof AuthenticatedAppAngeboteIndexRoute
   '/app/kunden': typeof AuthenticatedAppKundenIndexRoute
   '/app/projekte': typeof AuthenticatedAppProjekteIndexRoute
 }
@@ -94,8 +121,11 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/_authenticated/app': typeof AuthenticatedAppRouteWithChildren
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
+  '/_authenticated/app/angebote/$id': typeof AuthenticatedAppAngeboteIdRoute
   '/_authenticated/app/kunden/$id': typeof AuthenticatedAppKundenIdRoute
+  '/_authenticated/app/projekte/$id': typeof AuthenticatedAppProjekteIdRoute
   '/_authenticated/app/projekte/neu': typeof AuthenticatedAppProjekteNeuRoute
+  '/_authenticated/app/angebote/': typeof AuthenticatedAppAngeboteIndexRoute
   '/_authenticated/app/kunden/': typeof AuthenticatedAppKundenIndexRoute
   '/_authenticated/app/projekte/': typeof AuthenticatedAppProjekteIndexRoute
 }
@@ -106,8 +136,11 @@ export interface FileRouteTypes {
     | '/auth'
     | '/app'
     | '/app/'
+    | '/app/angebote/$id'
     | '/app/kunden/$id'
+    | '/app/projekte/$id'
     | '/app/projekte/neu'
+    | '/app/angebote/'
     | '/app/kunden/'
     | '/app/projekte/'
   fileRoutesByTo: FileRoutesByTo
@@ -115,8 +148,11 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/app'
+    | '/app/angebote/$id'
     | '/app/kunden/$id'
+    | '/app/projekte/$id'
     | '/app/projekte/neu'
+    | '/app/angebote'
     | '/app/kunden'
     | '/app/projekte'
   id:
@@ -126,8 +162,11 @@ export interface FileRouteTypes {
     | '/auth'
     | '/_authenticated/app'
     | '/_authenticated/app/'
+    | '/_authenticated/app/angebote/$id'
     | '/_authenticated/app/kunden/$id'
+    | '/_authenticated/app/projekte/$id'
     | '/_authenticated/app/projekte/neu'
+    | '/_authenticated/app/angebote/'
     | '/_authenticated/app/kunden/'
     | '/_authenticated/app/projekte/'
   fileRoutesById: FileRoutesById
@@ -189,11 +228,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppKundenIndexRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/angebote/': {
+      id: '/_authenticated/app/angebote/'
+      path: '/angebote'
+      fullPath: '/app/angebote/'
+      preLoaderRoute: typeof AuthenticatedAppAngeboteIndexRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
     '/_authenticated/app/projekte/neu': {
       id: '/_authenticated/app/projekte/neu'
       path: '/projekte/neu'
       fullPath: '/app/projekte/neu'
       preLoaderRoute: typeof AuthenticatedAppProjekteNeuRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/projekte/$id': {
+      id: '/_authenticated/app/projekte/$id'
+      path: '/projekte/$id'
+      fullPath: '/app/projekte/$id'
+      preLoaderRoute: typeof AuthenticatedAppProjekteIdRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
     '/_authenticated/app/kunden/$id': {
@@ -203,21 +256,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppKundenIdRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/angebote/$id': {
+      id: '/_authenticated/app/angebote/$id'
+      path: '/angebote/$id'
+      fullPath: '/app/angebote/$id'
+      preLoaderRoute: typeof AuthenticatedAppAngeboteIdRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
   }
 }
 
 interface AuthenticatedAppRouteChildren {
   AuthenticatedAppIndexRoute: typeof AuthenticatedAppIndexRoute
+  AuthenticatedAppAngeboteIdRoute: typeof AuthenticatedAppAngeboteIdRoute
   AuthenticatedAppKundenIdRoute: typeof AuthenticatedAppKundenIdRoute
+  AuthenticatedAppProjekteIdRoute: typeof AuthenticatedAppProjekteIdRoute
   AuthenticatedAppProjekteNeuRoute: typeof AuthenticatedAppProjekteNeuRoute
+  AuthenticatedAppAngeboteIndexRoute: typeof AuthenticatedAppAngeboteIndexRoute
   AuthenticatedAppKundenIndexRoute: typeof AuthenticatedAppKundenIndexRoute
   AuthenticatedAppProjekteIndexRoute: typeof AuthenticatedAppProjekteIndexRoute
 }
 
 const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppIndexRoute: AuthenticatedAppIndexRoute,
+  AuthenticatedAppAngeboteIdRoute: AuthenticatedAppAngeboteIdRoute,
   AuthenticatedAppKundenIdRoute: AuthenticatedAppKundenIdRoute,
+  AuthenticatedAppProjekteIdRoute: AuthenticatedAppProjekteIdRoute,
   AuthenticatedAppProjekteNeuRoute: AuthenticatedAppProjekteNeuRoute,
+  AuthenticatedAppAngeboteIndexRoute: AuthenticatedAppAngeboteIndexRoute,
   AuthenticatedAppKundenIndexRoute: AuthenticatedAppKundenIndexRoute,
   AuthenticatedAppProjekteIndexRoute: AuthenticatedAppProjekteIndexRoute,
 }

@@ -44,8 +44,8 @@ function AngebotDetail() {
   useEffect(() => {
     if (o) {
       setPositionen((o.positionen as unknown as Position[]) ?? []);
-      setCustomerId(o.customer_id);
-      setStatus(o.status);
+      setCustomerId(o.customer_id ?? null);
+      setStatus(o.status as string);
       setMwst(Number(o.mwst_satz ?? 19));
       setRabatt(Number(o.rabatt ?? 0));
     }
