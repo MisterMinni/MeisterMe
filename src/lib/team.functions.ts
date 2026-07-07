@@ -16,7 +16,7 @@ async function requireAdmin(ctx: { supabase: any; userId: string }) {
     .select("role")
     .eq("user_id", ctx.userId)
     .eq("tenant_id", prof.tenant_id);
-  const isAdmin = (roles ?? []).some((r: any) => r.role === "admin");
+  const isAdmin = (roles ?? []).some((r: { role: string }) => r.role === "admin");
   if (!isAdmin) throw new Error("Nur Admins dürfen das Team verwalten.");
   return prof.tenant_id as string;
 }
@@ -48,7 +48,7 @@ export const createTeamMember = createServerFn({ method: "POST" })
 
     const uid = created.user.id;
 
-    // Ensure profile is in OUR tenant (signup trigger creates a new tenant we discard)
+    // Ensure profile is in OUR tenant (signup trigger creates a throwaway tenant)
     await supabaseAdmin.from("profiles").upsert({
       id: uid,
       tenant_id: tenantId,
@@ -56,17 +56,14 @@ export const createTeamMember = createServerFn({ method: "POST" })
       phone: data.phone ?? null,
     });
 
-    // Remove auto-created admin role in new tenant, then insert real role
+    // Replace auto-created admin role in throwaway tenant with real role
     await supabaseAdmin.from("user_roles").delete().eq("user_id", uid);
     await supabaseAdmin
       .from("user_roles")
       .insert({ user_id: uid, tenant_id: tenantId, role: data.role });
 
-    // Best-effort: delete the orphan tenant created by signup trigger
-    await supabaseAdmin
-      .from("tenants")
-      .delete()
-      .eq("name", "__team_member__");
+    // Best-effort: remove orphan tenants created by the signup trigger
+    await supabaseAdmin.from("tenants").delete().eq("name", "__team_member__");
 
     return { id: uid };
   });
@@ -87,7 +84,6 @@ export const updateTeamMember = createServerFn({ method: "POST" })
     const tenantId = await requireAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    // Verify member belongs to tenant
     const { data: prof } = await supabaseAdmin
       .from("profiles")
       .select("tenant_id")
