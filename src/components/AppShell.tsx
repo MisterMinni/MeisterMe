@@ -217,3 +217,136 @@ export function AppShell({ children }: { children?: ReactNode }) {
     </div>
   );
 }
+
+// Synonyms/keywords for smart search matches
+const SEARCH_ALIASES: Record<string, string[]> = {
+  "/app": ["start", "home", "übersicht"],
+  "/app/kunden": ["kunde", "adressen", "kontakte", "auftraggeber"],
+  "/app/projekte": ["projekt", "baustelle", "auftrag", "job"],
+  "/app/angebote": ["angebot", "kostenvoranschlag", "kv", "offerte"],
+  "/app/aufmass": ["aufmaß", "messung", "mengen"],
+  "/app/berichte": ["bericht", "einsatz", "tagesbericht", "regie"],
+  "/app/ki-sprachbericht": ["sprache", "diktat", "voice", "ai", "ki"],
+  "/app/zeiten": ["zeit", "stunden", "stempel", "arbeitszeit"],
+  "/app/material": ["material", "artikel", "lager", "bestellung"],
+  "/app/fotos": ["foto", "bild", "dokumentation"],
+  "/app/aufgaben": ["aufgabe", "todo", "kalender", "termin"],
+  "/app/rechnungsgrundlagen": ["rechnung", "faktura", "abrechnung"],
+  "/app/kalkulation": ["kalkulation", "preis", "kosten"],
+  "/app/kommunikation": ["mail", "nachricht", "chat", "kommunikation"],
+  "/app/dokumente": ["dokument", "datei", "pdf", "ablage"],
+  "/app/buero": ["büro", "office", "verwaltung"],
+  "/app/team": ["team", "mitarbeiter", "personal", "user"],
+  "/app/integrationen/outlook": ["outlook", "email", "kalender", "microsoft"],
+  "/app/einstellungen": ["einstellung", "settings", "betrieb", "profil"],
+};
+
+function GlobalSearch({
+  modules,
+  onNavigate,
+}: {
+  modules: NavItem[];
+  onNavigate: (to: string) => void;
+}) {
+  const [q, setQ] = useState("");
+  const [open, setOpen] = useState(false);
+  const [active, setActive] = useState(0);
+  const wrapRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function onClick(e: MouseEvent) {
+      if (!wrapRef.current?.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener("mousedown", onClick);
+    return () => document.removeEventListener("mousedown", onClick);
+  }, []);
+
+  const suggestions = useMemo(() => {
+    const term = q.trim().toLowerCase();
+    const base = modules.filter((m) => m.to !== "/app");
+    if (!term) return base.slice(0, 8);
+    return base
+      .map((m) => {
+        const hay = [m.label.toLowerCase(), ...(SEARCH_ALIASES[m.to] ?? [])].join(" ");
+        const score = hay.includes(term)
+          ? m.label.toLowerCase().startsWith(term)
+            ? 0
+            : 1
+          : 99;
+        return { m, score };
+      })
+      .filter((x) => x.score < 99)
+      .sort((a, b) => a.score - b.score)
+      .slice(0, 8)
+      .map((x) => x.m);
+  }, [q, modules]);
+
+  useEffect(() => {
+    setActive(0);
+  }, [q]);
+
+  function pick(to: string) {
+    onNavigate(to);
+    setQ("");
+    setOpen(false);
+  }
+
+  return (
+    <div ref={wrapRef} className="relative w-full max-w-md">
+      <div className="flex items-center gap-2 rounded-lg border border-sidebar-border/50 bg-sidebar-accent/30 px-3 py-1.5 focus-within:border-brand/60 focus-within:bg-sidebar-accent/60">
+        <Search className="h-4 w-4 text-sidebar-foreground/70" />
+        <input
+          value={q}
+          onChange={(e) => {
+            setQ(e.target.value);
+            setOpen(true);
+          }}
+          onFocus={() => setOpen(true)}
+          onKeyDown={(e) => {
+            if (!open) setOpen(true);
+            if (e.key === "ArrowDown") {
+              e.preventDefault();
+              setActive((a) => Math.min(a + 1, suggestions.length - 1));
+            } else if (e.key === "ArrowUp") {
+              e.preventDefault();
+              setActive((a) => Math.max(a - 1, 0));
+            } else if (e.key === "Enter" && suggestions[active]) {
+              e.preventDefault();
+              pick(suggestions[active].to);
+            } else if (e.key === "Escape") {
+              setOpen(false);
+            }
+          }}
+          placeholder="Suchen: Kunde, Projekt, Angebot …"
+          className="w-full bg-transparent text-sm text-white placeholder:text-sidebar-foreground/60 focus:outline-none"
+        />
+      </div>
+      {open && suggestions.length > 0 && (
+        <div className="absolute left-0 right-0 top-full z-40 mt-1 overflow-hidden rounded-lg border border-border bg-popover text-popover-foreground shadow-lg">
+          <ul className="max-h-80 overflow-auto py-1">
+            {suggestions.map((m, i) => (
+              <li key={m.to}>
+                <button
+                  type="button"
+                  onMouseEnter={() => setActive(i)}
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    pick(m.to);
+                  }}
+                  className={
+                    "flex w-full items-center gap-2 px-3 py-2 text-left text-sm " +
+                    (i === active ? "bg-accent text-accent-foreground" : "hover:bg-accent/60")
+                  }
+                >
+                  <m.icon className="h-4 w-4 text-brand" />
+                  <span className="flex-1 truncate">{m.label}</span>
+                  <span className="text-[11px] text-muted-foreground">{m.to.replace("/app/", "")}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
