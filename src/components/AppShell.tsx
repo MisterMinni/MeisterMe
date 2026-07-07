@@ -65,7 +65,7 @@ const modules: NavItem[] = [
   { to: "/app/buero", label: "Büro", icon: Building2, roles: ["admin", "buero"] },
   { to: "/app/team", label: "Team", icon: UsersRound, roles: ["admin"] },
   { to: "/app/integrationen/outlook", label: "Outlook", icon: Plug, roles: ["admin", "buero"] },
-  { to: "/app/einstellungen", label: "Einstellungen", icon: Settings, roles: ALL_ROLES },
+  { to: "/app/einstellungen", label: "Einstellungen", icon: Settings, roles: ["admin"] },
 ];
 
 export function AppShell({ children }: { children?: ReactNode }) {
@@ -197,14 +197,16 @@ export function AppShell({ children }: { children?: ReactNode }) {
                   </span>
                 </div>
               </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                <Link to="/app/einstellungen"><Settings className="mr-2 h-4 w-4" /> Einstellungen</Link>
-              </DropdownMenuItem>
               {role === "admin" && (
-                <DropdownMenuItem asChild>
-                  <Link to="/app/team"><UsersRound className="mr-2 h-4 w-4" /> Team</Link>
-                </DropdownMenuItem>
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link to="/app/einstellungen"><Settings className="mr-2 h-4 w-4" /> Einstellungen</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/app/team"><UsersRound className="mr-2 h-4 w-4" /> Team</Link>
+                  </DropdownMenuItem>
+                </>
               )}
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={signOut}>
