@@ -51,7 +51,7 @@ function KiSprachbericht() {
       taetigkeit: result.taetigkeit,
       offene_punkte: (result.offene_punkte ?? []).join(", "),
       material: result.material as any,
-      arbeitszeit_min: result.arbeitszeit_min as never,
+      
       ki_bericht: result.interner_bericht,
       kunden_zusammenfassung: result.kunden_zusammenfassung,
       status: "fertig" as any,
