@@ -65,7 +65,7 @@ const modules: NavItem[] = [
   { to: "/app/buero", label: "Büro", icon: Building2, roles: ["admin", "buero"] },
   { to: "/app/team", label: "Team", icon: UsersRound, roles: ["admin"] },
   { to: "/app/integrationen/outlook", label: "Outlook", icon: Plug, roles: ["admin", "buero"] },
-  { to: "/app/einstellungen", label: "Einstellungen", icon: Settings, roles: ALL_ROLES },
+  { to: "/app/einstellungen", label: "Einstellungen", icon: Settings, roles: ["admin"] },
 ];
 
 export function AppShell({ children }: { children?: ReactNode }) {
