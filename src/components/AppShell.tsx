@@ -109,8 +109,7 @@ export function AppShell({ children }: { children?: ReactNode }) {
 
           <div className="flex-1" />
 
-          {/* Spacer */}
-          <div className="flex-1" />
+
 
 
           <Button asChild size="sm" className="hidden bg-brand text-brand-foreground hover:bg-brand/90 md:inline-flex">
