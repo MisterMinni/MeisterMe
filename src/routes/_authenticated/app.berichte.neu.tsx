@@ -55,9 +55,9 @@ function NeuerBericht() {
       setF((prev) => ({
         ...prev,
         taetigkeit: res.taetigkeit || prev.taetigkeit,
-        offene_punkte: res.offene_punkte.join(", ") || prev.offene_punkte,
+        offene_punkte: (res.offene_punkte ?? []).join(", ") || prev.offene_punkte,
       }));
-      setMaterial(res.material.map((m) => ({ bezeichnung: m.bezeichnung, menge: m.menge ?? null, einheit: m.einheit ?? "Stk" })));
+      setMaterial((res.material ?? []).map((m) => ({ bezeichnung: m.bezeichnung, menge: m.menge ?? null, einheit: m.einheit ?? "Stk" })));
       toast.success("KI hat den Bericht ausgewertet");
     } catch (e) { toast.error((e as Error).message); }
     finally { setParsing(false); }
