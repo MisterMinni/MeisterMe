@@ -72,8 +72,18 @@ export function AppShell({ children }: { children?: ReactNode }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { data: profile } = useProfile();
+  const { data: session } = useSession();
   const role = useMyRole();
   const navigate = useNavigate();
+
+  const email = session?.user?.email ?? "";
+  const displayName = profile?.full_name?.trim() || email || "Konto";
+  const initials =
+    (profile?.full_name?.trim()
+      ? profile.full_name.trim().split(/\s+/).map((s) => s[0]).slice(0, 2).join("")
+      : email.slice(0, 2)
+    ).toUpperCase() || "?";
+  const roleLabel = role ? ROLE_LABELS[role] : "Kein Zugriff";
 
   const visibleModules = modules.filter((n) => !role || !n.roles || n.roles.includes(role));
   const isHome = pathname === "/app" || pathname === "/app/";
