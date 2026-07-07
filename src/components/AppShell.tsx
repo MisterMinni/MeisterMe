@@ -197,14 +197,16 @@ export function AppShell({ children }: { children?: ReactNode }) {
                   </span>
                 </div>
               </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                <Link to="/app/einstellungen"><Settings className="mr-2 h-4 w-4" /> Einstellungen</Link>
-              </DropdownMenuItem>
               {role === "admin" && (
-                <DropdownMenuItem asChild>
-                  <Link to="/app/team"><UsersRound className="mr-2 h-4 w-4" /> Team</Link>
-                </DropdownMenuItem>
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link to="/app/einstellungen"><Settings className="mr-2 h-4 w-4" /> Einstellungen</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/app/team"><UsersRound className="mr-2 h-4 w-4" /> Team</Link>
+                  </DropdownMenuItem>
+                </>
               )}
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={signOut}>
