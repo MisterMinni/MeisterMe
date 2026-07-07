@@ -19,6 +19,7 @@ import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/ap
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app.index'
 import { Route as AuthenticatedAppZeitenRouteImport } from './routes/_authenticated/app.zeiten'
 import { Route as AuthenticatedAppTeamRouteImport } from './routes/_authenticated/app.team'
+import { Route as AuthenticatedAppProfilRouteImport } from './routes/_authenticated/app.profil'
 import { Route as AuthenticatedAppMaterialRouteImport } from './routes/_authenticated/app.material'
 import { Route as AuthenticatedAppKommunikationRouteImport } from './routes/_authenticated/app.kommunikation'
 import { Route as AuthenticatedAppKiSprachberichtRouteImport } from './routes/_authenticated/app.ki-sprachbericht'
@@ -92,6 +93,11 @@ const AuthenticatedAppZeitenRoute = AuthenticatedAppZeitenRouteImport.update({
 const AuthenticatedAppTeamRoute = AuthenticatedAppTeamRouteImport.update({
   id: '/team',
   path: '/team',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
+const AuthenticatedAppProfilRoute = AuthenticatedAppProfilRouteImport.update({
+  id: '/profil',
+  path: '/profil',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
 const AuthenticatedAppMaterialRoute =
@@ -259,6 +265,7 @@ export interface FileRoutesByFullPath {
   '/app/ki-sprachbericht': typeof AuthenticatedAppKiSprachberichtRoute
   '/app/kommunikation': typeof AuthenticatedAppKommunikationRoute
   '/app/material': typeof AuthenticatedAppMaterialRoute
+  '/app/profil': typeof AuthenticatedAppProfilRoute
   '/app/team': typeof AuthenticatedAppTeamRoute
   '/app/zeiten': typeof AuthenticatedAppZeitenRoute
   '/app/': typeof AuthenticatedAppIndexRoute
@@ -294,6 +301,7 @@ export interface FileRoutesByTo {
   '/app/ki-sprachbericht': typeof AuthenticatedAppKiSprachberichtRoute
   '/app/kommunikation': typeof AuthenticatedAppKommunikationRoute
   '/app/material': typeof AuthenticatedAppMaterialRoute
+  '/app/profil': typeof AuthenticatedAppProfilRoute
   '/app/team': typeof AuthenticatedAppTeamRoute
   '/app/zeiten': typeof AuthenticatedAppZeitenRoute
   '/app': typeof AuthenticatedAppIndexRoute
@@ -332,6 +340,7 @@ export interface FileRoutesById {
   '/_authenticated/app/ki-sprachbericht': typeof AuthenticatedAppKiSprachberichtRoute
   '/_authenticated/app/kommunikation': typeof AuthenticatedAppKommunikationRoute
   '/_authenticated/app/material': typeof AuthenticatedAppMaterialRoute
+  '/_authenticated/app/profil': typeof AuthenticatedAppProfilRoute
   '/_authenticated/app/team': typeof AuthenticatedAppTeamRoute
   '/_authenticated/app/zeiten': typeof AuthenticatedAppZeitenRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
@@ -370,6 +379,7 @@ export interface FileRouteTypes {
     | '/app/ki-sprachbericht'
     | '/app/kommunikation'
     | '/app/material'
+    | '/app/profil'
     | '/app/team'
     | '/app/zeiten'
     | '/app/'
@@ -405,6 +415,7 @@ export interface FileRouteTypes {
     | '/app/ki-sprachbericht'
     | '/app/kommunikation'
     | '/app/material'
+    | '/app/profil'
     | '/app/team'
     | '/app/zeiten'
     | '/app'
@@ -442,6 +453,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/ki-sprachbericht'
     | '/_authenticated/app/kommunikation'
     | '/_authenticated/app/material'
+    | '/_authenticated/app/profil'
     | '/_authenticated/app/team'
     | '/_authenticated/app/zeiten'
     | '/_authenticated/app/'
@@ -542,6 +554,13 @@ declare module '@tanstack/react-router' {
       path: '/team'
       fullPath: '/app/team'
       preLoaderRoute: typeof AuthenticatedAppTeamRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/profil': {
+      id: '/_authenticated/app/profil'
+      path: '/profil'
+      fullPath: '/app/profil'
+      preLoaderRoute: typeof AuthenticatedAppProfilRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
     '/_authenticated/app/material': {
@@ -732,6 +751,7 @@ interface AuthenticatedAppRouteChildren {
   AuthenticatedAppKiSprachberichtRoute: typeof AuthenticatedAppKiSprachberichtRoute
   AuthenticatedAppKommunikationRoute: typeof AuthenticatedAppKommunikationRoute
   AuthenticatedAppMaterialRoute: typeof AuthenticatedAppMaterialRoute
+  AuthenticatedAppProfilRoute: typeof AuthenticatedAppProfilRoute
   AuthenticatedAppTeamRoute: typeof AuthenticatedAppTeamRoute
   AuthenticatedAppZeitenRoute: typeof AuthenticatedAppZeitenRoute
   AuthenticatedAppIndexRoute: typeof AuthenticatedAppIndexRoute
@@ -763,6 +783,7 @@ const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppKiSprachberichtRoute: AuthenticatedAppKiSprachberichtRoute,
   AuthenticatedAppKommunikationRoute: AuthenticatedAppKommunikationRoute,
   AuthenticatedAppMaterialRoute: AuthenticatedAppMaterialRoute,
+  AuthenticatedAppProfilRoute: AuthenticatedAppProfilRoute,
   AuthenticatedAppTeamRoute: AuthenticatedAppTeamRoute,
   AuthenticatedAppZeitenRoute: AuthenticatedAppZeitenRoute,
   AuthenticatedAppIndexRoute: AuthenticatedAppIndexRoute,

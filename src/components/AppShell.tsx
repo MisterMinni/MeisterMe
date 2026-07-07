@@ -22,9 +22,10 @@ import {
   LogOut,
   Plus,
   UsersRound,
-  ChevronDown,
   Home,
   Search,
+  Menu,
+  User,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -113,43 +114,42 @@ export function AppShell({ children }: { children?: ReactNode }) {
             <Link to={"/app/projekte/neu" as never}><Plus className="mr-1 h-4 w-4" /> Projekt</Link>
           </Button>
 
-          {/* User menu */}
+          {/* Profile link */}
+          <Link
+            to="/app/profil"
+            className="flex items-center gap-2 rounded-full border border-sidebar-border/50 py-1 pl-1 pr-2 text-left transition hover:bg-sidebar-accent md:pr-3"
+            aria-label="Mein Profil"
+          >
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-brand text-xs font-bold text-brand-foreground">
+              {initials}
+            </span>
+            <span className="hidden min-w-0 flex-col leading-tight md:flex">
+              <span className="truncate text-sm font-semibold text-white">{displayName}</span>
+              <span className="truncate text-[11px] text-sidebar-foreground/70">
+                {roleLabel}{profile?.tenants?.name ? ` · ${profile.tenants.name}` : ""}
+              </span>
+            </span>
+          </Link>
+
+          {/* Action menu */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button
-                className="flex items-center gap-2 rounded-full border border-sidebar-border/50 py-1 pl-1 pr-2 text-left transition hover:bg-sidebar-accent md:pr-3"
-                aria-label="Profilmenü öffnen"
+                className="flex h-9 w-9 items-center justify-center rounded-full border border-sidebar-border/50 text-sidebar-foreground/80 transition hover:bg-sidebar-accent hover:text-white"
+                aria-label="Menü öffnen"
               >
-                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-brand text-xs font-bold text-brand-foreground">
-                  {initials}
-                </span>
-                <span className="hidden min-w-0 flex-col leading-tight md:flex">
-                  <span className="truncate text-sm font-semibold text-white">{displayName}</span>
-                  <span className="truncate text-[11px] text-sidebar-foreground/70">
-                    {roleLabel}{profile?.tenants?.name ? ` · ${profile.tenants.name}` : ""}
-                  </span>
-                </span>
-                <ChevronDown className="hidden h-3.5 w-3.5 text-sidebar-foreground/70 md:inline" />
+                <Menu className="h-4 w-4" />
               </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-64">
+            <DropdownMenuContent align="end" className="w-56">
               <DropdownMenuLabel>
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand text-sm font-bold text-brand-foreground">
-                    {initials}
-                  </div>
-                  <div className="min-w-0">
-                    <div className="truncate font-semibold">{displayName}</div>
-                    {email && <div className="truncate text-xs font-normal text-muted-foreground">{email}</div>}
-                  </div>
-                </div>
-                <div className="mt-3 flex items-center justify-between gap-2 rounded-md bg-secondary/60 px-2 py-1.5 text-xs font-normal">
-                  <span className="text-muted-foreground">{profile?.tenants?.name ?? "Betrieb"}</span>
-                  <span className="rounded-full bg-brand/10 px-2 py-0.5 font-semibold text-brand">
-                    {roleLabel}
-                  </span>
-                </div>
+                <div className="truncate font-semibold">{displayName}</div>
+                {email && <div className="truncate text-xs font-normal text-muted-foreground">{email}</div>}
               </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <Link to="/app/profil"><User className="mr-2 h-4 w-4" /> Mein Profil</Link>
+              </DropdownMenuItem>
               {role === "admin" && (
                 <>
                   <DropdownMenuSeparator />
