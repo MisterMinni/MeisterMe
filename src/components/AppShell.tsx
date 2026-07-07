@@ -28,7 +28,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Logo } from "@/components/Logo";
-import { useProfile, useMyRole, type AppRole } from "@/lib/handwerk";
+import { useProfile, useMyRole, useSession, ROLE_LABELS, type AppRole } from "@/lib/handwerk";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import {
