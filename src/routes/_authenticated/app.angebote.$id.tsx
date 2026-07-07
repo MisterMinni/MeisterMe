@@ -164,7 +164,7 @@ function AiHelper({ gewerk, onPositions }: { gewerk: string; onPositions: (p: Po
     setLoading(true);
     try {
       const res = await prep({ data: { anfrage: text, gewerk } });
-      onPositions(res.positionen.map((p) => ({ ...p, gp: p.menge * p.ep })));
+      onPositions(res.positionen.map((p) => ({ text: p.text, menge: p.menge ?? 1, einheit: p.einheit ?? "Stk", ep: p.ep ?? 0, gp: (p.menge ?? 1) * (p.ep ?? 0) })));
       toast.success(`${res.positionen.length} Positionen vorbereitet`);
       setOpen(false);
     } catch (e) { toast.error((e as Error).message); }
