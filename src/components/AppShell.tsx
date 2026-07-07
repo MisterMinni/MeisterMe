@@ -88,7 +88,7 @@ export function AppShell({ children }: { children?: ReactNode }) {
           <Logo variant="light" />
         </div>
         <nav className="flex-1 overflow-y-auto px-3 py-4">
-          {nav.map((n) => (
+          {visibleNav.map((n) => (
             <Link
               key={n.to}
               to={n.to as never}
@@ -129,7 +129,7 @@ export function AppShell({ children }: { children?: ReactNode }) {
               <button onClick={() => setOpen(false)} className="text-white"><X className="h-5 w-5" /></button>
             </div>
             <nav className="flex-1 overflow-y-auto px-3 py-4">
-              {nav.map((n) => (
+              {visibleNav.map((n) => (
                 <Link
                   key={n.to}
                   to={n.to as never}
