@@ -75,3 +75,39 @@ export function useProfile() {
     },
   });
 }
+
+export type AppRole = "admin" | "buero" | "bauleiter" | "monteur" | "azubi";
+
+export const ROLE_LABELS: Record<AppRole, string> = {
+  admin: "Admin",
+  buero: "Büro",
+  bauleiter: "Bauleiter",
+  monteur: "Monteur",
+  azubi: "Azubi",
+};
+
+// Highest-privilege role wins for gate decisions
+const ROLE_RANK: Record<AppRole, number> = { admin: 5, buero: 4, bauleiter: 3, monteur: 2, azubi: 1 };
+
+export function useMyRoles() {
+  return useQuery({
+    queryKey: ["my-roles"],
+    queryFn: async (): Promise<AppRole[]> => {
+      const { data: u } = await supabase.auth.getUser();
+      if (!u.user) return [];
+      const { data } = await supabase.from("user_roles").select("role").eq("user_id", u.user.id);
+      return (data ?? []).map((r) => r.role as AppRole);
+    },
+  });
+}
+
+export function useMyRole(): AppRole | null {
+  const { data } = useMyRoles();
+  if (!data || data.length === 0) return null;
+  return [...data].sort((a, b) => ROLE_RANK[b] - ROLE_RANK[a])[0];
+}
+
+export function canAccess(role: AppRole | null, allowed: AppRole[]): boolean {
+  if (!role) return false;
+  return allowed.includes(role);
+}
