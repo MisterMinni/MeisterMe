@@ -296,7 +296,7 @@ function GlobalSearch({
               setOpen(false);
             }
           }}
-          placeholder="Suchen: Kunde, Projekt, Angebot …"
+          placeholder="Suchen …"
           className="w-full bg-transparent text-sm text-white placeholder:text-sidebar-foreground/60 focus:outline-none"
         />
       </div>
