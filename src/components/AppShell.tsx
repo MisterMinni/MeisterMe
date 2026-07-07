@@ -163,14 +163,39 @@ export function AppShell({ children }: { children?: ReactNode }) {
           {/* User menu */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="flex h-9 w-9 items-center justify-center rounded-full bg-brand text-sm font-bold text-brand-foreground">
-                {(profile?.full_name ?? "?").slice(0, 2).toUpperCase()}
+              <button
+                className="flex items-center gap-2 rounded-full border border-sidebar-border/50 py-1 pl-1 pr-2 text-left transition hover:bg-sidebar-accent md:pr-3"
+                aria-label="Profilmenü öffnen"
+              >
+                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-brand text-xs font-bold text-brand-foreground">
+                  {initials}
+                </span>
+                <span className="hidden min-w-0 flex-col leading-tight md:flex">
+                  <span className="truncate text-sm font-semibold text-white">{displayName}</span>
+                  <span className="truncate text-[11px] text-sidebar-foreground/70">
+                    {roleLabel}{profile?.tenants?.name ? ` · ${profile.tenants.name}` : ""}
+                  </span>
+                </span>
+                <ChevronDown className="hidden h-3.5 w-3.5 text-sidebar-foreground/70 md:inline" />
               </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuContent align="end" className="w-64">
               <DropdownMenuLabel>
-                <div className="font-semibold">{profile?.full_name}</div>
-                <div className="text-xs font-normal text-muted-foreground">{profile?.tenants?.name}</div>
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand text-sm font-bold text-brand-foreground">
+                    {initials}
+                  </div>
+                  <div className="min-w-0">
+                    <div className="truncate font-semibold">{displayName}</div>
+                    {email && <div className="truncate text-xs font-normal text-muted-foreground">{email}</div>}
+                  </div>
+                </div>
+                <div className="mt-3 flex items-center justify-between gap-2 rounded-md bg-secondary/60 px-2 py-1.5 text-xs font-normal">
+                  <span className="text-muted-foreground">{profile?.tenants?.name ?? "Betrieb"}</span>
+                  <span className="rounded-full bg-brand/10 px-2 py-0.5 font-semibold text-brand">
+                    {roleLabel}
+                  </span>
+                </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
