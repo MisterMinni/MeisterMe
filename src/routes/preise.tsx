@@ -3,7 +3,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { Building2 } from "lucide-react";
 
 export const Route = createFileRoute("/preise")({
-  head: () => ({ meta: [{ title: "Preise – HandwerkPilot" }, { name: "description", content: "Preise für HandwerkPilot: Starter 49€, Team 149€, Business 299€ und Enterprise auf Anfrage." }] }),
+  head: () => ({ meta: [{ title: "Preise – MeisterMe" }, { name: "description", content: "Preise für MeisterMe: Starter 49€, Team 149€, Business 299€ und Enterprise auf Anfrage." }] }),
   component: () => (
     <div className="mx-auto max-w-3xl px-4 py-16">
       <PageHeader title="Preise" subtitle="Monatlich kündbar. Alle Preise zzgl. MwSt." />

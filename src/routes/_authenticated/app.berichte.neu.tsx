@@ -17,7 +17,7 @@ import { useServerFn } from "@tanstack/react-start";
 const search = z.object({ project: z.string().optional() });
 
 export const Route = createFileRoute("/_authenticated/app/berichte/neu")({
-  head: () => ({ meta: [{ title: "Neuer Bericht – HandwerkPilot" }] }),
+  head: () => ({ meta: [{ title: "Neuer Bericht – MeisterMe" }] }),
   validateSearch: (s) => search.parse(s),
   component: NeuerBericht,
 });

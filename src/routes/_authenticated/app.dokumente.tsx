@@ -6,7 +6,7 @@ import { FolderOpen } from "lucide-react";
 import { formatDate } from "@/lib/handwerk";
 
 export const Route = createFileRoute("/_authenticated/app/dokumente")({
-  head: () => ({ meta: [{ title: "Dokumente – HandwerkPilot" }] }),
+  head: () => ({ meta: [{ title: "Dokumente – MeisterMe" }] }),
   component: () => {
     const { data } = useQuery({
       queryKey: ["documents"],

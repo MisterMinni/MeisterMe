@@ -12,7 +12,7 @@ import { toast } from "sonner";
 import { formatEur } from "@/lib/handwerk";
 
 export const Route = createFileRoute("/_authenticated/app/material")({
-  head: () => ({ meta: [{ title: "Material – HandwerkPilot" }] }),
+  head: () => ({ meta: [{ title: "Material – MeisterMe" }] }),
   component: MaterialSeite,
 });
 

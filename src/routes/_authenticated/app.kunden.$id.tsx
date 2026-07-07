@@ -11,7 +11,7 @@ import { toast } from "sonner";
 import { formatEur } from "@/lib/handwerk";
 
 export const Route = createFileRoute("/_authenticated/app/kunden/$id")({
-  head: () => ({ meta: [{ title: "Kunde – HandwerkPilot" }] }),
+  head: () => ({ meta: [{ title: "Kunde – MeisterMe" }] }),
   component: KundeDetail,
 });
 

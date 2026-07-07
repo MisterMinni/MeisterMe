@@ -86,14 +86,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "HandwerkPilot – KI-Software für Handwerksbetriebe" },
+      { title: "MeisterMe – KI-Software für Handwerksbetriebe" },
       {
         name: "description",
         content:
-          "HandwerkPilot ist die KI-gestützte Handwerkersoftware für Angebot, Aufmaß, Zeiterfassung, Baustellenbericht und Rechnung. Weniger Büro. Mehr Baustelle.",
+          "MeisterMe ist die KI-gestützte Handwerkersoftware für Angebot, Aufmaß, Zeiterfassung, Baustellenbericht und Rechnung. Weniger Büro. Mehr Baustelle.",
       },
-      { name: "author", content: "HandwerkPilot" },
-      { property: "og:title", content: "HandwerkPilot – KI-Software für Handwerker" },
+      { name: "author", content: "MeisterMe" },
+      { property: "og:title", content: "MeisterMe – KI-Software für Handwerker" },
       {
         property: "og:description",
         content:

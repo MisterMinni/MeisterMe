@@ -5,7 +5,7 @@ import { ComingSoon } from "@/components/PageHeader";
 import { Link } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_authenticated/app/buero")({
-  head: () => ({ meta: [{ title: "Büro – HandwerkPilot" }] }),
+  head: () => ({ meta: [{ title: "Büro – MeisterMe" }] }),
   component: () => (
     <div>
       <PageHeader title="Büro" subtitle="Buchhaltung, Mahnwesen, Exporte. Vieles davon ist in Vorbereitung." />

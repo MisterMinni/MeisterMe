@@ -12,7 +12,7 @@ import { toast } from "sonner";
 import { Building2, User, ShieldCheck } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/app/einstellungen")({
-  head: () => ({ meta: [{ title: "Einstellungen – HandwerkPilot" }] }),
+  head: () => ({ meta: [{ title: "Einstellungen – MeisterMe" }] }),
   component: Einstellungen,
 });
 

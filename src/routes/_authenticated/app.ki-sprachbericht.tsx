@@ -12,7 +12,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/app/ki-sprachbericht")({
-  head: () => ({ meta: [{ title: "KI-Sprachbericht – HandwerkPilot" }] }),
+  head: () => ({ meta: [{ title: "KI-Sprachbericht – MeisterMe" }] }),
   component: KiSprachbericht,
 });
 

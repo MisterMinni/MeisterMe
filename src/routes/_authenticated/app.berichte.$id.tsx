@@ -13,7 +13,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/app/berichte/$id")({
-  head: () => ({ meta: [{ title: "Bericht – HandwerkPilot" }] }),
+  head: () => ({ meta: [{ title: "Bericht – MeisterMe" }] }),
   component: BerichtDetail,
 });
 

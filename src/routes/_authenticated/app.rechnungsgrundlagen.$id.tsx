@@ -10,7 +10,7 @@ import { toast } from "sonner";
 import { formatEur } from "@/lib/handwerk";
 
 export const Route = createFileRoute("/_authenticated/app/rechnungsgrundlagen/$id")({
-  head: () => ({ meta: [{ title: "Rechnungsgrundlage – HandwerkPilot" }] }),
+  head: () => ({ meta: [{ title: "Rechnungsgrundlage – MeisterMe" }] }),
   component: Detail,
 });
 

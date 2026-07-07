@@ -11,7 +11,7 @@ import { toast } from "sonner";
 import { formatDate } from "@/lib/handwerk";
 
 export const Route = createFileRoute("/_authenticated/app/aufgaben")({
-  head: () => ({ meta: [{ title: "Aufgaben – HandwerkPilot" }] }),
+  head: () => ({ meta: [{ title: "Aufgaben – MeisterMe" }] }),
   component: Aufgaben,
 });
 

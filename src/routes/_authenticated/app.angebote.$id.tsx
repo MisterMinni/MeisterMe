@@ -16,7 +16,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 export const Route = createFileRoute("/_authenticated/app/angebote/$id")({
-  head: () => ({ meta: [{ title: "Angebot – HandwerkPilot" }] }),
+  head: () => ({ meta: [{ title: "Angebot – MeisterMe" }] }),
   component: AngebotDetail,
 });
 

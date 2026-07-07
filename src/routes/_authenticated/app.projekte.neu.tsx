@@ -16,7 +16,7 @@ import { ArrowLeft } from "lucide-react";
 const search = z.object({ customer: z.string().optional() });
 
 export const Route = createFileRoute("/_authenticated/app/projekte/neu")({
-  head: () => ({ meta: [{ title: "Neues Projekt – HandwerkPilot" }] }),
+  head: () => ({ meta: [{ title: "Neues Projekt – MeisterMe" }] }),
   validateSearch: (s) => search.parse(s),
   component: NeuesProjekt,
 });

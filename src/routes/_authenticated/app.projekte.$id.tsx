@@ -18,7 +18,7 @@ import { ArrowLeft, Plus, Ruler, Camera, ClipboardList, FileText, Receipt, ListT
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/app/projekte/$id")({
-  head: () => ({ meta: [{ title: "Projekt – HandwerkPilot" }] }),
+  head: () => ({ meta: [{ title: "Projekt – MeisterMe" }] }),
   component: ProjektDetail,
 });
 

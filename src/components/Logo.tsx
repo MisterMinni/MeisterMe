@@ -9,7 +9,7 @@ export function Logo({ variant = "dark" }: { variant?: "dark" | "light" }) {
         <HardHat className="h-5 w-5" />
       </span>
       <span className={`font-display text-lg font-bold tracking-tight ${textColor}`}>
-        HandwerkPilot
+        MeisterMe
       </span>
     </Link>
   );
