@@ -69,7 +69,6 @@ const modules: NavItem[] = [
 ];
 
 export function AppShell({ children }: { children?: ReactNode }) {
-  const [menuOpen, setMenuOpen] = useState(false);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { data: profile } = useProfile();
   const { data: session } = useSession();
@@ -109,29 +108,6 @@ export function AppShell({ children }: { children?: ReactNode }) {
           <GlobalSearch modules={visibleModules} onNavigate={(to) => navigate({ to: to as never })} />
 
           <div className="flex-1" />
-
-          {/* Module menu */}
-          <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
-            <DropdownMenuTrigger asChild>
-              <button className="flex items-center gap-2 rounded-lg border border-sidebar-border/50 px-3 py-1.5 text-sm text-sidebar-foreground/90 hover:bg-sidebar-accent hover:text-white">
-                <Search className="h-4 w-4" />
-                <span className="hidden sm:inline">Module</span>
-                <ChevronDown className="h-3.5 w-3.5" />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-64">
-              <DropdownMenuLabel>Alle Module</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              {visibleModules.map((m) => (
-                <DropdownMenuItem key={m.to} asChild>
-                  <Link to={m.to as never} className="flex items-center gap-2">
-                    <m.icon className="h-4 w-4 text-brand" />
-                    {m.label}
-                  </Link>
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
 
           <Button asChild size="sm" className="hidden bg-brand text-brand-foreground hover:bg-brand/90 md:inline-flex">
             <Link to={"/app/projekte/neu" as never}><Plus className="mr-1 h-4 w-4" /> Projekt</Link>
@@ -317,7 +293,7 @@ function GlobalSearch({
               setOpen(false);
             }
           }}
-          placeholder="Suchen: Kunde, Projekt, Angebot …"
+          placeholder="Suchen …"
           className="w-full bg-transparent text-sm text-white placeholder:text-sidebar-foreground/60 focus:outline-none"
         />
       </div>
