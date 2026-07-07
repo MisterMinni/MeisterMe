@@ -7,9 +7,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useProfile, GEWERKE } from "@/lib/handwerk";
+import { useProfile, useMyRole, GEWERKE } from "@/lib/handwerk";
 import { toast } from "sonner";
-import { Building2, User, ShieldCheck } from "lucide-react";
+import { Building2, User, ShieldCheck, Lock } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_authenticated/app/einstellungen")({
   head: () => ({ meta: [{ title: "Einstellungen – MeisterMe" }] }),
@@ -17,6 +18,23 @@ export const Route = createFileRoute("/_authenticated/app/einstellungen")({
 });
 
 function Einstellungen() {
+  const role = useMyRole();
+  if (role && role !== "admin") {
+    return (
+      <div className="mx-auto max-w-lg rounded-2xl border border-border bg-card p-8 text-center shadow-card">
+        <Lock className="mx-auto h-8 w-8 text-muted-foreground" />
+        <h2 className="mt-3 font-display text-lg font-semibold">Nur für den Betriebs-Admin</h2>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Einstellungen zu Betrieb, Team und Rollen verwaltet der Admin des Betriebs. Wende dich bei Fragen an deinen Betriebsinhaber.
+        </p>
+        <Link to="/app" className="mt-4 inline-block text-sm font-semibold text-brand">Zurück zum Dashboard</Link>
+      </div>
+    );
+  }
+  return <EinstellungenAdmin />;
+}
+
+function EinstellungenAdmin() {
   const { data: profile, refetch } = useProfile();
   const [t, setT] = useState({ name: "", adresse: "", plz: "", ort: "", telefon: "", email: "", ustid: "", gewerk_default: "ausbau" });
   const [p, setP] = useState({ full_name: "", phone: "" });
