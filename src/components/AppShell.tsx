@@ -15,16 +15,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 
 import { useProfile, useMyRole, useSession, useIsAdmin, ROLE_LABELS } from "@/lib/handwerk";
-import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+
 import type { LucideIcon } from "lucide-react";
 
 type NavItem = { to: string; label: string; icon: LucideIcon; exact?: boolean; adminOnly?: boolean };
