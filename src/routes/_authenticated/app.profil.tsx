@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState, type ComponentType } from "react";
+import { type ComponentType } from "react";
 import { PageHeader } from "@/components/PageHeader";
 import {
   useProfile,
@@ -15,18 +15,7 @@ import {
   Palmtree,
   Settings,
   LogOut,
-  Pencil,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -36,13 +25,11 @@ export const Route = createFileRoute("/_authenticated/app/profil")({
 });
 
 function Profil() {
-  const { data: profile, refetch } = useProfile();
+  const { data: profile } = useProfile();
   const { data: session } = useSession();
   const role = useMyRole();
   const isAdmin = useIsAdmin();
   const navigate = useNavigate();
-
-  const [editOpen, setEditOpen] = useState(false);
 
   const email = session?.user?.email ?? "";
   const displayName = profile?.full_name?.trim() || email || "Konto";
@@ -66,14 +53,7 @@ function Profil() {
 
   return (
     <div className="mx-auto max-w-xl">
-      <PageHeader
-        title="Profil"
-        action={
-          <Button variant="ghost" onClick={() => setEditOpen(true)} className="text-brand">
-            <Pencil className="mr-1 h-4 w-4" /> Bearbeiten
-          </Button>
-        }
-      />
+      <PageHeader title="Profil" />
 
       <section className="flex flex-col items-center gap-2 rounded-2xl border border-border bg-card p-8 text-center shadow-card">
         <span className="flex h-24 w-24 items-center justify-center rounded-full bg-brand text-3xl font-bold text-brand-foreground shadow-md ring-4 ring-brand/10">
@@ -81,6 +61,9 @@ function Profil() {
         </span>
         <h2 className="mt-3 font-display text-xl font-semibold">{displayName}</h2>
         <p className="text-sm text-muted-foreground">{email}</p>
+        {profile?.phone && (
+          <p className="text-sm text-muted-foreground">{profile.phone}</p>
+        )}
         <div className="mt-2 flex flex-wrap items-center justify-center gap-1.5">
           <span className="rounded-full bg-brand/10 px-2.5 py-0.5 text-xs font-semibold text-brand">
             {roleLabel}
@@ -97,7 +80,10 @@ function Profil() {
         <ProfileTile
           icon={UserRound}
           label="Persönliche Daten"
-          onClick={() => setEditOpen(true)}
+          subtitle="Nur Ansicht – Änderungen über den Betriebsadmin"
+          onClick={() =>
+            toast.info("Änderungen bitte über den Betriebsadmin anfragen.")
+          }
         />
         <ProfileTile
           icon={FileText}
@@ -128,20 +114,6 @@ function Profil() {
         <LogOut className="h-4 w-4" />
         Abmelden
       </button>
-
-      <EditDialog
-        open={editOpen}
-        onOpenChange={setEditOpen}
-        initial={{
-          full_name: profile?.full_name ?? "",
-          phone: profile?.phone ?? "",
-        }}
-        onSaved={() => {
-          setEditOpen(false);
-          refetch();
-        }}
-        profileId={profile?.id ?? null}
-      />
     </div>
   );
 }
@@ -178,68 +150,5 @@ function ProfileTile({
     <button type="button" onClick={onClick} className="block w-full">
       {inner}
     </button>
-  );
-}
-
-function EditDialog({
-  open,
-  onOpenChange,
-  initial,
-  onSaved,
-  profileId,
-}: {
-  open: boolean;
-  onOpenChange: (o: boolean) => void;
-  initial: { full_name: string; phone: string };
-  onSaved: () => void;
-  profileId: string | null;
-}) {
-  const [full_name, setFullName] = useState(initial.full_name);
-  const [phone, setPhone] = useState(initial.phone);
-  const [saving, setSaving] = useState(false);
-
-  async function save() {
-    if (!profileId) return;
-    setSaving(true);
-    const { error } = await supabase
-      .from("profiles")
-      .update({ full_name, phone })
-      .eq("id", profileId);
-    setSaving(false);
-    if (error) return toast.error(error.message);
-    toast.success("Profil gespeichert");
-    onSaved();
-  }
-
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Persönliche Daten</DialogTitle>
-        </DialogHeader>
-        <div className="space-y-3">
-          <div>
-            <Label>Name</Label>
-            <Input value={full_name} onChange={(e) => setFullName(e.target.value)} />
-          </div>
-          <div>
-            <Label>Telefon</Label>
-            <Input value={phone} onChange={(e) => setPhone(e.target.value)} />
-          </div>
-        </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Abbrechen
-          </Button>
-          <Button
-            onClick={save}
-            disabled={saving}
-            className="bg-brand text-brand-foreground hover:bg-brand/90"
-          >
-            Speichern
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
   );
 }
