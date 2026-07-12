@@ -8,11 +8,8 @@ import {
   UsersRound,
   Settings,
   UserX,
-  LogOut,
   Home,
   Search,
-  Menu,
-  User,
   Users,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
