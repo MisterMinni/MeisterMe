@@ -12,7 +12,6 @@ import {
   Search,
   Users,
 } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
 
 import { useProfile, useMyRole, useSession, useIsAdmin, ROLE_LABELS } from "@/lib/handwerk";
 
