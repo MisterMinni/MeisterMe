@@ -13,7 +13,7 @@ import { useProfile, SITE_STATUS, formatDate, useHasPermission } from "@/lib/han
 import { toast } from "sonner";
 import { Plus, Briefcase, Archive, MessageSquare, Users, Clock, ArrowRight } from "lucide-react";
 
-export const Route = createFileRoute("/_authenticated/app/baustellen")({
+export const Route = createFileRoute("/_authenticated/app/baustellen/")({
   head: () => ({ meta: [{ title: "Baustellen – MeisterMe" }] }),
   component: Baustellen,
 });
