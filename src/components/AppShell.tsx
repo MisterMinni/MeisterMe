@@ -58,12 +58,6 @@ export function AppShell({ children }: { children?: ReactNode }) {
           .find((m) => pathname === m.to || pathname.startsWith(m.to + "/"))
       : undefined;
 
-  async function signOut() {
-    await supabase.auth.signOut();
-    toast.success("Abgemeldet");
-    navigate({ to: "/auth" });
-  }
-
   return (
     <div className="min-h-screen bg-secondary/40">
       <header className="sticky top-0 z-30 border-b border-border bg-sidebar text-sidebar-foreground shadow-sm">
@@ -74,10 +68,10 @@ export function AppShell({ children }: { children?: ReactNode }) {
 
           <Link
             to="/app/profil"
-            className="flex items-center gap-2 rounded-full border border-sidebar-border/50 py-1 pl-1 pr-2 text-left transition hover:bg-sidebar-accent md:pr-3"
+            className="flex items-center gap-2 rounded-full border border-sidebar-border/50 py-1 pl-1 pr-1 text-left transition hover:bg-sidebar-accent md:pr-3"
             aria-label="Mein Profil"
           >
-            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-brand text-xs font-bold text-brand-foreground">
+            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-brand text-xs font-bold text-brand-foreground ring-2 ring-sidebar-border/40">
               {initials}
             </span>
             <span className="hidden min-w-0 flex-col leading-tight md:flex">
@@ -87,45 +81,6 @@ export function AppShell({ children }: { children?: ReactNode }) {
               </span>
             </span>
           </Link>
-
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button
-                className="flex h-9 w-9 items-center justify-center rounded-full border border-sidebar-border/50 text-sidebar-foreground/80 transition hover:bg-sidebar-accent hover:text-white"
-                aria-label="Menü öffnen"
-              >
-                <Menu className="h-4 w-4" />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuLabel>
-                <div className="truncate font-semibold">{displayName}</div>
-                {email && <div className="truncate text-xs font-normal text-muted-foreground">{email}</div>}
-              </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                <Link to="/app/profil"><User className="mr-2 h-4 w-4" /> Mein Profil</Link>
-              </DropdownMenuItem>
-              {isAdmin && (
-                <>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
-                    <Link to="/app/mitarbeiter"><Users className="mr-2 h-4 w-4" /> Mitarbeiter</Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link to="/app/team"><UsersRound className="mr-2 h-4 w-4" /> Rollen & Zugänge</Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link to="/app/einstellungen"><Settings className="mr-2 h-4 w-4" /> Einstellungen</Link>
-                  </DropdownMenuItem>
-                </>
-              )}
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={signOut}>
-                <LogOut className="mr-2 h-4 w-4" /> Abmelden
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
         </div>
       </header>
 
