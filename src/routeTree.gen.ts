@@ -21,6 +21,7 @@ import { Route as AuthenticatedAppZeitenRouteImport } from './routes/_authentica
 import { Route as AuthenticatedAppTeamRouteImport } from './routes/_authenticated/app.team'
 import { Route as AuthenticatedAppProfilRouteImport } from './routes/_authenticated/app.profil'
 import { Route as AuthenticatedAppPlanRouteImport } from './routes/_authenticated/app.plan'
+import { Route as AuthenticatedAppMitarbeiterRouteImport } from './routes/_authenticated/app.mitarbeiter'
 import { Route as AuthenticatedAppEinstellungenRouteImport } from './routes/_authenticated/app.einstellungen'
 import { Route as AuthenticatedAppBaustellenRouteImport } from './routes/_authenticated/app.baustellen'
 import { Route as AuthenticatedAppAbwesenheitenRouteImport } from './routes/_authenticated/app.abwesenheiten'
@@ -84,6 +85,12 @@ const AuthenticatedAppPlanRoute = AuthenticatedAppPlanRouteImport.update({
   path: '/plan',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
+const AuthenticatedAppMitarbeiterRoute =
+  AuthenticatedAppMitarbeiterRouteImport.update({
+    id: '/mitarbeiter',
+    path: '/mitarbeiter',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
 const AuthenticatedAppEinstellungenRoute =
   AuthenticatedAppEinstellungenRouteImport.update({
     id: '/einstellungen',
@@ -113,6 +120,7 @@ export interface FileRoutesByFullPath {
   '/app/abwesenheiten': typeof AuthenticatedAppAbwesenheitenRoute
   '/app/baustellen': typeof AuthenticatedAppBaustellenRoute
   '/app/einstellungen': typeof AuthenticatedAppEinstellungenRoute
+  '/app/mitarbeiter': typeof AuthenticatedAppMitarbeiterRoute
   '/app/plan': typeof AuthenticatedAppPlanRoute
   '/app/profil': typeof AuthenticatedAppProfilRoute
   '/app/team': typeof AuthenticatedAppTeamRoute
@@ -128,6 +136,7 @@ export interface FileRoutesByTo {
   '/app/abwesenheiten': typeof AuthenticatedAppAbwesenheitenRoute
   '/app/baustellen': typeof AuthenticatedAppBaustellenRoute
   '/app/einstellungen': typeof AuthenticatedAppEinstellungenRoute
+  '/app/mitarbeiter': typeof AuthenticatedAppMitarbeiterRoute
   '/app/plan': typeof AuthenticatedAppPlanRoute
   '/app/profil': typeof AuthenticatedAppProfilRoute
   '/app/team': typeof AuthenticatedAppTeamRoute
@@ -146,6 +155,7 @@ export interface FileRoutesById {
   '/_authenticated/app/abwesenheiten': typeof AuthenticatedAppAbwesenheitenRoute
   '/_authenticated/app/baustellen': typeof AuthenticatedAppBaustellenRoute
   '/_authenticated/app/einstellungen': typeof AuthenticatedAppEinstellungenRoute
+  '/_authenticated/app/mitarbeiter': typeof AuthenticatedAppMitarbeiterRoute
   '/_authenticated/app/plan': typeof AuthenticatedAppPlanRoute
   '/_authenticated/app/profil': typeof AuthenticatedAppProfilRoute
   '/_authenticated/app/team': typeof AuthenticatedAppTeamRoute
@@ -164,6 +174,7 @@ export interface FileRouteTypes {
     | '/app/abwesenheiten'
     | '/app/baustellen'
     | '/app/einstellungen'
+    | '/app/mitarbeiter'
     | '/app/plan'
     | '/app/profil'
     | '/app/team'
@@ -179,6 +190,7 @@ export interface FileRouteTypes {
     | '/app/abwesenheiten'
     | '/app/baustellen'
     | '/app/einstellungen'
+    | '/app/mitarbeiter'
     | '/app/plan'
     | '/app/profil'
     | '/app/team'
@@ -196,6 +208,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/abwesenheiten'
     | '/_authenticated/app/baustellen'
     | '/_authenticated/app/einstellungen'
+    | '/_authenticated/app/mitarbeiter'
     | '/_authenticated/app/plan'
     | '/_authenticated/app/profil'
     | '/_authenticated/app/team'
@@ -298,6 +311,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppPlanRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/mitarbeiter': {
+      id: '/_authenticated/app/mitarbeiter'
+      path: '/mitarbeiter'
+      fullPath: '/app/mitarbeiter'
+      preLoaderRoute: typeof AuthenticatedAppMitarbeiterRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
     '/_authenticated/app/einstellungen': {
       id: '/_authenticated/app/einstellungen'
       path: '/einstellungen'
@@ -326,6 +346,7 @@ interface AuthenticatedAppRouteChildren {
   AuthenticatedAppAbwesenheitenRoute: typeof AuthenticatedAppAbwesenheitenRoute
   AuthenticatedAppBaustellenRoute: typeof AuthenticatedAppBaustellenRoute
   AuthenticatedAppEinstellungenRoute: typeof AuthenticatedAppEinstellungenRoute
+  AuthenticatedAppMitarbeiterRoute: typeof AuthenticatedAppMitarbeiterRoute
   AuthenticatedAppPlanRoute: typeof AuthenticatedAppPlanRoute
   AuthenticatedAppProfilRoute: typeof AuthenticatedAppProfilRoute
   AuthenticatedAppTeamRoute: typeof AuthenticatedAppTeamRoute
@@ -337,6 +358,7 @@ const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppAbwesenheitenRoute: AuthenticatedAppAbwesenheitenRoute,
   AuthenticatedAppBaustellenRoute: AuthenticatedAppBaustellenRoute,
   AuthenticatedAppEinstellungenRoute: AuthenticatedAppEinstellungenRoute,
+  AuthenticatedAppMitarbeiterRoute: AuthenticatedAppMitarbeiterRoute,
   AuthenticatedAppPlanRoute: AuthenticatedAppPlanRoute,
   AuthenticatedAppProfilRoute: AuthenticatedAppProfilRoute,
   AuthenticatedAppTeamRoute: AuthenticatedAppTeamRoute,
