@@ -21,6 +21,7 @@ import { Route as AuthenticatedAppZeitenRouteImport } from './routes/_authentica
 import { Route as AuthenticatedAppTeamRouteImport } from './routes/_authenticated/app.team'
 import { Route as AuthenticatedAppProfilRouteImport } from './routes/_authenticated/app.profil'
 import { Route as AuthenticatedAppEinstellungenRouteImport } from './routes/_authenticated/app.einstellungen'
+import { Route as AuthenticatedAppBaustellenRouteImport } from './routes/_authenticated/app.baustellen'
 
 const PreiseRoute = PreiseRouteImport.update({
   id: '/preise',
@@ -82,6 +83,12 @@ const AuthenticatedAppEinstellungenRoute =
     path: '/einstellungen',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
+const AuthenticatedAppBaustellenRoute =
+  AuthenticatedAppBaustellenRouteImport.update({
+    id: '/baustellen',
+    path: '/baustellen',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -90,6 +97,7 @@ export interface FileRoutesByFullPath {
   '/kontakt': typeof KontaktRoute
   '/preise': typeof PreiseRoute
   '/app': typeof AuthenticatedAppRouteWithChildren
+  '/app/baustellen': typeof AuthenticatedAppBaustellenRoute
   '/app/einstellungen': typeof AuthenticatedAppEinstellungenRoute
   '/app/profil': typeof AuthenticatedAppProfilRoute
   '/app/team': typeof AuthenticatedAppTeamRoute
@@ -102,6 +110,7 @@ export interface FileRoutesByTo {
   '/funktionen': typeof FunktionenRoute
   '/kontakt': typeof KontaktRoute
   '/preise': typeof PreiseRoute
+  '/app/baustellen': typeof AuthenticatedAppBaustellenRoute
   '/app/einstellungen': typeof AuthenticatedAppEinstellungenRoute
   '/app/profil': typeof AuthenticatedAppProfilRoute
   '/app/team': typeof AuthenticatedAppTeamRoute
@@ -117,6 +126,7 @@ export interface FileRoutesById {
   '/kontakt': typeof KontaktRoute
   '/preise': typeof PreiseRoute
   '/_authenticated/app': typeof AuthenticatedAppRouteWithChildren
+  '/_authenticated/app/baustellen': typeof AuthenticatedAppBaustellenRoute
   '/_authenticated/app/einstellungen': typeof AuthenticatedAppEinstellungenRoute
   '/_authenticated/app/profil': typeof AuthenticatedAppProfilRoute
   '/_authenticated/app/team': typeof AuthenticatedAppTeamRoute
@@ -132,6 +142,7 @@ export interface FileRouteTypes {
     | '/kontakt'
     | '/preise'
     | '/app'
+    | '/app/baustellen'
     | '/app/einstellungen'
     | '/app/profil'
     | '/app/team'
@@ -144,6 +155,7 @@ export interface FileRouteTypes {
     | '/funktionen'
     | '/kontakt'
     | '/preise'
+    | '/app/baustellen'
     | '/app/einstellungen'
     | '/app/profil'
     | '/app/team'
@@ -158,6 +170,7 @@ export interface FileRouteTypes {
     | '/kontakt'
     | '/preise'
     | '/_authenticated/app'
+    | '/_authenticated/app/baustellen'
     | '/_authenticated/app/einstellungen'
     | '/_authenticated/app/profil'
     | '/_authenticated/app/team'
@@ -260,10 +273,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppEinstellungenRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/baustellen': {
+      id: '/_authenticated/app/baustellen'
+      path: '/baustellen'
+      fullPath: '/app/baustellen'
+      preLoaderRoute: typeof AuthenticatedAppBaustellenRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
   }
 }
 
 interface AuthenticatedAppRouteChildren {
+  AuthenticatedAppBaustellenRoute: typeof AuthenticatedAppBaustellenRoute
   AuthenticatedAppEinstellungenRoute: typeof AuthenticatedAppEinstellungenRoute
   AuthenticatedAppProfilRoute: typeof AuthenticatedAppProfilRoute
   AuthenticatedAppTeamRoute: typeof AuthenticatedAppTeamRoute
@@ -272,6 +293,7 @@ interface AuthenticatedAppRouteChildren {
 }
 
 const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
+  AuthenticatedAppBaustellenRoute: AuthenticatedAppBaustellenRoute,
   AuthenticatedAppEinstellungenRoute: AuthenticatedAppEinstellungenRoute,
   AuthenticatedAppProfilRoute: AuthenticatedAppProfilRoute,
   AuthenticatedAppTeamRoute: AuthenticatedAppTeamRoute,
