@@ -3,13 +3,14 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 
 async function requireAdmin(ctx: { supabase: any; userId: string }) {
-  const { data: prof } = await ctx.supabase
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data: prof } = await supabaseAdmin
     .from("profiles")
     .select("tenant_id")
     .eq("id", ctx.userId)
     .maybeSingle();
   if (!prof?.tenant_id) throw new Error("Kein Betrieb gefunden.");
-  const { data: ok } = await ctx.supabase.rpc("has_permission", {
+  const { data: ok } = await supabaseAdmin.rpc("has_permission", {
     _user_id: ctx.userId,
     _permission: "employees:create",
   });
