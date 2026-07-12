@@ -23,6 +23,7 @@ import { Route as AuthenticatedAppProfilRouteImport } from './routes/_authentica
 import { Route as AuthenticatedAppPlanRouteImport } from './routes/_authenticated/app.plan'
 import { Route as AuthenticatedAppEinstellungenRouteImport } from './routes/_authenticated/app.einstellungen'
 import { Route as AuthenticatedAppBaustellenRouteImport } from './routes/_authenticated/app.baustellen'
+import { Route as AuthenticatedAppAbwesenheitenRouteImport } from './routes/_authenticated/app.abwesenheiten'
 
 const PreiseRoute = PreiseRouteImport.update({
   id: '/preise',
@@ -95,6 +96,12 @@ const AuthenticatedAppBaustellenRoute =
     path: '/baustellen',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
+const AuthenticatedAppAbwesenheitenRoute =
+  AuthenticatedAppAbwesenheitenRouteImport.update({
+    id: '/abwesenheiten',
+    path: '/abwesenheiten',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -103,6 +110,7 @@ export interface FileRoutesByFullPath {
   '/kontakt': typeof KontaktRoute
   '/preise': typeof PreiseRoute
   '/app': typeof AuthenticatedAppRouteWithChildren
+  '/app/abwesenheiten': typeof AuthenticatedAppAbwesenheitenRoute
   '/app/baustellen': typeof AuthenticatedAppBaustellenRoute
   '/app/einstellungen': typeof AuthenticatedAppEinstellungenRoute
   '/app/plan': typeof AuthenticatedAppPlanRoute
@@ -117,6 +125,7 @@ export interface FileRoutesByTo {
   '/funktionen': typeof FunktionenRoute
   '/kontakt': typeof KontaktRoute
   '/preise': typeof PreiseRoute
+  '/app/abwesenheiten': typeof AuthenticatedAppAbwesenheitenRoute
   '/app/baustellen': typeof AuthenticatedAppBaustellenRoute
   '/app/einstellungen': typeof AuthenticatedAppEinstellungenRoute
   '/app/plan': typeof AuthenticatedAppPlanRoute
@@ -134,6 +143,7 @@ export interface FileRoutesById {
   '/kontakt': typeof KontaktRoute
   '/preise': typeof PreiseRoute
   '/_authenticated/app': typeof AuthenticatedAppRouteWithChildren
+  '/_authenticated/app/abwesenheiten': typeof AuthenticatedAppAbwesenheitenRoute
   '/_authenticated/app/baustellen': typeof AuthenticatedAppBaustellenRoute
   '/_authenticated/app/einstellungen': typeof AuthenticatedAppEinstellungenRoute
   '/_authenticated/app/plan': typeof AuthenticatedAppPlanRoute
@@ -151,6 +161,7 @@ export interface FileRouteTypes {
     | '/kontakt'
     | '/preise'
     | '/app'
+    | '/app/abwesenheiten'
     | '/app/baustellen'
     | '/app/einstellungen'
     | '/app/plan'
@@ -165,6 +176,7 @@ export interface FileRouteTypes {
     | '/funktionen'
     | '/kontakt'
     | '/preise'
+    | '/app/abwesenheiten'
     | '/app/baustellen'
     | '/app/einstellungen'
     | '/app/plan'
@@ -181,6 +193,7 @@ export interface FileRouteTypes {
     | '/kontakt'
     | '/preise'
     | '/_authenticated/app'
+    | '/_authenticated/app/abwesenheiten'
     | '/_authenticated/app/baustellen'
     | '/_authenticated/app/einstellungen'
     | '/_authenticated/app/plan'
@@ -299,10 +312,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppBaustellenRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/abwesenheiten': {
+      id: '/_authenticated/app/abwesenheiten'
+      path: '/abwesenheiten'
+      fullPath: '/app/abwesenheiten'
+      preLoaderRoute: typeof AuthenticatedAppAbwesenheitenRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
   }
 }
 
 interface AuthenticatedAppRouteChildren {
+  AuthenticatedAppAbwesenheitenRoute: typeof AuthenticatedAppAbwesenheitenRoute
   AuthenticatedAppBaustellenRoute: typeof AuthenticatedAppBaustellenRoute
   AuthenticatedAppEinstellungenRoute: typeof AuthenticatedAppEinstellungenRoute
   AuthenticatedAppPlanRoute: typeof AuthenticatedAppPlanRoute
@@ -313,6 +334,7 @@ interface AuthenticatedAppRouteChildren {
 }
 
 const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
+  AuthenticatedAppAbwesenheitenRoute: AuthenticatedAppAbwesenheitenRoute,
   AuthenticatedAppBaustellenRoute: AuthenticatedAppBaustellenRoute,
   AuthenticatedAppEinstellungenRoute: AuthenticatedAppEinstellungenRoute,
   AuthenticatedAppPlanRoute: AuthenticatedAppPlanRoute,
