@@ -68,13 +68,8 @@ function Baustellen() {
     qc.invalidateQueries({ queryKey: ["sites"] });
   }
 
-  async function archive(id: string) {
-    if (!confirm("Baustelle archivieren?")) return;
-    const { error } = await supabase.from("sites").update({ archived_at: new Date().toISOString() }).eq("id", id);
-    if (error) return toast.error(error.message);
-    toast.success("Archiviert");
-    qc.invalidateQueries({ queryKey: ["sites"] });
-  }
+
+
 
   const [q, setQ] = useState("");
   const filtered = (sites ?? []).filter(
