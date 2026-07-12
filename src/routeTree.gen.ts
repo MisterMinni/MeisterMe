@@ -20,31 +20,11 @@ import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedAppZeitenRouteImport } from './routes/_authenticated/app.zeiten'
 import { Route as AuthenticatedAppTeamRouteImport } from './routes/_authenticated/app.team'
 import { Route as AuthenticatedAppProfilRouteImport } from './routes/_authenticated/app.profil'
-import { Route as AuthenticatedAppMaterialRouteImport } from './routes/_authenticated/app.material'
-import { Route as AuthenticatedAppKommunikationRouteImport } from './routes/_authenticated/app.kommunikation'
-import { Route as AuthenticatedAppKiSprachberichtRouteImport } from './routes/_authenticated/app.ki-sprachbericht'
-import { Route as AuthenticatedAppKalkulationRouteImport } from './routes/_authenticated/app.kalkulation'
-import { Route as AuthenticatedAppFotosRouteImport } from './routes/_authenticated/app.fotos'
+import { Route as AuthenticatedAppPlanRouteImport } from './routes/_authenticated/app.plan'
+import { Route as AuthenticatedAppMitarbeiterRouteImport } from './routes/_authenticated/app.mitarbeiter'
 import { Route as AuthenticatedAppEinstellungenRouteImport } from './routes/_authenticated/app.einstellungen'
-import { Route as AuthenticatedAppDokumenteRouteImport } from './routes/_authenticated/app.dokumente'
-import { Route as AuthenticatedAppBueroRouteImport } from './routes/_authenticated/app.buero'
-import { Route as AuthenticatedAppAufgabenRouteImport } from './routes/_authenticated/app.aufgaben'
-import { Route as AuthenticatedAppRechnungsgrundlagenIndexRouteImport } from './routes/_authenticated/app.rechnungsgrundlagen.index'
-import { Route as AuthenticatedAppProjekteIndexRouteImport } from './routes/_authenticated/app.projekte.index'
-import { Route as AuthenticatedAppKundenIndexRouteImport } from './routes/_authenticated/app.kunden.index'
-import { Route as AuthenticatedAppBerichteIndexRouteImport } from './routes/_authenticated/app.berichte.index'
-import { Route as AuthenticatedAppAufmassIndexRouteImport } from './routes/_authenticated/app.aufmass.index'
-import { Route as AuthenticatedAppAngeboteIndexRouteImport } from './routes/_authenticated/app.angebote.index'
-import { Route as AuthenticatedAppRechnungsgrundlagenIdRouteImport } from './routes/_authenticated/app.rechnungsgrundlagen.$id'
-import { Route as AuthenticatedAppProjekteNeuRouteImport } from './routes/_authenticated/app.projekte.neu'
-import { Route as AuthenticatedAppProjekteIdRouteImport } from './routes/_authenticated/app.projekte.$id'
-import { Route as AuthenticatedAppKundenNeuRouteImport } from './routes/_authenticated/app.kunden.neu'
-import { Route as AuthenticatedAppKundenIdRouteImport } from './routes/_authenticated/app.kunden.$id'
-import { Route as AuthenticatedAppIntegrationenOutlookRouteImport } from './routes/_authenticated/app.integrationen.outlook'
-import { Route as AuthenticatedAppBerichteNeuRouteImport } from './routes/_authenticated/app.berichte.neu'
-import { Route as AuthenticatedAppBerichteIdRouteImport } from './routes/_authenticated/app.berichte.$id'
-import { Route as AuthenticatedAppAngeboteNeuRouteImport } from './routes/_authenticated/app.angebote.neu'
-import { Route as AuthenticatedAppAngeboteIdRouteImport } from './routes/_authenticated/app.angebote.$id'
+import { Route as AuthenticatedAppBaustellenRouteImport } from './routes/_authenticated/app.baustellen'
+import { Route as AuthenticatedAppAbwesenheitenRouteImport } from './routes/_authenticated/app.abwesenheiten'
 
 const PreiseRoute = PreiseRouteImport.update({
   id: '/preise',
@@ -100,152 +80,33 @@ const AuthenticatedAppProfilRoute = AuthenticatedAppProfilRouteImport.update({
   path: '/profil',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
-const AuthenticatedAppMaterialRoute =
-  AuthenticatedAppMaterialRouteImport.update({
-    id: '/material',
-    path: '/material',
-    getParentRoute: () => AuthenticatedAppRoute,
-  } as any)
-const AuthenticatedAppKommunikationRoute =
-  AuthenticatedAppKommunikationRouteImport.update({
-    id: '/kommunikation',
-    path: '/kommunikation',
-    getParentRoute: () => AuthenticatedAppRoute,
-  } as any)
-const AuthenticatedAppKiSprachberichtRoute =
-  AuthenticatedAppKiSprachberichtRouteImport.update({
-    id: '/ki-sprachbericht',
-    path: '/ki-sprachbericht',
-    getParentRoute: () => AuthenticatedAppRoute,
-  } as any)
-const AuthenticatedAppKalkulationRoute =
-  AuthenticatedAppKalkulationRouteImport.update({
-    id: '/kalkulation',
-    path: '/kalkulation',
-    getParentRoute: () => AuthenticatedAppRoute,
-  } as any)
-const AuthenticatedAppFotosRoute = AuthenticatedAppFotosRouteImport.update({
-  id: '/fotos',
-  path: '/fotos',
+const AuthenticatedAppPlanRoute = AuthenticatedAppPlanRouteImport.update({
+  id: '/plan',
+  path: '/plan',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
+const AuthenticatedAppMitarbeiterRoute =
+  AuthenticatedAppMitarbeiterRouteImport.update({
+    id: '/mitarbeiter',
+    path: '/mitarbeiter',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
 const AuthenticatedAppEinstellungenRoute =
   AuthenticatedAppEinstellungenRouteImport.update({
     id: '/einstellungen',
     path: '/einstellungen',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
-const AuthenticatedAppDokumenteRoute =
-  AuthenticatedAppDokumenteRouteImport.update({
-    id: '/dokumente',
-    path: '/dokumente',
+const AuthenticatedAppBaustellenRoute =
+  AuthenticatedAppBaustellenRouteImport.update({
+    id: '/baustellen',
+    path: '/baustellen',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
-const AuthenticatedAppBueroRoute = AuthenticatedAppBueroRouteImport.update({
-  id: '/buero',
-  path: '/buero',
-  getParentRoute: () => AuthenticatedAppRoute,
-} as any)
-const AuthenticatedAppAufgabenRoute =
-  AuthenticatedAppAufgabenRouteImport.update({
-    id: '/aufgaben',
-    path: '/aufgaben',
-    getParentRoute: () => AuthenticatedAppRoute,
-  } as any)
-const AuthenticatedAppRechnungsgrundlagenIndexRoute =
-  AuthenticatedAppRechnungsgrundlagenIndexRouteImport.update({
-    id: '/rechnungsgrundlagen/',
-    path: '/rechnungsgrundlagen/',
-    getParentRoute: () => AuthenticatedAppRoute,
-  } as any)
-const AuthenticatedAppProjekteIndexRoute =
-  AuthenticatedAppProjekteIndexRouteImport.update({
-    id: '/projekte/',
-    path: '/projekte/',
-    getParentRoute: () => AuthenticatedAppRoute,
-  } as any)
-const AuthenticatedAppKundenIndexRoute =
-  AuthenticatedAppKundenIndexRouteImport.update({
-    id: '/kunden/',
-    path: '/kunden/',
-    getParentRoute: () => AuthenticatedAppRoute,
-  } as any)
-const AuthenticatedAppBerichteIndexRoute =
-  AuthenticatedAppBerichteIndexRouteImport.update({
-    id: '/berichte/',
-    path: '/berichte/',
-    getParentRoute: () => AuthenticatedAppRoute,
-  } as any)
-const AuthenticatedAppAufmassIndexRoute =
-  AuthenticatedAppAufmassIndexRouteImport.update({
-    id: '/aufmass/',
-    path: '/aufmass/',
-    getParentRoute: () => AuthenticatedAppRoute,
-  } as any)
-const AuthenticatedAppAngeboteIndexRoute =
-  AuthenticatedAppAngeboteIndexRouteImport.update({
-    id: '/angebote/',
-    path: '/angebote/',
-    getParentRoute: () => AuthenticatedAppRoute,
-  } as any)
-const AuthenticatedAppRechnungsgrundlagenIdRoute =
-  AuthenticatedAppRechnungsgrundlagenIdRouteImport.update({
-    id: '/rechnungsgrundlagen/$id',
-    path: '/rechnungsgrundlagen/$id',
-    getParentRoute: () => AuthenticatedAppRoute,
-  } as any)
-const AuthenticatedAppProjekteNeuRoute =
-  AuthenticatedAppProjekteNeuRouteImport.update({
-    id: '/projekte/neu',
-    path: '/projekte/neu',
-    getParentRoute: () => AuthenticatedAppRoute,
-  } as any)
-const AuthenticatedAppProjekteIdRoute =
-  AuthenticatedAppProjekteIdRouteImport.update({
-    id: '/projekte/$id',
-    path: '/projekte/$id',
-    getParentRoute: () => AuthenticatedAppRoute,
-  } as any)
-const AuthenticatedAppKundenNeuRoute =
-  AuthenticatedAppKundenNeuRouteImport.update({
-    id: '/kunden/neu',
-    path: '/kunden/neu',
-    getParentRoute: () => AuthenticatedAppRoute,
-  } as any)
-const AuthenticatedAppKundenIdRoute =
-  AuthenticatedAppKundenIdRouteImport.update({
-    id: '/kunden/$id',
-    path: '/kunden/$id',
-    getParentRoute: () => AuthenticatedAppRoute,
-  } as any)
-const AuthenticatedAppIntegrationenOutlookRoute =
-  AuthenticatedAppIntegrationenOutlookRouteImport.update({
-    id: '/integrationen/outlook',
-    path: '/integrationen/outlook',
-    getParentRoute: () => AuthenticatedAppRoute,
-  } as any)
-const AuthenticatedAppBerichteNeuRoute =
-  AuthenticatedAppBerichteNeuRouteImport.update({
-    id: '/berichte/neu',
-    path: '/berichte/neu',
-    getParentRoute: () => AuthenticatedAppRoute,
-  } as any)
-const AuthenticatedAppBerichteIdRoute =
-  AuthenticatedAppBerichteIdRouteImport.update({
-    id: '/berichte/$id',
-    path: '/berichte/$id',
-    getParentRoute: () => AuthenticatedAppRoute,
-  } as any)
-const AuthenticatedAppAngeboteNeuRoute =
-  AuthenticatedAppAngeboteNeuRouteImport.update({
-    id: '/angebote/neu',
-    path: '/angebote/neu',
-    getParentRoute: () => AuthenticatedAppRoute,
-  } as any)
-const AuthenticatedAppAngeboteIdRoute =
-  AuthenticatedAppAngeboteIdRouteImport.update({
-    id: '/angebote/$id',
-    path: '/angebote/$id',
+const AuthenticatedAppAbwesenheitenRoute =
+  AuthenticatedAppAbwesenheitenRouteImport.update({
+    id: '/abwesenheiten',
+    path: '/abwesenheiten',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
 
@@ -256,35 +117,15 @@ export interface FileRoutesByFullPath {
   '/kontakt': typeof KontaktRoute
   '/preise': typeof PreiseRoute
   '/app': typeof AuthenticatedAppRouteWithChildren
-  '/app/aufgaben': typeof AuthenticatedAppAufgabenRoute
-  '/app/buero': typeof AuthenticatedAppBueroRoute
-  '/app/dokumente': typeof AuthenticatedAppDokumenteRoute
+  '/app/abwesenheiten': typeof AuthenticatedAppAbwesenheitenRoute
+  '/app/baustellen': typeof AuthenticatedAppBaustellenRoute
   '/app/einstellungen': typeof AuthenticatedAppEinstellungenRoute
-  '/app/fotos': typeof AuthenticatedAppFotosRoute
-  '/app/kalkulation': typeof AuthenticatedAppKalkulationRoute
-  '/app/ki-sprachbericht': typeof AuthenticatedAppKiSprachberichtRoute
-  '/app/kommunikation': typeof AuthenticatedAppKommunikationRoute
-  '/app/material': typeof AuthenticatedAppMaterialRoute
+  '/app/mitarbeiter': typeof AuthenticatedAppMitarbeiterRoute
+  '/app/plan': typeof AuthenticatedAppPlanRoute
   '/app/profil': typeof AuthenticatedAppProfilRoute
   '/app/team': typeof AuthenticatedAppTeamRoute
   '/app/zeiten': typeof AuthenticatedAppZeitenRoute
   '/app/': typeof AuthenticatedAppIndexRoute
-  '/app/angebote/$id': typeof AuthenticatedAppAngeboteIdRoute
-  '/app/angebote/neu': typeof AuthenticatedAppAngeboteNeuRoute
-  '/app/berichte/$id': typeof AuthenticatedAppBerichteIdRoute
-  '/app/berichte/neu': typeof AuthenticatedAppBerichteNeuRoute
-  '/app/integrationen/outlook': typeof AuthenticatedAppIntegrationenOutlookRoute
-  '/app/kunden/$id': typeof AuthenticatedAppKundenIdRoute
-  '/app/kunden/neu': typeof AuthenticatedAppKundenNeuRoute
-  '/app/projekte/$id': typeof AuthenticatedAppProjekteIdRoute
-  '/app/projekte/neu': typeof AuthenticatedAppProjekteNeuRoute
-  '/app/rechnungsgrundlagen/$id': typeof AuthenticatedAppRechnungsgrundlagenIdRoute
-  '/app/angebote/': typeof AuthenticatedAppAngeboteIndexRoute
-  '/app/aufmass/': typeof AuthenticatedAppAufmassIndexRoute
-  '/app/berichte/': typeof AuthenticatedAppBerichteIndexRoute
-  '/app/kunden/': typeof AuthenticatedAppKundenIndexRoute
-  '/app/projekte/': typeof AuthenticatedAppProjekteIndexRoute
-  '/app/rechnungsgrundlagen/': typeof AuthenticatedAppRechnungsgrundlagenIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -292,35 +133,15 @@ export interface FileRoutesByTo {
   '/funktionen': typeof FunktionenRoute
   '/kontakt': typeof KontaktRoute
   '/preise': typeof PreiseRoute
-  '/app/aufgaben': typeof AuthenticatedAppAufgabenRoute
-  '/app/buero': typeof AuthenticatedAppBueroRoute
-  '/app/dokumente': typeof AuthenticatedAppDokumenteRoute
+  '/app/abwesenheiten': typeof AuthenticatedAppAbwesenheitenRoute
+  '/app/baustellen': typeof AuthenticatedAppBaustellenRoute
   '/app/einstellungen': typeof AuthenticatedAppEinstellungenRoute
-  '/app/fotos': typeof AuthenticatedAppFotosRoute
-  '/app/kalkulation': typeof AuthenticatedAppKalkulationRoute
-  '/app/ki-sprachbericht': typeof AuthenticatedAppKiSprachberichtRoute
-  '/app/kommunikation': typeof AuthenticatedAppKommunikationRoute
-  '/app/material': typeof AuthenticatedAppMaterialRoute
+  '/app/mitarbeiter': typeof AuthenticatedAppMitarbeiterRoute
+  '/app/plan': typeof AuthenticatedAppPlanRoute
   '/app/profil': typeof AuthenticatedAppProfilRoute
   '/app/team': typeof AuthenticatedAppTeamRoute
   '/app/zeiten': typeof AuthenticatedAppZeitenRoute
   '/app': typeof AuthenticatedAppIndexRoute
-  '/app/angebote/$id': typeof AuthenticatedAppAngeboteIdRoute
-  '/app/angebote/neu': typeof AuthenticatedAppAngeboteNeuRoute
-  '/app/berichte/$id': typeof AuthenticatedAppBerichteIdRoute
-  '/app/berichte/neu': typeof AuthenticatedAppBerichteNeuRoute
-  '/app/integrationen/outlook': typeof AuthenticatedAppIntegrationenOutlookRoute
-  '/app/kunden/$id': typeof AuthenticatedAppKundenIdRoute
-  '/app/kunden/neu': typeof AuthenticatedAppKundenNeuRoute
-  '/app/projekte/$id': typeof AuthenticatedAppProjekteIdRoute
-  '/app/projekte/neu': typeof AuthenticatedAppProjekteNeuRoute
-  '/app/rechnungsgrundlagen/$id': typeof AuthenticatedAppRechnungsgrundlagenIdRoute
-  '/app/angebote': typeof AuthenticatedAppAngeboteIndexRoute
-  '/app/aufmass': typeof AuthenticatedAppAufmassIndexRoute
-  '/app/berichte': typeof AuthenticatedAppBerichteIndexRoute
-  '/app/kunden': typeof AuthenticatedAppKundenIndexRoute
-  '/app/projekte': typeof AuthenticatedAppProjekteIndexRoute
-  '/app/rechnungsgrundlagen': typeof AuthenticatedAppRechnungsgrundlagenIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -331,35 +152,15 @@ export interface FileRoutesById {
   '/kontakt': typeof KontaktRoute
   '/preise': typeof PreiseRoute
   '/_authenticated/app': typeof AuthenticatedAppRouteWithChildren
-  '/_authenticated/app/aufgaben': typeof AuthenticatedAppAufgabenRoute
-  '/_authenticated/app/buero': typeof AuthenticatedAppBueroRoute
-  '/_authenticated/app/dokumente': typeof AuthenticatedAppDokumenteRoute
+  '/_authenticated/app/abwesenheiten': typeof AuthenticatedAppAbwesenheitenRoute
+  '/_authenticated/app/baustellen': typeof AuthenticatedAppBaustellenRoute
   '/_authenticated/app/einstellungen': typeof AuthenticatedAppEinstellungenRoute
-  '/_authenticated/app/fotos': typeof AuthenticatedAppFotosRoute
-  '/_authenticated/app/kalkulation': typeof AuthenticatedAppKalkulationRoute
-  '/_authenticated/app/ki-sprachbericht': typeof AuthenticatedAppKiSprachberichtRoute
-  '/_authenticated/app/kommunikation': typeof AuthenticatedAppKommunikationRoute
-  '/_authenticated/app/material': typeof AuthenticatedAppMaterialRoute
+  '/_authenticated/app/mitarbeiter': typeof AuthenticatedAppMitarbeiterRoute
+  '/_authenticated/app/plan': typeof AuthenticatedAppPlanRoute
   '/_authenticated/app/profil': typeof AuthenticatedAppProfilRoute
   '/_authenticated/app/team': typeof AuthenticatedAppTeamRoute
   '/_authenticated/app/zeiten': typeof AuthenticatedAppZeitenRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
-  '/_authenticated/app/angebote/$id': typeof AuthenticatedAppAngeboteIdRoute
-  '/_authenticated/app/angebote/neu': typeof AuthenticatedAppAngeboteNeuRoute
-  '/_authenticated/app/berichte/$id': typeof AuthenticatedAppBerichteIdRoute
-  '/_authenticated/app/berichte/neu': typeof AuthenticatedAppBerichteNeuRoute
-  '/_authenticated/app/integrationen/outlook': typeof AuthenticatedAppIntegrationenOutlookRoute
-  '/_authenticated/app/kunden/$id': typeof AuthenticatedAppKundenIdRoute
-  '/_authenticated/app/kunden/neu': typeof AuthenticatedAppKundenNeuRoute
-  '/_authenticated/app/projekte/$id': typeof AuthenticatedAppProjekteIdRoute
-  '/_authenticated/app/projekte/neu': typeof AuthenticatedAppProjekteNeuRoute
-  '/_authenticated/app/rechnungsgrundlagen/$id': typeof AuthenticatedAppRechnungsgrundlagenIdRoute
-  '/_authenticated/app/angebote/': typeof AuthenticatedAppAngeboteIndexRoute
-  '/_authenticated/app/aufmass/': typeof AuthenticatedAppAufmassIndexRoute
-  '/_authenticated/app/berichte/': typeof AuthenticatedAppBerichteIndexRoute
-  '/_authenticated/app/kunden/': typeof AuthenticatedAppKundenIndexRoute
-  '/_authenticated/app/projekte/': typeof AuthenticatedAppProjekteIndexRoute
-  '/_authenticated/app/rechnungsgrundlagen/': typeof AuthenticatedAppRechnungsgrundlagenIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -370,35 +171,15 @@ export interface FileRouteTypes {
     | '/kontakt'
     | '/preise'
     | '/app'
-    | '/app/aufgaben'
-    | '/app/buero'
-    | '/app/dokumente'
+    | '/app/abwesenheiten'
+    | '/app/baustellen'
     | '/app/einstellungen'
-    | '/app/fotos'
-    | '/app/kalkulation'
-    | '/app/ki-sprachbericht'
-    | '/app/kommunikation'
-    | '/app/material'
+    | '/app/mitarbeiter'
+    | '/app/plan'
     | '/app/profil'
     | '/app/team'
     | '/app/zeiten'
     | '/app/'
-    | '/app/angebote/$id'
-    | '/app/angebote/neu'
-    | '/app/berichte/$id'
-    | '/app/berichte/neu'
-    | '/app/integrationen/outlook'
-    | '/app/kunden/$id'
-    | '/app/kunden/neu'
-    | '/app/projekte/$id'
-    | '/app/projekte/neu'
-    | '/app/rechnungsgrundlagen/$id'
-    | '/app/angebote/'
-    | '/app/aufmass/'
-    | '/app/berichte/'
-    | '/app/kunden/'
-    | '/app/projekte/'
-    | '/app/rechnungsgrundlagen/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -406,35 +187,15 @@ export interface FileRouteTypes {
     | '/funktionen'
     | '/kontakt'
     | '/preise'
-    | '/app/aufgaben'
-    | '/app/buero'
-    | '/app/dokumente'
+    | '/app/abwesenheiten'
+    | '/app/baustellen'
     | '/app/einstellungen'
-    | '/app/fotos'
-    | '/app/kalkulation'
-    | '/app/ki-sprachbericht'
-    | '/app/kommunikation'
-    | '/app/material'
+    | '/app/mitarbeiter'
+    | '/app/plan'
     | '/app/profil'
     | '/app/team'
     | '/app/zeiten'
     | '/app'
-    | '/app/angebote/$id'
-    | '/app/angebote/neu'
-    | '/app/berichte/$id'
-    | '/app/berichte/neu'
-    | '/app/integrationen/outlook'
-    | '/app/kunden/$id'
-    | '/app/kunden/neu'
-    | '/app/projekte/$id'
-    | '/app/projekte/neu'
-    | '/app/rechnungsgrundlagen/$id'
-    | '/app/angebote'
-    | '/app/aufmass'
-    | '/app/berichte'
-    | '/app/kunden'
-    | '/app/projekte'
-    | '/app/rechnungsgrundlagen'
   id:
     | '__root__'
     | '/'
@@ -444,35 +205,15 @@ export interface FileRouteTypes {
     | '/kontakt'
     | '/preise'
     | '/_authenticated/app'
-    | '/_authenticated/app/aufgaben'
-    | '/_authenticated/app/buero'
-    | '/_authenticated/app/dokumente'
+    | '/_authenticated/app/abwesenheiten'
+    | '/_authenticated/app/baustellen'
     | '/_authenticated/app/einstellungen'
-    | '/_authenticated/app/fotos'
-    | '/_authenticated/app/kalkulation'
-    | '/_authenticated/app/ki-sprachbericht'
-    | '/_authenticated/app/kommunikation'
-    | '/_authenticated/app/material'
+    | '/_authenticated/app/mitarbeiter'
+    | '/_authenticated/app/plan'
     | '/_authenticated/app/profil'
     | '/_authenticated/app/team'
     | '/_authenticated/app/zeiten'
     | '/_authenticated/app/'
-    | '/_authenticated/app/angebote/$id'
-    | '/_authenticated/app/angebote/neu'
-    | '/_authenticated/app/berichte/$id'
-    | '/_authenticated/app/berichte/neu'
-    | '/_authenticated/app/integrationen/outlook'
-    | '/_authenticated/app/kunden/$id'
-    | '/_authenticated/app/kunden/neu'
-    | '/_authenticated/app/projekte/$id'
-    | '/_authenticated/app/projekte/neu'
-    | '/_authenticated/app/rechnungsgrundlagen/$id'
-    | '/_authenticated/app/angebote/'
-    | '/_authenticated/app/aufmass/'
-    | '/_authenticated/app/berichte/'
-    | '/_authenticated/app/kunden/'
-    | '/_authenticated/app/projekte/'
-    | '/_authenticated/app/rechnungsgrundlagen/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -563,39 +304,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppProfilRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
-    '/_authenticated/app/material': {
-      id: '/_authenticated/app/material'
-      path: '/material'
-      fullPath: '/app/material'
-      preLoaderRoute: typeof AuthenticatedAppMaterialRouteImport
+    '/_authenticated/app/plan': {
+      id: '/_authenticated/app/plan'
+      path: '/plan'
+      fullPath: '/app/plan'
+      preLoaderRoute: typeof AuthenticatedAppPlanRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
-    '/_authenticated/app/kommunikation': {
-      id: '/_authenticated/app/kommunikation'
-      path: '/kommunikation'
-      fullPath: '/app/kommunikation'
-      preLoaderRoute: typeof AuthenticatedAppKommunikationRouteImport
-      parentRoute: typeof AuthenticatedAppRoute
-    }
-    '/_authenticated/app/ki-sprachbericht': {
-      id: '/_authenticated/app/ki-sprachbericht'
-      path: '/ki-sprachbericht'
-      fullPath: '/app/ki-sprachbericht'
-      preLoaderRoute: typeof AuthenticatedAppKiSprachberichtRouteImport
-      parentRoute: typeof AuthenticatedAppRoute
-    }
-    '/_authenticated/app/kalkulation': {
-      id: '/_authenticated/app/kalkulation'
-      path: '/kalkulation'
-      fullPath: '/app/kalkulation'
-      preLoaderRoute: typeof AuthenticatedAppKalkulationRouteImport
-      parentRoute: typeof AuthenticatedAppRoute
-    }
-    '/_authenticated/app/fotos': {
-      id: '/_authenticated/app/fotos'
-      path: '/fotos'
-      fullPath: '/app/fotos'
-      preLoaderRoute: typeof AuthenticatedAppFotosRouteImport
+    '/_authenticated/app/mitarbeiter': {
+      id: '/_authenticated/app/mitarbeiter'
+      path: '/mitarbeiter'
+      fullPath: '/app/mitarbeiter'
+      preLoaderRoute: typeof AuthenticatedAppMitarbeiterRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
     '/_authenticated/app/einstellungen': {
@@ -605,207 +325,45 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppEinstellungenRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
-    '/_authenticated/app/dokumente': {
-      id: '/_authenticated/app/dokumente'
-      path: '/dokumente'
-      fullPath: '/app/dokumente'
-      preLoaderRoute: typeof AuthenticatedAppDokumenteRouteImport
+    '/_authenticated/app/baustellen': {
+      id: '/_authenticated/app/baustellen'
+      path: '/baustellen'
+      fullPath: '/app/baustellen'
+      preLoaderRoute: typeof AuthenticatedAppBaustellenRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
-    '/_authenticated/app/buero': {
-      id: '/_authenticated/app/buero'
-      path: '/buero'
-      fullPath: '/app/buero'
-      preLoaderRoute: typeof AuthenticatedAppBueroRouteImport
-      parentRoute: typeof AuthenticatedAppRoute
-    }
-    '/_authenticated/app/aufgaben': {
-      id: '/_authenticated/app/aufgaben'
-      path: '/aufgaben'
-      fullPath: '/app/aufgaben'
-      preLoaderRoute: typeof AuthenticatedAppAufgabenRouteImport
-      parentRoute: typeof AuthenticatedAppRoute
-    }
-    '/_authenticated/app/rechnungsgrundlagen/': {
-      id: '/_authenticated/app/rechnungsgrundlagen/'
-      path: '/rechnungsgrundlagen'
-      fullPath: '/app/rechnungsgrundlagen/'
-      preLoaderRoute: typeof AuthenticatedAppRechnungsgrundlagenIndexRouteImport
-      parentRoute: typeof AuthenticatedAppRoute
-    }
-    '/_authenticated/app/projekte/': {
-      id: '/_authenticated/app/projekte/'
-      path: '/projekte'
-      fullPath: '/app/projekte/'
-      preLoaderRoute: typeof AuthenticatedAppProjekteIndexRouteImport
-      parentRoute: typeof AuthenticatedAppRoute
-    }
-    '/_authenticated/app/kunden/': {
-      id: '/_authenticated/app/kunden/'
-      path: '/kunden'
-      fullPath: '/app/kunden/'
-      preLoaderRoute: typeof AuthenticatedAppKundenIndexRouteImport
-      parentRoute: typeof AuthenticatedAppRoute
-    }
-    '/_authenticated/app/berichte/': {
-      id: '/_authenticated/app/berichte/'
-      path: '/berichte'
-      fullPath: '/app/berichte/'
-      preLoaderRoute: typeof AuthenticatedAppBerichteIndexRouteImport
-      parentRoute: typeof AuthenticatedAppRoute
-    }
-    '/_authenticated/app/aufmass/': {
-      id: '/_authenticated/app/aufmass/'
-      path: '/aufmass'
-      fullPath: '/app/aufmass/'
-      preLoaderRoute: typeof AuthenticatedAppAufmassIndexRouteImport
-      parentRoute: typeof AuthenticatedAppRoute
-    }
-    '/_authenticated/app/angebote/': {
-      id: '/_authenticated/app/angebote/'
-      path: '/angebote'
-      fullPath: '/app/angebote/'
-      preLoaderRoute: typeof AuthenticatedAppAngeboteIndexRouteImport
-      parentRoute: typeof AuthenticatedAppRoute
-    }
-    '/_authenticated/app/rechnungsgrundlagen/$id': {
-      id: '/_authenticated/app/rechnungsgrundlagen/$id'
-      path: '/rechnungsgrundlagen/$id'
-      fullPath: '/app/rechnungsgrundlagen/$id'
-      preLoaderRoute: typeof AuthenticatedAppRechnungsgrundlagenIdRouteImport
-      parentRoute: typeof AuthenticatedAppRoute
-    }
-    '/_authenticated/app/projekte/neu': {
-      id: '/_authenticated/app/projekte/neu'
-      path: '/projekte/neu'
-      fullPath: '/app/projekte/neu'
-      preLoaderRoute: typeof AuthenticatedAppProjekteNeuRouteImport
-      parentRoute: typeof AuthenticatedAppRoute
-    }
-    '/_authenticated/app/projekte/$id': {
-      id: '/_authenticated/app/projekte/$id'
-      path: '/projekte/$id'
-      fullPath: '/app/projekte/$id'
-      preLoaderRoute: typeof AuthenticatedAppProjekteIdRouteImport
-      parentRoute: typeof AuthenticatedAppRoute
-    }
-    '/_authenticated/app/kunden/neu': {
-      id: '/_authenticated/app/kunden/neu'
-      path: '/kunden/neu'
-      fullPath: '/app/kunden/neu'
-      preLoaderRoute: typeof AuthenticatedAppKundenNeuRouteImport
-      parentRoute: typeof AuthenticatedAppRoute
-    }
-    '/_authenticated/app/kunden/$id': {
-      id: '/_authenticated/app/kunden/$id'
-      path: '/kunden/$id'
-      fullPath: '/app/kunden/$id'
-      preLoaderRoute: typeof AuthenticatedAppKundenIdRouteImport
-      parentRoute: typeof AuthenticatedAppRoute
-    }
-    '/_authenticated/app/integrationen/outlook': {
-      id: '/_authenticated/app/integrationen/outlook'
-      path: '/integrationen/outlook'
-      fullPath: '/app/integrationen/outlook'
-      preLoaderRoute: typeof AuthenticatedAppIntegrationenOutlookRouteImport
-      parentRoute: typeof AuthenticatedAppRoute
-    }
-    '/_authenticated/app/berichte/neu': {
-      id: '/_authenticated/app/berichte/neu'
-      path: '/berichte/neu'
-      fullPath: '/app/berichte/neu'
-      preLoaderRoute: typeof AuthenticatedAppBerichteNeuRouteImport
-      parentRoute: typeof AuthenticatedAppRoute
-    }
-    '/_authenticated/app/berichte/$id': {
-      id: '/_authenticated/app/berichte/$id'
-      path: '/berichte/$id'
-      fullPath: '/app/berichte/$id'
-      preLoaderRoute: typeof AuthenticatedAppBerichteIdRouteImport
-      parentRoute: typeof AuthenticatedAppRoute
-    }
-    '/_authenticated/app/angebote/neu': {
-      id: '/_authenticated/app/angebote/neu'
-      path: '/angebote/neu'
-      fullPath: '/app/angebote/neu'
-      preLoaderRoute: typeof AuthenticatedAppAngeboteNeuRouteImport
-      parentRoute: typeof AuthenticatedAppRoute
-    }
-    '/_authenticated/app/angebote/$id': {
-      id: '/_authenticated/app/angebote/$id'
-      path: '/angebote/$id'
-      fullPath: '/app/angebote/$id'
-      preLoaderRoute: typeof AuthenticatedAppAngeboteIdRouteImport
+    '/_authenticated/app/abwesenheiten': {
+      id: '/_authenticated/app/abwesenheiten'
+      path: '/abwesenheiten'
+      fullPath: '/app/abwesenheiten'
+      preLoaderRoute: typeof AuthenticatedAppAbwesenheitenRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
   }
 }
 
 interface AuthenticatedAppRouteChildren {
-  AuthenticatedAppAufgabenRoute: typeof AuthenticatedAppAufgabenRoute
-  AuthenticatedAppBueroRoute: typeof AuthenticatedAppBueroRoute
-  AuthenticatedAppDokumenteRoute: typeof AuthenticatedAppDokumenteRoute
+  AuthenticatedAppAbwesenheitenRoute: typeof AuthenticatedAppAbwesenheitenRoute
+  AuthenticatedAppBaustellenRoute: typeof AuthenticatedAppBaustellenRoute
   AuthenticatedAppEinstellungenRoute: typeof AuthenticatedAppEinstellungenRoute
-  AuthenticatedAppFotosRoute: typeof AuthenticatedAppFotosRoute
-  AuthenticatedAppKalkulationRoute: typeof AuthenticatedAppKalkulationRoute
-  AuthenticatedAppKiSprachberichtRoute: typeof AuthenticatedAppKiSprachberichtRoute
-  AuthenticatedAppKommunikationRoute: typeof AuthenticatedAppKommunikationRoute
-  AuthenticatedAppMaterialRoute: typeof AuthenticatedAppMaterialRoute
+  AuthenticatedAppMitarbeiterRoute: typeof AuthenticatedAppMitarbeiterRoute
+  AuthenticatedAppPlanRoute: typeof AuthenticatedAppPlanRoute
   AuthenticatedAppProfilRoute: typeof AuthenticatedAppProfilRoute
   AuthenticatedAppTeamRoute: typeof AuthenticatedAppTeamRoute
   AuthenticatedAppZeitenRoute: typeof AuthenticatedAppZeitenRoute
   AuthenticatedAppIndexRoute: typeof AuthenticatedAppIndexRoute
-  AuthenticatedAppAngeboteIdRoute: typeof AuthenticatedAppAngeboteIdRoute
-  AuthenticatedAppAngeboteNeuRoute: typeof AuthenticatedAppAngeboteNeuRoute
-  AuthenticatedAppBerichteIdRoute: typeof AuthenticatedAppBerichteIdRoute
-  AuthenticatedAppBerichteNeuRoute: typeof AuthenticatedAppBerichteNeuRoute
-  AuthenticatedAppIntegrationenOutlookRoute: typeof AuthenticatedAppIntegrationenOutlookRoute
-  AuthenticatedAppKundenIdRoute: typeof AuthenticatedAppKundenIdRoute
-  AuthenticatedAppKundenNeuRoute: typeof AuthenticatedAppKundenNeuRoute
-  AuthenticatedAppProjekteIdRoute: typeof AuthenticatedAppProjekteIdRoute
-  AuthenticatedAppProjekteNeuRoute: typeof AuthenticatedAppProjekteNeuRoute
-  AuthenticatedAppRechnungsgrundlagenIdRoute: typeof AuthenticatedAppRechnungsgrundlagenIdRoute
-  AuthenticatedAppAngeboteIndexRoute: typeof AuthenticatedAppAngeboteIndexRoute
-  AuthenticatedAppAufmassIndexRoute: typeof AuthenticatedAppAufmassIndexRoute
-  AuthenticatedAppBerichteIndexRoute: typeof AuthenticatedAppBerichteIndexRoute
-  AuthenticatedAppKundenIndexRoute: typeof AuthenticatedAppKundenIndexRoute
-  AuthenticatedAppProjekteIndexRoute: typeof AuthenticatedAppProjekteIndexRoute
-  AuthenticatedAppRechnungsgrundlagenIndexRoute: typeof AuthenticatedAppRechnungsgrundlagenIndexRoute
 }
 
 const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
-  AuthenticatedAppAufgabenRoute: AuthenticatedAppAufgabenRoute,
-  AuthenticatedAppBueroRoute: AuthenticatedAppBueroRoute,
-  AuthenticatedAppDokumenteRoute: AuthenticatedAppDokumenteRoute,
+  AuthenticatedAppAbwesenheitenRoute: AuthenticatedAppAbwesenheitenRoute,
+  AuthenticatedAppBaustellenRoute: AuthenticatedAppBaustellenRoute,
   AuthenticatedAppEinstellungenRoute: AuthenticatedAppEinstellungenRoute,
-  AuthenticatedAppFotosRoute: AuthenticatedAppFotosRoute,
-  AuthenticatedAppKalkulationRoute: AuthenticatedAppKalkulationRoute,
-  AuthenticatedAppKiSprachberichtRoute: AuthenticatedAppKiSprachberichtRoute,
-  AuthenticatedAppKommunikationRoute: AuthenticatedAppKommunikationRoute,
-  AuthenticatedAppMaterialRoute: AuthenticatedAppMaterialRoute,
+  AuthenticatedAppMitarbeiterRoute: AuthenticatedAppMitarbeiterRoute,
+  AuthenticatedAppPlanRoute: AuthenticatedAppPlanRoute,
   AuthenticatedAppProfilRoute: AuthenticatedAppProfilRoute,
   AuthenticatedAppTeamRoute: AuthenticatedAppTeamRoute,
   AuthenticatedAppZeitenRoute: AuthenticatedAppZeitenRoute,
   AuthenticatedAppIndexRoute: AuthenticatedAppIndexRoute,
-  AuthenticatedAppAngeboteIdRoute: AuthenticatedAppAngeboteIdRoute,
-  AuthenticatedAppAngeboteNeuRoute: AuthenticatedAppAngeboteNeuRoute,
-  AuthenticatedAppBerichteIdRoute: AuthenticatedAppBerichteIdRoute,
-  AuthenticatedAppBerichteNeuRoute: AuthenticatedAppBerichteNeuRoute,
-  AuthenticatedAppIntegrationenOutlookRoute:
-    AuthenticatedAppIntegrationenOutlookRoute,
-  AuthenticatedAppKundenIdRoute: AuthenticatedAppKundenIdRoute,
-  AuthenticatedAppKundenNeuRoute: AuthenticatedAppKundenNeuRoute,
-  AuthenticatedAppProjekteIdRoute: AuthenticatedAppProjekteIdRoute,
-  AuthenticatedAppProjekteNeuRoute: AuthenticatedAppProjekteNeuRoute,
-  AuthenticatedAppRechnungsgrundlagenIdRoute:
-    AuthenticatedAppRechnungsgrundlagenIdRoute,
-  AuthenticatedAppAngeboteIndexRoute: AuthenticatedAppAngeboteIndexRoute,
-  AuthenticatedAppAufmassIndexRoute: AuthenticatedAppAufmassIndexRoute,
-  AuthenticatedAppBerichteIndexRoute: AuthenticatedAppBerichteIndexRoute,
-  AuthenticatedAppKundenIndexRoute: AuthenticatedAppKundenIndexRoute,
-  AuthenticatedAppProjekteIndexRoute: AuthenticatedAppProjekteIndexRoute,
-  AuthenticatedAppRechnungsgrundlagenIndexRoute:
-    AuthenticatedAppRechnungsgrundlagenIndexRoute,
 }
 
 const AuthenticatedAppRouteWithChildren =
@@ -833,13 +391,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

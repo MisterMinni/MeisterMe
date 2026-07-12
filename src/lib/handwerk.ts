@@ -14,7 +14,7 @@ export const GEWERKE = [
   { value: "sonstige", label: "Sonstige" },
 ] as const;
 
-export const PROJECT_STATUS = [
+export const SITE_STATUS = [
   { value: "anfrage", label: "Anfrage" },
   { value: "angebot", label: "Angebot" },
   { value: "beauftragt", label: "Beauftragt" },
@@ -22,19 +22,6 @@ export const PROJECT_STATUS = [
   { value: "in_arbeit", label: "In Arbeit" },
   { value: "abgeschlossen", label: "Abgeschlossen" },
   { value: "abgerechnet", label: "Abgerechnet" },
-] as const;
-
-export const OFFER_STATUS = [
-  { value: "entwurf", label: "Entwurf" },
-  { value: "gesendet", label: "Gesendet" },
-  { value: "angenommen", label: "Angenommen" },
-  { value: "abgelehnt", label: "Abgelehnt" },
-] as const;
-
-export const REPORT_STATUS = [
-  { value: "entwurf", label: "Entwurf" },
-  { value: "fertig", label: "Fertig" },
-  { value: "geprueft", label: "Geprüft" },
 ] as const;
 
 export function formatEur(n: number | null | undefined) {
@@ -76,27 +63,50 @@ export function useProfile() {
   });
 }
 
-export type AppRole = "admin" | "buero" | "bauleiter" | "monteur" | "azubi";
+// Roles are now free-form (tenant-defined). We ship 7 defaults per tenant.
+export type AppRole =
+  | "unternehmensinhaber"
+  | "administrator"
+  | "personalverwaltung"
+  | "buchhaltung"
+  | "bauleiter"
+  | "vorarbeiter"
+  | "mitarbeiter"
+  | (string & {});
 
-export const ROLE_LABELS: Record<AppRole, string> = {
-  admin: "Admin",
-  buero: "Büro",
+export const ROLE_LABELS: Record<string, string> = {
+  unternehmensinhaber: "Unternehmensinhaber",
+  administrator: "Administrator",
+  personalverwaltung: "Personalverwaltung",
+  buchhaltung: "Buchhaltung",
   bauleiter: "Bauleiter",
-  monteur: "Monteur",
-  azubi: "Azubi",
+  vorarbeiter: "Vorarbeiter",
+  mitarbeiter: "Mitarbeiter",
 };
 
-// Highest-privilege role wins for gate decisions
-const ROLE_RANK: Record<AppRole, number> = { admin: 5, buero: 4, bauleiter: 3, monteur: 2, azubi: 1 };
+const ROLE_RANK: Record<string, number> = {
+  unternehmensinhaber: 100,
+  administrator: 90,
+  personalverwaltung: 60,
+  buchhaltung: 50,
+  bauleiter: 40,
+  vorarbeiter: 30,
+  mitarbeiter: 20,
+};
 
 export function useMyRoles() {
   return useQuery({
     queryKey: ["my-roles"],
-    queryFn: async (): Promise<AppRole[]> => {
+    queryFn: async (): Promise<{ key: string; name: string }[]> => {
       const { data: u } = await supabase.auth.getUser();
       if (!u.user) return [];
-      const { data } = await supabase.from("user_roles").select("role").eq("user_id", u.user.id);
-      return (data ?? []).map((r) => r.role as AppRole);
+      const { data } = await supabase
+        .from("user_role_assignments")
+        .select("roles(key, name)")
+        .eq("user_id", u.user.id);
+      return (data ?? [])
+        .map((r) => (r as unknown as { roles: { key: string; name: string } | null }).roles)
+        .filter((r): r is { key: string; name: string } => !!r);
     },
   });
 }
@@ -104,10 +114,38 @@ export function useMyRoles() {
 export function useMyRole(): AppRole | null {
   const { data } = useMyRoles();
   if (!data || data.length === 0) return null;
-  return [...data].sort((a, b) => ROLE_RANK[b] - ROLE_RANK[a])[0];
+  return [...data].sort(
+    (a, b) => (ROLE_RANK[b.key] ?? 0) - (ROLE_RANK[a.key] ?? 0),
+  )[0].key as AppRole;
 }
 
-export function canAccess(role: AppRole | null, allowed: AppRole[]): boolean {
-  if (!role) return false;
-  return allowed.includes(role);
+export function useMyPermissions() {
+  return useQuery({
+    queryKey: ["my-permissions"],
+    queryFn: async (): Promise<string[]> => {
+      const { data: u } = await supabase.auth.getUser();
+      if (!u.user) return [];
+      const { data } = await supabase
+        .from("user_role_assignments")
+        .select("roles(role_permissions(permission_key))")
+        .eq("user_id", u.user.id);
+      const keys = new Set<string>();
+      for (const row of data ?? []) {
+        const roles = (row as unknown as { roles: { role_permissions: { permission_key: string }[] } | null }).roles;
+        for (const rp of roles?.role_permissions ?? []) keys.add(rp.permission_key);
+      }
+      return Array.from(keys);
+    },
+  });
+}
+
+export function useHasPermission(perm: string): boolean {
+  const { data } = useMyPermissions();
+  return !!data?.includes(perm);
+}
+
+// Convenience: highest-tier "admin" (can manage roles and settings)
+export function useIsAdmin(): boolean {
+  const role = useMyRole();
+  return role === "unternehmensinhaber" || role === "administrator";
 }

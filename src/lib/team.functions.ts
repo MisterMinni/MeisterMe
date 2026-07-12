@@ -2,23 +2,31 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 
-const roleSchema = z.enum(["admin", "buero", "bauleiter", "monteur", "azubi"]);
-
 async function requireAdmin(ctx: { supabase: any; userId: string }) {
-  const { data: prof } = await ctx.supabase
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data: prof } = await supabaseAdmin
     .from("profiles")
     .select("tenant_id")
     .eq("id", ctx.userId)
     .maybeSingle();
   if (!prof?.tenant_id) throw new Error("Kein Betrieb gefunden.");
-  const { data: roles } = await ctx.supabase
-    .from("user_roles")
-    .select("role")
-    .eq("user_id", ctx.userId)
-    .eq("tenant_id", prof.tenant_id);
-  const isAdmin = (roles ?? []).some((r: { role: string }) => r.role === "admin");
-  if (!isAdmin) throw new Error("Nur Admins dürfen das Team verwalten.");
+  const { data: ok } = await supabaseAdmin.rpc("has_permission", {
+    _user_id: ctx.userId,
+    _permission: "employees:create",
+  });
+  if (!ok) throw new Error("Keine Berechtigung zur Mitarbeiterverwaltung.");
   return prof.tenant_id as string;
+}
+
+async function roleIdFor(admin: any, tenantId: string, roleKey: string) {
+  const { data } = await admin
+    .from("roles")
+    .select("id")
+    .eq("tenant_id", tenantId)
+    .eq("key", roleKey)
+    .maybeSingle();
+  if (!data?.id) throw new Error(`Rolle "${roleKey}" wurde nicht gefunden.`);
+  return data.id as string;
 }
 
 export const createTeamMember = createServerFn({ method: "POST" })
@@ -30,7 +38,7 @@ export const createTeamMember = createServerFn({ method: "POST" })
         password: z.string().min(8, "Mindestens 8 Zeichen"),
         fullName: z.string().min(1),
         phone: z.string().optional(),
-        role: roleSchema,
+        roleKey: z.string().min(1),
       })
       .parse(d),
   )
@@ -48,7 +56,6 @@ export const createTeamMember = createServerFn({ method: "POST" })
 
     const uid = created.user.id;
 
-    // Ensure profile is in OUR tenant (signup trigger creates a throwaway tenant)
     await supabaseAdmin.from("profiles").upsert({
       id: uid,
       tenant_id: tenantId,
@@ -56,13 +63,12 @@ export const createTeamMember = createServerFn({ method: "POST" })
       phone: data.phone ?? null,
     });
 
-    // Replace auto-created admin role in throwaway tenant with real role
-    await supabaseAdmin.from("user_roles").delete().eq("user_id", uid);
+    const roleId = await roleIdFor(supabaseAdmin, tenantId, data.roleKey);
+    await supabaseAdmin.from("user_role_assignments").delete().eq("user_id", uid);
     await supabaseAdmin
-      .from("user_roles")
-      .insert({ user_id: uid, tenant_id: tenantId, role: data.role });
+      .from("user_role_assignments")
+      .insert({ user_id: uid, tenant_id: tenantId, role_id: roleId });
 
-    // Best-effort: remove orphan tenants created by the signup trigger
     await supabaseAdmin.from("tenants").delete().eq("name", "__team_member__");
 
     return { id: uid };
@@ -76,7 +82,7 @@ export const updateTeamMember = createServerFn({ method: "POST" })
         userId: z.string().uuid(),
         fullName: z.string().optional(),
         phone: z.string().optional().nullable(),
-        role: roleSchema.optional(),
+        roleKey: z.string().optional(),
       })
       .parse(d),
   )
@@ -101,15 +107,16 @@ export const updateTeamMember = createServerFn({ method: "POST" })
         .eq("id", data.userId);
     }
 
-    if (data.role) {
+    if (data.roleKey) {
+      const roleId = await roleIdFor(supabaseAdmin, tenantId, data.roleKey);
       await supabaseAdmin
-        .from("user_roles")
+        .from("user_role_assignments")
         .delete()
         .eq("user_id", data.userId)
         .eq("tenant_id", tenantId);
       await supabaseAdmin
-        .from("user_roles")
-        .insert({ user_id: data.userId, tenant_id: tenantId, role: data.role });
+        .from("user_role_assignments")
+        .insert({ user_id: data.userId, tenant_id: tenantId, role_id: roleId });
     }
     return { ok: true };
   });
@@ -135,12 +142,12 @@ export const resetTeamMemberPassword = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
-export const deleteTeamMember = createServerFn({ method: "POST" })
+export const deactivateTeamMember = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => z.object({ userId: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     const tenantId = await requireAdmin(context);
-    if (data.userId === context.userId) throw new Error("Du kannst dich nicht selbst löschen.");
+    if (data.userId === context.userId) throw new Error("Du kannst dich nicht selbst deaktivieren.");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: prof } = await supabaseAdmin
       .from("profiles")
@@ -148,7 +155,28 @@ export const deleteTeamMember = createServerFn({ method: "POST" })
       .eq("id", data.userId)
       .maybeSingle();
     if (prof?.tenant_id !== tenantId) throw new Error("Nutzer gehört nicht zum Betrieb.");
-    const { error } = await supabaseAdmin.auth.admin.deleteUser(data.userId);
-    if (error) throw new Error(error.message);
+    await supabaseAdmin
+      .from("profiles")
+      .update({ disabled_at: new Date().toISOString(), exit_date: new Date().toISOString().slice(0, 10) })
+      .eq("id", data.userId);
+    return { ok: true };
+  });
+
+export const reactivateTeamMember = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ userId: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    const tenantId = await requireAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: prof } = await supabaseAdmin
+      .from("profiles")
+      .select("tenant_id")
+      .eq("id", data.userId)
+      .maybeSingle();
+    if (prof?.tenant_id !== tenantId) throw new Error("Nutzer gehört nicht zum Betrieb.");
+    await supabaseAdmin
+      .from("profiles")
+      .update({ disabled_at: null, exit_date: null })
+      .eq("id", data.userId);
     return { ok: true };
   });
