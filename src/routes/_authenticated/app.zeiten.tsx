@@ -17,11 +17,11 @@ export const Route = createFileRoute("/_authenticated/app/zeiten")({
 
 function Zeiten() {
   const qc = useQueryClient();
-  const [projectId, setProjectId] = useState("");
+  const [siteId, setSiteId] = useState("");
   const [taetigkeit, setTaetigkeit] = useState("");
   const [runningId, setRunningId] = useState<string | null>(null);
   const [startTs, setStartTs] = useState<number | null>(null);
-  const [tick, setTick] = useState(0);
+  const [, setTick] = useState(0);
 
   useEffect(() => {
     if (!startTs) return;
@@ -29,23 +29,31 @@ function Zeiten() {
     return () => clearInterval(i);
   }, [startTs]);
 
-  const { data: projekte } = useQuery({
-    queryKey: ["projects-select"],
-    queryFn: async () => (await supabase.from("projects").select("id, name")).data ?? [],
+  const { data: sites } = useQuery({
+    queryKey: ["sites-select"],
+    queryFn: async () => (await supabase.from("sites").select("id, name").is("archived_at", null)).data ?? [],
   });
   const { data: entries } = useQuery({
     queryKey: ["time-entries"],
-    queryFn: async () => (await supabase.from("time_entries").select("*, projects(name)").order("start_ts", { ascending: false }).limit(50)).data ?? [],
+    queryFn: async () =>
+      (await supabase
+        .from("time_entries")
+        .select("*, sites(name)")
+        .order("start_ts", { ascending: false })
+        .limit(50)).data ?? [],
   });
 
   async function start() {
-    if (!projectId) return toast.error("Projekt wählen");
+    if (!siteId) return toast.error("Baustelle wählen");
     const { data: u } = await supabase.auth.getUser();
     const { data: p } = await supabase.from("profiles").select("tenant_id").eq("id", u.user!.id).single();
     const now = new Date();
     const { data, error } = await supabase.from("time_entries").insert({
-      tenant_id: p!.tenant_id as string, user_id: u.user!.id,
-      project_id: projectId, taetigkeit, start_ts: now.toISOString(),
+      tenant_id: p!.tenant_id as string,
+      user_id: u.user!.id,
+      project_id: siteId,
+      taetigkeit,
+      start_ts: now.toISOString(),
     }).select("id").single();
     if (error) return toast.error(error.message);
     setRunningId(data.id);
@@ -56,7 +64,8 @@ function Zeiten() {
     const end = new Date();
     const minuten = Math.round((end.getTime() - startTs) / 60000);
     await supabase.from("time_entries").update({ end_ts: end.toISOString(), minuten }).eq("id", runningId);
-    setRunningId(null); setStartTs(null);
+    setRunningId(null);
+    setStartTs(null);
     qc.invalidateQueries({ queryKey: ["time-entries"] });
     toast.success(`Erfasst: ${minuten} min`);
   }
@@ -66,7 +75,9 @@ function Zeiten() {
   const mm = String(Math.floor((elapsed % 3600) / 60)).padStart(2, "0");
   const ss = String(elapsed % 60).padStart(2, "0");
 
-  const heutigeMinuten = (entries ?? []).filter((e) => e.start_ts && new Date(e.start_ts).toDateString() === new Date().toDateString()).reduce((s, e) => s + (e.minuten ?? 0), 0);
+  const heutigeMinuten = (entries ?? [])
+    .filter((e) => e.start_ts && new Date(e.start_ts).toDateString() === new Date().toDateString())
+    .reduce((s, e) => s + (e.minuten ?? 0), 0);
 
   return (
     <div>
@@ -74,12 +85,12 @@ function Zeiten() {
 
       <div className="mb-6 rounded-3xl border border-border bg-navy p-6 text-white shadow-lift">
         <div className="flex flex-col items-center gap-4">
-          <div className="text-xs uppercase tracking-wider text-white/60">{runningId ? "Läuft für" : "Bereit"}</div>
+          <div className="text-xs uppercase tracking-wider text-white/60">{runningId ? "Läuft" : "Bereit"}</div>
           <div className="font-display text-6xl font-bold tabular-nums">{startTs ? `${hh}:${mm}:${ss}` : "00:00:00"}</div>
           <div className="grid w-full max-w-lg gap-2">
-            <Select value={projectId} onValueChange={setProjectId} disabled={!!runningId}>
-              <SelectTrigger className="h-12 bg-white text-foreground"><SelectValue placeholder="Projekt wählen" /></SelectTrigger>
-              <SelectContent>{projekte?.map((p) => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}</SelectContent>
+            <Select value={siteId} onValueChange={setSiteId} disabled={!!runningId}>
+              <SelectTrigger className="h-12 bg-white text-foreground"><SelectValue placeholder="Baustelle wählen" /></SelectTrigger>
+              <SelectContent>{sites?.map((p) => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}</SelectContent>
             </Select>
             <Input placeholder="Tätigkeit (optional)" value={taetigkeit} onChange={(e) => setTaetigkeit(e.target.value)} disabled={!!runningId} className="h-12 bg-white text-foreground" />
             {!runningId ? (
@@ -102,7 +113,7 @@ function Zeiten() {
         {(entries ?? []).map((e) => (
           <li key={e.id} className="flex items-center justify-between rounded-xl border border-border bg-card p-3">
             <div>
-              <div className="font-medium">{(e.projects as any)?.name ?? "—"}</div>
+              <div className="font-medium">{(e.sites as unknown as { name?: string } | null)?.name ?? "—"}</div>
               <div className="text-xs text-muted-foreground">{formatDate(e.start_ts)} · {e.taetigkeit ?? "—"}</div>
             </div>
             <div className="font-display font-bold">{e.minuten ? `${(e.minuten / 60).toFixed(2)} h` : "läuft…"}</div>
