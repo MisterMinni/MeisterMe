@@ -20,6 +20,7 @@ import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedAppZeitenRouteImport } from './routes/_authenticated/app.zeiten'
 import { Route as AuthenticatedAppTeamRouteImport } from './routes/_authenticated/app.team'
 import { Route as AuthenticatedAppProfilRouteImport } from './routes/_authenticated/app.profil'
+import { Route as AuthenticatedAppPlanRouteImport } from './routes/_authenticated/app.plan'
 import { Route as AuthenticatedAppEinstellungenRouteImport } from './routes/_authenticated/app.einstellungen'
 import { Route as AuthenticatedAppBaustellenRouteImport } from './routes/_authenticated/app.baustellen'
 
@@ -77,6 +78,11 @@ const AuthenticatedAppProfilRoute = AuthenticatedAppProfilRouteImport.update({
   path: '/profil',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
+const AuthenticatedAppPlanRoute = AuthenticatedAppPlanRouteImport.update({
+  id: '/plan',
+  path: '/plan',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
 const AuthenticatedAppEinstellungenRoute =
   AuthenticatedAppEinstellungenRouteImport.update({
     id: '/einstellungen',
@@ -99,6 +105,7 @@ export interface FileRoutesByFullPath {
   '/app': typeof AuthenticatedAppRouteWithChildren
   '/app/baustellen': typeof AuthenticatedAppBaustellenRoute
   '/app/einstellungen': typeof AuthenticatedAppEinstellungenRoute
+  '/app/plan': typeof AuthenticatedAppPlanRoute
   '/app/profil': typeof AuthenticatedAppProfilRoute
   '/app/team': typeof AuthenticatedAppTeamRoute
   '/app/zeiten': typeof AuthenticatedAppZeitenRoute
@@ -112,6 +119,7 @@ export interface FileRoutesByTo {
   '/preise': typeof PreiseRoute
   '/app/baustellen': typeof AuthenticatedAppBaustellenRoute
   '/app/einstellungen': typeof AuthenticatedAppEinstellungenRoute
+  '/app/plan': typeof AuthenticatedAppPlanRoute
   '/app/profil': typeof AuthenticatedAppProfilRoute
   '/app/team': typeof AuthenticatedAppTeamRoute
   '/app/zeiten': typeof AuthenticatedAppZeitenRoute
@@ -128,6 +136,7 @@ export interface FileRoutesById {
   '/_authenticated/app': typeof AuthenticatedAppRouteWithChildren
   '/_authenticated/app/baustellen': typeof AuthenticatedAppBaustellenRoute
   '/_authenticated/app/einstellungen': typeof AuthenticatedAppEinstellungenRoute
+  '/_authenticated/app/plan': typeof AuthenticatedAppPlanRoute
   '/_authenticated/app/profil': typeof AuthenticatedAppProfilRoute
   '/_authenticated/app/team': typeof AuthenticatedAppTeamRoute
   '/_authenticated/app/zeiten': typeof AuthenticatedAppZeitenRoute
@@ -144,6 +153,7 @@ export interface FileRouteTypes {
     | '/app'
     | '/app/baustellen'
     | '/app/einstellungen'
+    | '/app/plan'
     | '/app/profil'
     | '/app/team'
     | '/app/zeiten'
@@ -157,6 +167,7 @@ export interface FileRouteTypes {
     | '/preise'
     | '/app/baustellen'
     | '/app/einstellungen'
+    | '/app/plan'
     | '/app/profil'
     | '/app/team'
     | '/app/zeiten'
@@ -172,6 +183,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app'
     | '/_authenticated/app/baustellen'
     | '/_authenticated/app/einstellungen'
+    | '/_authenticated/app/plan'
     | '/_authenticated/app/profil'
     | '/_authenticated/app/team'
     | '/_authenticated/app/zeiten'
@@ -266,6 +278,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppProfilRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/plan': {
+      id: '/_authenticated/app/plan'
+      path: '/plan'
+      fullPath: '/app/plan'
+      preLoaderRoute: typeof AuthenticatedAppPlanRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
     '/_authenticated/app/einstellungen': {
       id: '/_authenticated/app/einstellungen'
       path: '/einstellungen'
@@ -286,6 +305,7 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedAppRouteChildren {
   AuthenticatedAppBaustellenRoute: typeof AuthenticatedAppBaustellenRoute
   AuthenticatedAppEinstellungenRoute: typeof AuthenticatedAppEinstellungenRoute
+  AuthenticatedAppPlanRoute: typeof AuthenticatedAppPlanRoute
   AuthenticatedAppProfilRoute: typeof AuthenticatedAppProfilRoute
   AuthenticatedAppTeamRoute: typeof AuthenticatedAppTeamRoute
   AuthenticatedAppZeitenRoute: typeof AuthenticatedAppZeitenRoute
@@ -295,6 +315,7 @@ interface AuthenticatedAppRouteChildren {
 const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppBaustellenRoute: AuthenticatedAppBaustellenRoute,
   AuthenticatedAppEinstellungenRoute: AuthenticatedAppEinstellungenRoute,
+  AuthenticatedAppPlanRoute: AuthenticatedAppPlanRoute,
   AuthenticatedAppProfilRoute: AuthenticatedAppProfilRoute,
   AuthenticatedAppTeamRoute: AuthenticatedAppTeamRoute,
   AuthenticatedAppZeitenRoute: AuthenticatedAppZeitenRoute,
