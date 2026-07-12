@@ -8,8 +8,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { useProfile, useHasPermission, formatDate } from "@/lib/handwerk";
+import { useProfile, formatDate } from "@/lib/handwerk";
 import { toast } from "sonner";
 import { Plus, UserX, Check, X } from "lucide-react";
 
@@ -26,19 +27,17 @@ const TYPES = [
   { value: "sonstige", label: "Sonstige" },
 ];
 
-type Status = "eingereicht" | "genehmigt" | "abgelehnt";
-const TABS: { key: Status; label: string }[] = [
-  { key: "eingereicht", label: "Offen" },
-  { key: "genehmigt", label: "Genehmigt" },
-  { key: "abgelehnt", label: "Abgelehnt" },
-];
+const STATUS_LABEL: Record<string, string> = {
+  entwurf: "Entwurf",
+  eingereicht: "Eingereicht",
+  genehmigt: "Genehmigt",
+  abgelehnt: "Abgelehnt",
+};
 
 function Abwesenheiten() {
   const qc = useQueryClient();
   const { data: profile } = useProfile();
-  const canApprove = useHasPermission("absences:approve");
   const [open, setOpen] = useState(false);
-  const [tab, setTab] = useState<Status>("eingereicht");
   const [form, setForm] = useState({ type: "urlaub", start_date: "", end_date: "", note: "" });
 
   const { data: rows } = useQuery({
@@ -85,25 +84,23 @@ function Abwesenheiten() {
     qc.invalidateQueries({ queryKey: ["absences"] });
   }
 
-  const filtered = (rows ?? []).filter((r) => r.status === tab);
-
   return (
-    <div className="mx-auto max-w-2xl">
+    <div>
       <PageHeader
         title="Abwesenheiten"
-        subtitle="Urlaub, Krank, Anträge & Übersicht."
+        subtitle="Urlaub, Krank, Sonderurlaub – Anträge und Genehmigung."
         action={
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
               <Button className="bg-brand text-brand-foreground hover:bg-brand/90">
-                <Plus className="mr-1 h-4 w-4" /> Antrag
+                <Plus className="mr-1 h-4 w-4" /> Antrag stellen
               </Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader><DialogTitle>Neuer Antrag</DialogTitle></DialogHeader>
               <div className="space-y-3">
                 <div>
-                  <Label>Abwesenheitsart</Label>
+                  <Label>Art</Label>
                   <Select value={form.type} onValueChange={(v) => setForm({ ...form, type: v })}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>{TYPES.map((t) => <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>)}</SelectContent>
@@ -113,93 +110,79 @@ function Abwesenheiten() {
                   <div><Label>Von *</Label><Input type="date" value={form.start_date} onChange={(e) => setForm({ ...form, start_date: e.target.value })} /></div>
                   <div><Label>Bis *</Label><Input type="date" value={form.end_date} onChange={(e) => setForm({ ...form, end_date: e.target.value })} /></div>
                 </div>
-                <div><Label>Notiz (optional)</Label><Textarea rows={2} value={form.note} onChange={(e) => setForm({ ...form, note: e.target.value })} /></div>
+                <div><Label>Bemerkung</Label><Textarea rows={2} value={form.note} onChange={(e) => setForm({ ...form, note: e.target.value })} /></div>
               </div>
               <DialogFooter>
                 <Button variant="outline" onClick={() => setOpen(false)}>Abbrechen</Button>
-                <Button onClick={submit} className="bg-brand text-brand-foreground hover:bg-brand/90">Antrag senden</Button>
+                <Button onClick={submit} className="bg-brand text-brand-foreground hover:bg-brand/90">Einreichen</Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
         }
       />
 
-      {/* Tabs */}
-      <div className="mb-4 flex overflow-hidden rounded-2xl border border-border bg-card p-1 shadow-card">
-        {TABS.map((t) => (
-          <button
-            key={t.key}
-            onClick={() => setTab(t.key)}
-            className={`flex-1 rounded-xl px-3 py-2 text-sm font-semibold transition ${
-              tab === t.key
-                ? "bg-brand text-brand-foreground shadow-sm"
-                : "text-muted-foreground hover:bg-secondary"
-            }`}
-          >
-            {t.label}
-          </button>
-        ))}
-      </div>
-
-      {/* Cards */}
-      {filtered.length === 0 ? (
-        <div className="rounded-2xl border-2 border-dashed border-border p-12 text-center text-muted-foreground">
-          <UserX className="mx-auto mb-2 h-6 w-6" />
-          Keine Anträge in dieser Ansicht.
-        </div>
-      ) : (
-        <ul className="space-y-2.5">
-          {filtered.map((r) => {
-            const person = (r as unknown as { profiles: { full_name?: string } | null }).profiles;
-            const typeLabel = TYPES.find((t) => t.value === r.type)?.label ?? r.type;
-            return (
-              <li
-                key={r.id}
-                className="rounded-2xl border border-border bg-card p-4 shadow-card"
-              >
-                <div className="flex items-start gap-3">
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand/10 text-sm font-bold text-brand">
-                    {(person?.full_name ?? "?").slice(0, 2).toUpperCase()}
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-baseline justify-between gap-2">
-                      <div className="truncate font-display text-[15px] font-semibold">
-                        {person?.full_name ?? "—"}
+      <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-card">
+        <table className="w-full text-sm">
+          <thead className="border-b border-border bg-secondary/40 text-left text-xs uppercase text-muted-foreground">
+            <tr>
+              <th className="px-4 py-3">Mitarbeiter</th>
+              <th className="px-4 py-3">Art</th>
+              <th className="px-4 py-3">Zeitraum</th>
+              <th className="px-4 py-3">Tage</th>
+              <th className="px-4 py-3">Status</th>
+              <th className="px-4 py-3 text-right">Aktionen</th>
+            </tr>
+          </thead>
+          <tbody>
+            {(rows ?? []).map((r) => {
+              const person = (r as unknown as { profiles: { full_name?: string } | null }).profiles;
+              const canReview = r.status === "eingereicht";
+              return (
+                <tr key={r.id} className="border-b border-border/60 last:border-0">
+                  <td className="px-4 py-3 font-medium">{person?.full_name ?? "—"}</td>
+                  <td className="px-4 py-3 capitalize">{TYPES.find((t) => t.value === r.type)?.label ?? r.type}</td>
+                  <td className="px-4 py-3">{formatDate(r.start_date)} – {formatDate(r.end_date)}</td>
+                  <td className="px-4 py-3">{r.days_calculated ?? "—"}</td>
+                  <td className="px-4 py-3">
+                    <Badge
+                      variant="secondary"
+                      className={
+                        r.status === "genehmigt"
+                          ? "bg-emerald-500/10 text-emerald-700"
+                          : r.status === "abgelehnt"
+                            ? "bg-destructive/10 text-destructive"
+                            : "bg-brand/10 text-brand"
+                      }
+                    >
+                      {STATUS_LABEL[r.status] ?? r.status}
+                    </Badge>
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    {canReview && (
+                      <div className="flex justify-end gap-2">
+                        <Button size="sm" variant="outline" onClick={() => review(r.id, "genehmigt")}>
+                          <Check className="h-3 w-3" />
+                        </Button>
+                        <Button size="sm" variant="outline" onClick={() => review(r.id, "abgelehnt")}>
+                          <X className="h-3 w-3" />
+                        </Button>
                       </div>
-                      <div className="shrink-0 text-xs font-medium text-brand">{typeLabel}</div>
-                    </div>
-                    <div className="mt-0.5 text-sm text-muted-foreground">
-                      {formatDate(r.start_date)} – {formatDate(r.end_date)}
-                      <span className="ml-2 text-xs">· {r.days_calculated ?? "?"} Tage</span>
-                    </div>
-                    {r.note && (
-                      <div className="mt-2 text-xs text-muted-foreground">„{r.note}"</div>
                     )}
-                  </div>
-                  {canApprove && r.status === "eingereicht" && (
-                    <div className="flex shrink-0 flex-col gap-1.5">
-                      <button
-                        onClick={() => review(r.id, "genehmigt")}
-                        className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-700 transition hover:bg-emerald-500/20"
-                        aria-label="Genehmigen"
-                      >
-                        <Check className="h-4 w-4" />
-                      </button>
-                      <button
-                        onClick={() => review(r.id, "abgelehnt")}
-                        className="flex h-8 w-8 items-center justify-center rounded-lg bg-destructive/10 text-destructive transition hover:bg-destructive/20"
-                        aria-label="Ablehnen"
-                      >
-                        <X className="h-4 w-4" />
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </li>
-            );
-          })}
-        </ul>
-      )}
+                  </td>
+                </tr>
+              );
+            })}
+            {(!rows || rows.length === 0) && (
+              <tr>
+                <td colSpan={6} className="px-4 py-12 text-center text-muted-foreground">
+                  <UserX className="mx-auto mb-2 h-6 w-6" />
+                  Noch keine Anträge.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
