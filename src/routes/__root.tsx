@@ -127,6 +127,12 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
+// TEMP: Dev-Auto-Login. Vor Produktion entfernen.
+const DEV_AUTO_LOGIN = {
+  email: "bastiskiller2@gmail.com",
+  password: "bababasti1!",
+};
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const router = useRouter();
@@ -139,6 +145,19 @@ function RootComponent() {
     });
     return () => sub.subscription.unsubscribe();
   }, [router, queryClient]);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase.auth.getSession();
+      if (cancelled || data.session) return;
+      const { error } = await supabase.auth.signInWithPassword(DEV_AUTO_LOGIN);
+      if (error) console.error("[dev auto-login]", error.message);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
