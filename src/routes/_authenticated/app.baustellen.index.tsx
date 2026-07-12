@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useProfile, SITE_STATUS, formatDate, useHasPermission } from "@/lib/handwerk";
 import { toast } from "sonner";
-import { Plus, Briefcase, Archive, MessageSquare, Users, Clock, ArrowRight } from "lucide-react";
+import { Plus, Briefcase, Search, ChevronRight } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/app/baustellen/")({
   head: () => ({ meta: [{ title: "Baustellen – MeisterMe" }] }),
