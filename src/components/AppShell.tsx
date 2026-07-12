@@ -2,34 +2,22 @@ import { Link, Outlet, useNavigate, useRouterState } from "@tanstack/react-route
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import {
   LayoutDashboard,
-  Users,
   Briefcase,
-  FileText,
-  Ruler,
-  ClipboardList,
   Clock,
-  Package,
-  Camera,
-  Mic,
-  Receipt,
   Calendar,
-  Mail,
-  FolderOpen,
-  Building2,
-  Plug,
-  Settings,
-  Calculator,
-  LogOut,
-  Plus,
   UsersRound,
+  Settings,
+  UserX,
+  LogOut,
   Home,
   Search,
   Menu,
   User,
+  Users,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
-import { useProfile, useMyRole, useSession, ROLE_LABELS, type AppRole } from "@/lib/handwerk";
+import { useProfile, useMyRole, useSession, useIsAdmin, ROLE_LABELS } from "@/lib/handwerk";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import {
@@ -42,31 +30,17 @@ import {
 } from "@/components/ui/dropdown-menu";
 import type { LucideIcon } from "lucide-react";
 
-type NavItem = { to: string; label: string; icon: LucideIcon; exact?: boolean; roles?: AppRole[] };
+type NavItem = { to: string; label: string; icon: LucideIcon; exact?: boolean; adminOnly?: boolean };
 
-const ALL_ROLES: AppRole[] = ["admin", "buero", "bauleiter", "monteur", "azubi"];
-
-// Full module list (used in menu + breadcrumb lookup)
 const modules: NavItem[] = [
-  { to: "/app", label: "Dashboard", icon: LayoutDashboard, exact: true, roles: ALL_ROLES },
-  { to: "/app/kunden", label: "Kunden", icon: Users, roles: ["admin", "buero", "bauleiter"] },
-  { to: "/app/projekte", label: "Projekte", icon: Briefcase, roles: ALL_ROLES },
-  { to: "/app/angebote", label: "Angebote", icon: FileText, roles: ["admin", "buero", "bauleiter"] },
-  { to: "/app/aufmass", label: "Aufmaß", icon: Ruler, roles: ["admin", "buero", "bauleiter", "monteur"] },
-  { to: "/app/berichte", label: "Einsatzberichte", icon: ClipboardList, roles: ALL_ROLES },
-  { to: "/app/ki-sprachbericht", label: "KI-Sprachbericht", icon: Mic, roles: ALL_ROLES },
-  { to: "/app/zeiten", label: "Zeiterfassung", icon: Clock, roles: ALL_ROLES },
-  { to: "/app/material", label: "Material", icon: Package, roles: ALL_ROLES },
-  { to: "/app/fotos", label: "Fotos", icon: Camera, roles: ALL_ROLES },
-  { to: "/app/aufgaben", label: "Aufgaben", icon: Calendar, roles: ALL_ROLES },
-  { to: "/app/rechnungsgrundlagen", label: "Rechnungen", icon: Receipt, roles: ["admin", "buero"] },
-  { to: "/app/kalkulation", label: "Kalkulation", icon: Calculator, roles: ["admin", "buero", "bauleiter"] },
-  { to: "/app/kommunikation", label: "Kommunikation", icon: Mail, roles: ["admin", "buero", "bauleiter"] },
-  { to: "/app/dokumente", label: "Dokumente", icon: FolderOpen, roles: ALL_ROLES },
-  { to: "/app/buero", label: "Büro", icon: Building2, roles: ["admin", "buero"] },
-  { to: "/app/team", label: "Team", icon: UsersRound, roles: ["admin"] },
-  { to: "/app/integrationen/outlook", label: "Outlook", icon: Plug, roles: ["admin", "buero"] },
-  { to: "/app/einstellungen", label: "Einstellungen", icon: Settings, roles: ["admin"] },
+  { to: "/app", label: "Dashboard", icon: LayoutDashboard, exact: true },
+  { to: "/app/baustellen", label: "Baustellen", icon: Briefcase },
+  { to: "/app/plan", label: "Wochenplanung", icon: Calendar },
+  { to: "/app/zeiten", label: "Zeiterfassung", icon: Clock },
+  { to: "/app/abwesenheiten", label: "Abwesenheiten", icon: UserX },
+  { to: "/app/mitarbeiter", label: "Mitarbeiter", icon: Users, adminOnly: true },
+  { to: "/app/team", label: "Rollen & Zugänge", icon: UsersRound, adminOnly: true },
+  { to: "/app/einstellungen", label: "Einstellungen", icon: Settings, adminOnly: true },
 ];
 
 export function AppShell({ children }: { children?: ReactNode }) {
@@ -74,6 +48,7 @@ export function AppShell({ children }: { children?: ReactNode }) {
   const { data: profile } = useProfile();
   const { data: session } = useSession();
   const role = useMyRole();
+  const isAdmin = useIsAdmin();
   const navigate = useNavigate();
 
   const email = session?.user?.email ?? "";
@@ -83,9 +58,9 @@ export function AppShell({ children }: { children?: ReactNode }) {
       ? profile.full_name.trim().split(/\s+/).map((s) => s[0]).slice(0, 2).join("")
       : email.slice(0, 2)
     ).toUpperCase() || "?";
-  const roleLabel = role ? ROLE_LABELS[role] : "Kein Zugriff";
+  const roleLabel = role ? ROLE_LABELS[role] ?? role : "Kein Zugriff";
 
-  const visibleModules = modules.filter((n) => !role || !n.roles || n.roles.includes(role));
+  const visibleModules = modules.filter((n) => !n.adminOnly || isAdmin);
   const isHome = pathname === "/app" || pathname === "/app/";
   const currentModule =
     !isHome
@@ -103,18 +78,12 @@ export function AppShell({ children }: { children?: ReactNode }) {
 
   return (
     <div className="min-h-screen bg-secondary/40">
-      {/* Topbar */}
       <header className="sticky top-0 z-30 border-b border-border bg-sidebar text-sidebar-foreground shadow-sm">
         <div className="mx-auto flex h-16 max-w-[1600px] items-center gap-3 px-4 lg:px-6">
           <GlobalSearch modules={visibleModules} onNavigate={(to) => navigate({ to: to as never })} />
 
           <div className="flex-1" />
 
-          <Button asChild size="sm" className="hidden bg-brand text-brand-foreground hover:bg-brand/90 md:inline-flex">
-            <Link to={"/app/projekte/neu" as never}><Plus className="mr-1 h-4 w-4" /> Projekt</Link>
-          </Button>
-
-          {/* Profile link */}
           <Link
             to="/app/profil"
             className="flex items-center gap-2 rounded-full border border-sidebar-border/50 py-1 pl-1 pr-2 text-left transition hover:bg-sidebar-accent md:pr-3"
@@ -131,7 +100,6 @@ export function AppShell({ children }: { children?: ReactNode }) {
             </span>
           </Link>
 
-          {/* Action menu */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button
@@ -150,14 +118,17 @@ export function AppShell({ children }: { children?: ReactNode }) {
               <DropdownMenuItem asChild>
                 <Link to="/app/profil"><User className="mr-2 h-4 w-4" /> Mein Profil</Link>
               </DropdownMenuItem>
-              {role === "admin" && (
+              {isAdmin && (
                 <>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
-                    <Link to="/app/einstellungen"><Settings className="mr-2 h-4 w-4" /> Einstellungen</Link>
+                    <Link to="/app/mitarbeiter"><Users className="mr-2 h-4 w-4" /> Mitarbeiter</Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
-                    <Link to="/app/team"><UsersRound className="mr-2 h-4 w-4" /> Team</Link>
+                    <Link to="/app/team"><UsersRound className="mr-2 h-4 w-4" /> Rollen & Zugänge</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/app/einstellungen"><Settings className="mr-2 h-4 w-4" /> Einstellungen</Link>
                   </DropdownMenuItem>
                 </>
               )}
@@ -170,13 +141,9 @@ export function AppShell({ children }: { children?: ReactNode }) {
         </div>
       </header>
 
-      {/* Back-to-dashboard bar on non-home pages (mobile) */}
       {!isHome && (
         <div className="border-b border-border bg-background md:hidden">
-          <Link
-            to="/app"
-            className="flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-brand"
-          >
+          <Link to="/app" className="flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-brand">
             <Home className="h-4 w-4" />
             Zurück zum Dashboard
             {currentModule && (
@@ -194,27 +161,15 @@ export function AppShell({ children }: { children?: ReactNode }) {
   );
 }
 
-// Synonyms/keywords for smart search matches
 const SEARCH_ALIASES: Record<string, string[]> = {
   "/app": ["start", "home", "übersicht"],
-  "/app/kunden": ["kunde", "adressen", "kontakte", "auftraggeber"],
-  "/app/projekte": ["projekt", "baustelle", "auftrag", "job"],
-  "/app/angebote": ["angebot", "kostenvoranschlag", "kv", "offerte"],
-  "/app/aufmass": ["aufmaß", "messung", "mengen"],
-  "/app/berichte": ["bericht", "einsatz", "tagesbericht", "regie"],
-  "/app/ki-sprachbericht": ["sprache", "diktat", "voice", "ai", "ki"],
+  "/app/baustellen": ["baustelle", "projekt", "auftrag", "job", "chat"],
+  "/app/plan": ["plan", "wochenplanung", "einsatz", "kalender"],
   "/app/zeiten": ["zeit", "stunden", "stempel", "arbeitszeit"],
-  "/app/material": ["material", "artikel", "lager", "bestellung"],
-  "/app/fotos": ["foto", "bild", "dokumentation"],
-  "/app/aufgaben": ["aufgabe", "todo", "kalender", "termin"],
-  "/app/rechnungsgrundlagen": ["rechnung", "faktura", "abrechnung"],
-  "/app/kalkulation": ["kalkulation", "preis", "kosten"],
-  "/app/kommunikation": ["mail", "nachricht", "chat", "kommunikation"],
-  "/app/dokumente": ["dokument", "datei", "pdf", "ablage"],
-  "/app/buero": ["büro", "office", "verwaltung"],
-  "/app/team": ["team", "mitarbeiter", "personal", "user"],
-  "/app/integrationen/outlook": ["outlook", "email", "kalender", "microsoft"],
-  "/app/einstellungen": ["einstellung", "settings", "betrieb", "profil"],
+  "/app/abwesenheiten": ["urlaub", "krank", "abwesenheit", "antrag"],
+  "/app/mitarbeiter": ["mitarbeiter", "personal", "stammdaten"],
+  "/app/team": ["team", "rollen", "zugang", "berechtigungen"],
+  "/app/einstellungen": ["einstellung", "settings", "betrieb"],
 };
 
 function GlobalSearch({
@@ -244,11 +199,7 @@ function GlobalSearch({
     return base
       .map((m) => {
         const hay = [m.label.toLowerCase(), ...(SEARCH_ALIASES[m.to] ?? [])].join(" ");
-        const score = hay.includes(term)
-          ? m.label.toLowerCase().startsWith(term)
-            ? 0
-            : 1
-          : 99;
+        const score = hay.includes(term) ? (m.label.toLowerCase().startsWith(term) ? 0 : 1) : 99;
         return { m, score };
       })
       .filter((x) => x.score < 99)
