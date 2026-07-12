@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader } from "@/components/PageHeader";
@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useProfile, useMyRole, GEWERKE } from "@/lib/handwerk";
+import { useProfile, useIsAdmin, GEWERKE } from "@/lib/handwerk";
 import { toast } from "sonner";
 import { Building2, User, ShieldCheck, Lock } from "lucide-react";
 import { Link } from "@tanstack/react-router";
@@ -18,14 +18,14 @@ export const Route = createFileRoute("/_authenticated/app/einstellungen")({
 });
 
 function Einstellungen() {
-  const role = useMyRole();
-  if (role && role !== "admin") {
+  const isAdmin = useIsAdmin();
+  if (!isAdmin) {
     return (
       <div className="mx-auto max-w-lg rounded-2xl border border-border bg-card p-8 text-center shadow-card">
         <Lock className="mx-auto h-8 w-8 text-muted-foreground" />
-        <h2 className="mt-3 font-display text-lg font-semibold">Nur für den Betriebs-Admin</h2>
+        <h2 className="mt-3 font-display text-lg font-semibold">Nur für Betriebsinhaber und Administratoren</h2>
         <p className="mt-2 text-sm text-muted-foreground">
-          Einstellungen zu Betrieb, Team und Rollen verwaltet der Admin des Betriebs. Wende dich bei Fragen an deinen Betriebsinhaber.
+          Einstellungen zu Betrieb, Team und Rollen verwaltet dein Betriebsinhaber. Wende dich bei Fragen an ihn.
         </p>
         <Link to="/app" className="mt-4 inline-block text-sm font-semibold text-brand">Zurück zum Dashboard</Link>
       </div>
@@ -39,9 +39,21 @@ function EinstellungenAdmin() {
   const [t, setT] = useState({ name: "", adresse: "", plz: "", ort: "", telefon: "", email: "", ustid: "", gewerk_default: "ausbau" });
   const [p, setP] = useState({ full_name: "", phone: "" });
 
+  const { data: roles } = useQuery({
+    queryKey: ["tenant-roles-list", profile?.tenant_id],
+    enabled: !!profile?.tenant_id,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("roles")
+        .select("id, key, name, is_system, role_permissions(permission_key)")
+        .eq("tenant_id", profile!.tenant_id!);
+      return data ?? [];
+    },
+  });
+
   useEffect(() => {
     if (profile) {
-      const tn = (profile.tenants as any) ?? {};
+      const tn = (profile.tenants as unknown as Record<string, string | null>) ?? {};
       setT({
         name: tn.name ?? "",
         adresse: tn.adresse ?? "",
@@ -58,7 +70,10 @@ function EinstellungenAdmin() {
 
   async function saveTenant() {
     if (!profile?.tenant_id) return;
-    const { error } = await supabase.from("tenants").update({ ...t, gewerk_default: t.gewerk_default as any }).eq("id", profile.tenant_id);
+    const { error } = await supabase
+      .from("tenants")
+      .update({ ...t, gewerk_default: t.gewerk_default as never })
+      .eq("id", profile.tenant_id);
     if (error) return toast.error(error.message);
     toast.success("Betrieb gespeichert");
     refetch();
@@ -113,15 +128,21 @@ function EinstellungenAdmin() {
           </section>
 
           <section className="rounded-2xl border border-border bg-card p-6 shadow-card">
-            <h3 className="mb-3 flex items-center gap-2 font-display font-semibold"><ShieldCheck className="h-4 w-4 text-brand" /> Rollen & Rechte</h3>
+            <h3 className="mb-3 flex items-center gap-2 font-display font-semibold"><ShieldCheck className="h-4 w-4 text-brand" /> Rollen</h3>
             <ul className="space-y-2 text-sm">
-              <li><strong>Admin</strong> – alles sehen und verwalten</li>
-              <li><strong>Büro</strong> – Kunden, Angebote, Rechnungen, Termine</li>
-              <li><strong>Bauleiter</strong> – Projekte, Team, Berichte, Planung</li>
-              <li><strong>Monteur</strong> – eigene Termine, Einsätze, Zeiten, Fotos</li>
-              <li><strong>Azubi</strong> – eingeschränkter Zugriff, Lern-/Hilfemodus</li>
+              {(roles ?? []).map((r) => (
+                <li key={r.id} className="flex items-center justify-between gap-2 border-b border-border/60 pb-2 last:border-0">
+                  <div>
+                    <div className="font-medium">{r.name}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {(r.role_permissions ?? []).length} Berechtigungen
+                    </div>
+                  </div>
+                  {r.is_system && <span className="rounded-full bg-secondary px-2 py-0.5 text-[10px] text-muted-foreground">System</span>}
+                </li>
+              ))}
             </ul>
-            <p className="mt-3 text-xs text-muted-foreground">Mitarbeiter anlegen und Rollen vergeben unter <a href="/app/team" className="text-brand underline">Team</a>.</p>
+            <p className="mt-3 text-xs text-muted-foreground">Mitarbeiter zu Rollen zuweisen unter <Link to="/app/team" className="text-brand underline">Rollen & Zugänge</Link>.</p>
           </section>
         </div>
       </div>
