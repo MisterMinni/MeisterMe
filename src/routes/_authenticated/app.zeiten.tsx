@@ -2,11 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Play, Square, Clock } from "lucide-react";
 import { toast } from "sonner";
 import { formatDate } from "@/lib/handwerk";
 
@@ -18,9 +15,11 @@ export const Route = createFileRoute("/_authenticated/app/zeiten")({
 function Zeiten() {
   const qc = useQueryClient();
   const [siteId, setSiteId] = useState("");
-  const [taetigkeit, setTaetigkeit] = useState("");
   const [runningId, setRunningId] = useState<string | null>(null);
   const [startTs, setStartTs] = useState<number | null>(null);
+  const [pauseStart, setPauseStart] = useState<number | null>(null);
+  const [pauseTotal, setPauseTotal] = useState(0);
+  const [pauses, setPauses] = useState<{ from: string; to: string }[]>([]);
   const [, setTick] = useState(0);
 
   useEffect(() => {
@@ -31,7 +30,8 @@ function Zeiten() {
 
   const { data: sites } = useQuery({
     queryKey: ["sites-select"],
-    queryFn: async () => (await supabase.from("sites").select("id, name").is("archived_at", null)).data ?? [],
+    queryFn: async () =>
+      (await supabase.from("sites").select("id, name").is("archived_at", null)).data ?? [],
   });
   const { data: entries } = useQuery({
     queryKey: ["time-entries"],
@@ -40,7 +40,7 @@ function Zeiten() {
         .from("time_entries")
         .select("*, sites(name)")
         .order("start_ts", { ascending: false })
-        .limit(50)).data ?? [],
+        .limit(20)).data ?? [],
   });
 
   async function start() {
@@ -52,74 +52,190 @@ function Zeiten() {
       tenant_id: p!.tenant_id as string,
       user_id: u.user!.id,
       project_id: siteId,
-      taetigkeit,
       start_ts: now.toISOString(),
     }).select("id").single();
     if (error) return toast.error(error.message);
     setRunningId(data.id);
     setStartTs(now.getTime());
+    setPauseTotal(0);
+    setPauses([]);
+  }
+  function togglePause() {
+    if (pauseStart) {
+      const now = Date.now();
+      const dur = now - pauseStart;
+      setPauseTotal((t) => t + dur);
+      setPauses((p) => [
+        ...p,
+        {
+          from: fmtHM(pauseStart),
+          to: fmtHM(now),
+        },
+      ]);
+      setPauseStart(null);
+    } else {
+      setPauseStart(Date.now());
+    }
   }
   async function stop() {
     if (!runningId || !startTs) return;
     const end = new Date();
-    const minuten = Math.round((end.getTime() - startTs) / 60000);
+    let totalPause = pauseTotal;
+    if (pauseStart) totalPause += end.getTime() - pauseStart;
+    const minuten = Math.max(0, Math.round((end.getTime() - startTs - totalPause) / 60000));
     await supabase.from("time_entries").update({ end_ts: end.toISOString(), minuten }).eq("id", runningId);
     setRunningId(null);
     setStartTs(null);
+    setPauseStart(null);
+    setPauseTotal(0);
+    setPauses([]);
     qc.invalidateQueries({ queryKey: ["time-entries"] });
-    toast.success(`Erfasst: ${minuten} min`);
+    toast.success(`Erfasst: ${Math.floor(minuten / 60)}h ${minuten % 60}m`);
   }
 
-  const elapsed = startTs ? Math.floor((Date.now() - startTs) / 1000) : 0;
+  const now = Date.now();
+  let elapsedMs = startTs ? now - startTs - pauseTotal : 0;
+  if (pauseStart) elapsedMs -= now - pauseStart;
+  const elapsed = Math.max(0, Math.floor(elapsedMs / 1000));
   const hh = String(Math.floor(elapsed / 3600)).padStart(2, "0");
   const mm = String(Math.floor((elapsed % 3600) / 60)).padStart(2, "0");
   const ss = String(elapsed % 60).padStart(2, "0");
 
-  const heutigeMinuten = (entries ?? [])
-    .filter((e) => e.start_ts && new Date(e.start_ts).toDateString() === new Date().toDateString())
-    .reduce((s, e) => s + (e.minuten ?? 0), 0);
+  const todayStr = new Date().toLocaleDateString("de-DE", {
+    weekday: "long",
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
 
   return (
-    <div>
-      <PageHeader title="Zeiterfassung" subtitle="Start/Stopp direkt auf der Baustelle." />
+    <div className="mx-auto max-w-md space-y-4">
+      {/* Timer card */}
+      <div className="rounded-3xl border border-border bg-card p-6 shadow-card">
+        <div className="text-center text-sm font-medium text-muted-foreground">
+          {todayStr}
+        </div>
 
-      <div className="mb-6 rounded-3xl border border-border bg-navy p-6 text-white shadow-lift">
-        <div className="flex flex-col items-center gap-4">
-          <div className="text-xs uppercase tracking-wider text-white/60">{runningId ? "Läuft" : "Bereit"}</div>
-          <div className="font-display text-6xl font-bold tabular-nums">{startTs ? `${hh}:${mm}:${ss}` : "00:00:00"}</div>
-          <div className="grid w-full max-w-lg gap-2">
-            <Select value={siteId} onValueChange={setSiteId} disabled={!!runningId}>
-              <SelectTrigger className="h-12 bg-white text-foreground"><SelectValue placeholder="Baustelle wählen" /></SelectTrigger>
-              <SelectContent>{sites?.map((p) => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}</SelectContent>
+        {!runningId && (
+          <div className="mt-4">
+            <Select value={siteId} onValueChange={setSiteId}>
+              <SelectTrigger className="h-12">
+                <SelectValue placeholder="Baustelle wählen" />
+              </SelectTrigger>
+              <SelectContent>
+                {sites?.map((p) => (
+                  <SelectItem key={p.id} value={p.id}>
+                    {p.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
             </Select>
-            <Input placeholder="Tätigkeit (optional)" value={taetigkeit} onChange={(e) => setTaetigkeit(e.target.value)} disabled={!!runningId} className="h-12 bg-white text-foreground" />
-            {!runningId ? (
-              <Button onClick={start} className="h-14 bg-brand text-brand-foreground text-lg font-semibold hover:bg-brand/90"><Play className="mr-2 h-5 w-5" /> Start</Button>
-            ) : (
-              <Button onClick={stop} variant="destructive" className="h-14 text-lg font-semibold"><Square className="mr-2 h-5 w-5" /> Stopp</Button>
-            )}
           </div>
+        )}
+
+        <div className="mt-6 rounded-2xl bg-secondary/60 py-8 text-center">
+          <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            {runningId ? (pauseStart ? "Pause" : "Arbeitszeit läuft") : "Bereit"}
+          </div>
+          <div className="mt-2 font-display text-5xl font-bold tabular-nums tracking-tight text-foreground">
+            {startTs ? `${hh}:${mm}:${ss}` : "00:00:00"}
+          </div>
+          {startTs && (
+            <div className="mt-1 text-xs text-muted-foreground">
+              Seit {fmtHM(startTs)} Uhr
+            </div>
+          )}
+        </div>
+
+        <div className="mt-4 space-y-2">
+          {!runningId ? (
+            <Button
+              onClick={start}
+              className="h-12 w-full bg-brand text-lg font-semibold text-brand-foreground hover:bg-brand/90"
+            >
+              Arbeitszeit starten
+            </Button>
+          ) : (
+            <>
+              <Button
+                onClick={togglePause}
+                variant="outline"
+                className="h-12 w-full text-base font-semibold"
+              >
+                {pauseStart ? "Pause beenden" : "Pause starten"}
+              </Button>
+              <Button
+                onClick={stop}
+                className="h-12 w-full bg-destructive text-base font-semibold text-destructive-foreground hover:bg-destructive/90"
+              >
+                Arbeitszeit beenden
+              </Button>
+            </>
+          )}
         </div>
       </div>
 
-      <div className="mb-4 rounded-2xl border border-border bg-card p-4 shadow-card flex items-center gap-3">
-        <Clock className="h-5 w-5 text-brand" />
-        <div className="text-sm">Heute erfasst:</div>
-        <div className="ml-auto font-display text-lg font-bold">{(heutigeMinuten / 60).toFixed(2)} h</div>
-      </div>
+      {/* Tagesübersicht */}
+      {startTs && (
+        <div className="rounded-3xl border border-border bg-card p-5 shadow-card">
+          <h3 className="mb-3 font-display text-base font-semibold">Tagesübersicht</h3>
+          <ul className="space-y-2 text-sm">
+            <Row label="Arbeitsbeginn" value={fmtHM(startTs)} />
+            {pauses.map((p, i) => (
+              <Row key={i} label={`Pause ${i + 1}`} value={`${p.from} – ${p.to}`} />
+            ))}
+            {pauseStart && (
+              <Row label={`Pause ${pauses.length + 1}`} value={`${fmtHM(pauseStart)} – …`} />
+            )}
+            <Row label="Arbeitsende" value="–" />
+            <li className="mt-2 flex items-center justify-between border-t border-border pt-3 font-semibold">
+              <span>Gesamtzeit</span>
+              <span className="font-display tabular-nums">{`${hh}:${mm} h`}</span>
+            </li>
+          </ul>
+        </div>
+      )}
 
-      <h3 className="mb-2 font-display text-lg font-semibold">Letzte Einträge</h3>
-      <ul className="space-y-2">
-        {(entries ?? []).map((e) => (
-          <li key={e.id} className="flex items-center justify-between rounded-xl border border-border bg-card p-3">
-            <div>
-              <div className="font-medium">{(e.sites as unknown as { name?: string } | null)?.name ?? "—"}</div>
-              <div className="text-xs text-muted-foreground">{formatDate(e.start_ts)} · {e.taetigkeit ?? "—"}</div>
-            </div>
-            <div className="font-display font-bold">{e.minuten ? `${(e.minuten / 60).toFixed(2)} h` : "läuft…"}</div>
-          </li>
-        ))}
-      </ul>
+      {/* Letzte Einträge */}
+      {(entries ?? []).length > 0 && (
+        <div>
+          <h3 className="mb-2 px-1 font-display text-base font-semibold">Letzte Einträge</h3>
+          <ul className="space-y-2">
+            {(entries ?? []).slice(0, 5).map((e) => (
+              <li
+                key={e.id}
+                className="flex items-center justify-between rounded-2xl border border-border bg-card p-3 shadow-card"
+              >
+                <div className="min-w-0">
+                  <div className="truncate text-sm font-medium">
+                    {(e.sites as unknown as { name?: string } | null)?.name ?? "—"}
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    {formatDate(e.start_ts)}
+                  </div>
+                </div>
+                <div className="font-display text-sm font-semibold tabular-nums">
+                  {e.minuten ? `${(e.minuten / 60).toFixed(2)} h` : "läuft…"}
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
+}
+
+function Row({ label, value }: { label: string; value: string }) {
+  return (
+    <li className="flex items-center justify-between">
+      <span className="text-muted-foreground">{label}</span>
+      <span className="font-medium tabular-nums">{value}</span>
+    </li>
+  );
+}
+
+function fmtHM(ts: number) {
+  const d = new Date(ts);
+  return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
 }
