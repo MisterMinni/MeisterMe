@@ -22,7 +22,11 @@ import { Route as AuthenticatedAppTeamRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedAppProfilRouteImport } from './routes/_authenticated/app.profil'
 import { Route as AuthenticatedAppPlanRouteImport } from './routes/_authenticated/app.plan'
 import { Route as AuthenticatedAppMitarbeiterRouteImport } from './routes/_authenticated/app.mitarbeiter'
+import { Route as AuthenticatedAppMaterialienRouteImport } from './routes/_authenticated/app.materialien'
+import { Route as AuthenticatedAppFotosRouteImport } from './routes/_authenticated/app.fotos'
 import { Route as AuthenticatedAppEinstellungenRouteImport } from './routes/_authenticated/app.einstellungen'
+import { Route as AuthenticatedAppDokumenteRouteImport } from './routes/_authenticated/app.dokumente'
+import { Route as AuthenticatedAppAufgabenRouteImport } from './routes/_authenticated/app.aufgaben'
 import { Route as AuthenticatedAppAbwesenheitenRouteImport } from './routes/_authenticated/app.abwesenheiten'
 import { Route as AuthenticatedAppBaustellenIndexRouteImport } from './routes/_authenticated/app.baustellen.index'
 import { Route as AuthenticatedAppBaustellenIdRouteImport } from './routes/_authenticated/app.baustellen.$id'
@@ -92,10 +96,33 @@ const AuthenticatedAppMitarbeiterRoute =
     path: '/mitarbeiter',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
+const AuthenticatedAppMaterialienRoute =
+  AuthenticatedAppMaterialienRouteImport.update({
+    id: '/materialien',
+    path: '/materialien',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppFotosRoute = AuthenticatedAppFotosRouteImport.update({
+  id: '/fotos',
+  path: '/fotos',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
 const AuthenticatedAppEinstellungenRoute =
   AuthenticatedAppEinstellungenRouteImport.update({
     id: '/einstellungen',
     path: '/einstellungen',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppDokumenteRoute =
+  AuthenticatedAppDokumenteRouteImport.update({
+    id: '/dokumente',
+    path: '/dokumente',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppAufgabenRoute =
+  AuthenticatedAppAufgabenRouteImport.update({
+    id: '/aufgaben',
+    path: '/aufgaben',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
 const AuthenticatedAppAbwesenheitenRoute =
@@ -125,7 +152,11 @@ export interface FileRoutesByFullPath {
   '/preise': typeof PreiseRoute
   '/app': typeof AuthenticatedAppRouteWithChildren
   '/app/abwesenheiten': typeof AuthenticatedAppAbwesenheitenRoute
+  '/app/aufgaben': typeof AuthenticatedAppAufgabenRoute
+  '/app/dokumente': typeof AuthenticatedAppDokumenteRoute
   '/app/einstellungen': typeof AuthenticatedAppEinstellungenRoute
+  '/app/fotos': typeof AuthenticatedAppFotosRoute
+  '/app/materialien': typeof AuthenticatedAppMaterialienRoute
   '/app/mitarbeiter': typeof AuthenticatedAppMitarbeiterRoute
   '/app/plan': typeof AuthenticatedAppPlanRoute
   '/app/profil': typeof AuthenticatedAppProfilRoute
@@ -142,7 +173,11 @@ export interface FileRoutesByTo {
   '/kontakt': typeof KontaktRoute
   '/preise': typeof PreiseRoute
   '/app/abwesenheiten': typeof AuthenticatedAppAbwesenheitenRoute
+  '/app/aufgaben': typeof AuthenticatedAppAufgabenRoute
+  '/app/dokumente': typeof AuthenticatedAppDokumenteRoute
   '/app/einstellungen': typeof AuthenticatedAppEinstellungenRoute
+  '/app/fotos': typeof AuthenticatedAppFotosRoute
+  '/app/materialien': typeof AuthenticatedAppMaterialienRoute
   '/app/mitarbeiter': typeof AuthenticatedAppMitarbeiterRoute
   '/app/plan': typeof AuthenticatedAppPlanRoute
   '/app/profil': typeof AuthenticatedAppProfilRoute
@@ -162,7 +197,11 @@ export interface FileRoutesById {
   '/preise': typeof PreiseRoute
   '/_authenticated/app': typeof AuthenticatedAppRouteWithChildren
   '/_authenticated/app/abwesenheiten': typeof AuthenticatedAppAbwesenheitenRoute
+  '/_authenticated/app/aufgaben': typeof AuthenticatedAppAufgabenRoute
+  '/_authenticated/app/dokumente': typeof AuthenticatedAppDokumenteRoute
   '/_authenticated/app/einstellungen': typeof AuthenticatedAppEinstellungenRoute
+  '/_authenticated/app/fotos': typeof AuthenticatedAppFotosRoute
+  '/_authenticated/app/materialien': typeof AuthenticatedAppMaterialienRoute
   '/_authenticated/app/mitarbeiter': typeof AuthenticatedAppMitarbeiterRoute
   '/_authenticated/app/plan': typeof AuthenticatedAppPlanRoute
   '/_authenticated/app/profil': typeof AuthenticatedAppProfilRoute
@@ -182,7 +221,11 @@ export interface FileRouteTypes {
     | '/preise'
     | '/app'
     | '/app/abwesenheiten'
+    | '/app/aufgaben'
+    | '/app/dokumente'
     | '/app/einstellungen'
+    | '/app/fotos'
+    | '/app/materialien'
     | '/app/mitarbeiter'
     | '/app/plan'
     | '/app/profil'
@@ -199,7 +242,11 @@ export interface FileRouteTypes {
     | '/kontakt'
     | '/preise'
     | '/app/abwesenheiten'
+    | '/app/aufgaben'
+    | '/app/dokumente'
     | '/app/einstellungen'
+    | '/app/fotos'
+    | '/app/materialien'
     | '/app/mitarbeiter'
     | '/app/plan'
     | '/app/profil'
@@ -218,7 +265,11 @@ export interface FileRouteTypes {
     | '/preise'
     | '/_authenticated/app'
     | '/_authenticated/app/abwesenheiten'
+    | '/_authenticated/app/aufgaben'
+    | '/_authenticated/app/dokumente'
     | '/_authenticated/app/einstellungen'
+    | '/_authenticated/app/fotos'
+    | '/_authenticated/app/materialien'
     | '/_authenticated/app/mitarbeiter'
     | '/_authenticated/app/plan'
     | '/_authenticated/app/profil'
@@ -331,11 +382,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppMitarbeiterRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/materialien': {
+      id: '/_authenticated/app/materialien'
+      path: '/materialien'
+      fullPath: '/app/materialien'
+      preLoaderRoute: typeof AuthenticatedAppMaterialienRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/fotos': {
+      id: '/_authenticated/app/fotos'
+      path: '/fotos'
+      fullPath: '/app/fotos'
+      preLoaderRoute: typeof AuthenticatedAppFotosRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
     '/_authenticated/app/einstellungen': {
       id: '/_authenticated/app/einstellungen'
       path: '/einstellungen'
       fullPath: '/app/einstellungen'
       preLoaderRoute: typeof AuthenticatedAppEinstellungenRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/dokumente': {
+      id: '/_authenticated/app/dokumente'
+      path: '/dokumente'
+      fullPath: '/app/dokumente'
+      preLoaderRoute: typeof AuthenticatedAppDokumenteRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/aufgaben': {
+      id: '/_authenticated/app/aufgaben'
+      path: '/aufgaben'
+      fullPath: '/app/aufgaben'
+      preLoaderRoute: typeof AuthenticatedAppAufgabenRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
     '/_authenticated/app/abwesenheiten': {
@@ -364,7 +443,11 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedAppRouteChildren {
   AuthenticatedAppAbwesenheitenRoute: typeof AuthenticatedAppAbwesenheitenRoute
+  AuthenticatedAppAufgabenRoute: typeof AuthenticatedAppAufgabenRoute
+  AuthenticatedAppDokumenteRoute: typeof AuthenticatedAppDokumenteRoute
   AuthenticatedAppEinstellungenRoute: typeof AuthenticatedAppEinstellungenRoute
+  AuthenticatedAppFotosRoute: typeof AuthenticatedAppFotosRoute
+  AuthenticatedAppMaterialienRoute: typeof AuthenticatedAppMaterialienRoute
   AuthenticatedAppMitarbeiterRoute: typeof AuthenticatedAppMitarbeiterRoute
   AuthenticatedAppPlanRoute: typeof AuthenticatedAppPlanRoute
   AuthenticatedAppProfilRoute: typeof AuthenticatedAppProfilRoute
@@ -377,7 +460,11 @@ interface AuthenticatedAppRouteChildren {
 
 const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppAbwesenheitenRoute: AuthenticatedAppAbwesenheitenRoute,
+  AuthenticatedAppAufgabenRoute: AuthenticatedAppAufgabenRoute,
+  AuthenticatedAppDokumenteRoute: AuthenticatedAppDokumenteRoute,
   AuthenticatedAppEinstellungenRoute: AuthenticatedAppEinstellungenRoute,
+  AuthenticatedAppFotosRoute: AuthenticatedAppFotosRoute,
+  AuthenticatedAppMaterialienRoute: AuthenticatedAppMaterialienRoute,
   AuthenticatedAppMitarbeiterRoute: AuthenticatedAppMitarbeiterRoute,
   AuthenticatedAppPlanRoute: AuthenticatedAppPlanRoute,
   AuthenticatedAppProfilRoute: AuthenticatedAppProfilRoute,
