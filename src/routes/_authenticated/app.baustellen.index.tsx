@@ -251,7 +251,7 @@ function BaustellenList({
       {heute.length > 0 && (
         <Section title="Heute zugeteilt">
           {heute.map((s, i) => (
-            <SiteRow key={s.id} site={s} color={s.color || ROW_COLORS[i % ROW_COLORS.length]} canArchive={canArchive} onArchive={onArchive} onUnarchive={onUnarchive} />
+            <SiteRow key={s.id} site={s} color={s.color || ROW_COLORS[i % ROW_COLORS.length]} />
           ))}
         </Section>
       )}
@@ -259,7 +259,7 @@ function BaustellenList({
       {weitere.length > 0 && (
         <Section title={heute.length > 0 ? "Weitere Baustellen" : TABS.find((t) => t.key === tab)!.label}>
           {weitere.map((s, i) => (
-            <SiteRow key={s.id} site={s} color={s.color || ROW_COLORS[(i + heute.length) % ROW_COLORS.length]} canArchive={canArchive} onArchive={onArchive} onUnarchive={onUnarchive} />
+            <SiteRow key={s.id} site={s} color={s.color || ROW_COLORS[(i + heute.length) % ROW_COLORS.length]} />
           ))}
         </Section>
       )}
