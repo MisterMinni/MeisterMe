@@ -131,7 +131,7 @@ function Profil() {
         )}
       </section>
 
-      <div className="space-y-4">
+      <div className="space-y-1.5">
         <ProfileTile
           icon={UserRound}
           label="Persönliche Daten"
