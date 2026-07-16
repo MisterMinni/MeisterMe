@@ -25,7 +25,7 @@ import {
 } from "@/lib/team.functions";
 import { useIsAdmin, useProfile } from "@/lib/handwerk";
 import { toast } from "sonner";
-import { KeyRound, Users, ShieldCheck, UserX, UserCheck } from "lucide-react";
+import { KeyRound, Users, ShieldCheck, UserX, UserCheck, Pencil } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/app/mitarbeiter")({
   head: () => ({ meta: [{ title: "Mitarbeiter – MeisterMe" }] }),
@@ -86,6 +86,14 @@ function MitarbeiterPage() {
   });
   const [saving, setSaving] = useState(false);
 
+  const [editUser, setEditUser] = useState<null | {
+    id: string;
+    fullName: string;
+    phone: string;
+    roleKey: string;
+  }>(null);
+  const [savingEdit, setSavingEdit] = useState(false);
+
   if (!isAdmin) {
     return (
       <div>
@@ -116,13 +124,29 @@ function MitarbeiterPage() {
     }
   }
 
-  async function changeRole(userId: string, roleKey: string) {
+  async function saveEdit() {
+    if (!editUser) return;
+    if (!editUser.fullName.trim()) {
+      toast.error("Name darf nicht leer sein.");
+      return;
+    }
+    setSavingEdit(true);
     try {
-      await update({ data: { userId, roleKey } });
-      toast.success("Rolle geändert");
+      await update({
+        data: {
+          userId: editUser.id,
+          fullName: editUser.fullName.trim(),
+          phone: editUser.phone.trim() ? editUser.phone.trim() : null,
+          roleKey: editUser.roleKey || undefined,
+        },
+      });
+      toast.success("Mitarbeiter aktualisiert");
+      setEditUser(null);
       qc.invalidateQueries({ queryKey: ["team-members"] });
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Fehler");
+    } finally {
+      setSavingEdit(false);
     }
   }
 
@@ -236,59 +260,53 @@ function MitarbeiterPage() {
                     {m.phone ?? "Keine Telefonnummer"}
                   </div>
                 </div>
-                {disabled ? (
-                  <Badge variant="secondary" className="shrink-0 bg-destructive/10 text-destructive">
-                    Inaktiv
-                  </Badge>
-                ) : (
-                  <Badge variant="secondary" className="shrink-0 bg-emerald-500/10 text-emerald-700">
-                    Aktiv
-                  </Badge>
-                )}
-              </div>
-
-              <div className="mt-3">
-                <Label className="text-[11px] uppercase tracking-wide text-muted-foreground">
-                  Rolle
-                </Label>
-                <Select
-                  value={currentRoleKey}
-                  onValueChange={(v) => changeRole(m.id, v)}
-                  disabled={isMe}
-                >
-                  <SelectTrigger className="mt-1 w-full">
-                    <SelectValue placeholder="Rolle wählen" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {(roles ?? []).map((r) => (
-                      <SelectItem key={r.id} value={r.key}>
-                        {r.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="mt-3 grid grid-cols-2 gap-2">
-                <Button size="sm" variant="outline" onClick={() => doReset(m.id)}>
-                  <KeyRound className="mr-1 h-3.5 w-3.5" /> Passwort
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => toggleActive(m.id, disabled, m.full_name ?? "Nutzer")}
-                  disabled={isMe}
-                >
+                <div className="flex shrink-0 items-center gap-2">
                   {disabled ? (
-                    <>
-                      <UserCheck className="mr-1 h-3.5 w-3.5" /> Aktivieren
-                    </>
+                    <Badge variant="secondary" className="bg-destructive/10 text-destructive">
+                      Inaktiv
+                    </Badge>
                   ) : (
-                    <>
-                      <UserX className="mr-1 h-3.5 w-3.5" /> Deaktivieren
-                    </>
+                    <Badge variant="secondary" className="bg-emerald-500/10 text-emerald-700">
+                      Aktiv
+                    </Badge>
                   )}
-                </Button>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    aria-label="Bearbeiten"
+                    onClick={() =>
+                      setEditUser({
+                        id: m.id,
+                        fullName: m.full_name ?? "",
+                        phone: m.phone ?? "",
+                        roleKey: currentRoleKey,
+                      })
+                    }
+                    className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+
+              <div className="mt-3 flex items-center justify-between gap-2">
+                <Badge variant="outline" className="max-w-[55%] truncate">
+                  {m.roles[0]?.name ?? "Keine Rolle"}
+                </Badge>
+                <div className="flex gap-2">
+                  <Button size="sm" variant="outline" onClick={() => doReset(m.id)}>
+                    <KeyRound className="mr-1 h-3.5 w-3.5" /> Passwort
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => toggleActive(m.id, disabled, m.full_name ?? "Nutzer")}
+                    disabled={isMe}
+                    aria-label={disabled ? "Aktivieren" : "Deaktivieren"}
+                  >
+                    {disabled ? <UserCheck className="h-3.5 w-3.5" /> : <UserX className="h-3.5 w-3.5" />}
+                  </Button>
+                </div>
               </div>
             </div>
           );
@@ -300,6 +318,62 @@ function MitarbeiterPage() {
           </div>
         )}
       </div>
+
+      <Dialog open={!!editUser} onOpenChange={(o) => !o && setEditUser(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Mitarbeiter bearbeiten</DialogTitle>
+          </DialogHeader>
+          {editUser && (
+            <div className="grid gap-3">
+              <div>
+                <Label>Name *</Label>
+                <Input
+                  value={editUser.fullName}
+                  onChange={(e) => setEditUser({ ...editUser, fullName: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label>Telefon</Label>
+                <Input
+                  value={editUser.phone}
+                  onChange={(e) => setEditUser({ ...editUser, phone: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label>Rolle</Label>
+                <Select
+                  value={editUser.roleKey}
+                  onValueChange={(v) => setEditUser({ ...editUser, roleKey: v })}
+                  disabled={editUser.id === profile?.id}
+                >
+                  <SelectTrigger><SelectValue placeholder="Rolle wählen" /></SelectTrigger>
+                  <SelectContent>
+                    {(roles ?? []).map((r) => (
+                      <SelectItem key={r.id} value={r.key}>{r.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {editUser.id === profile?.id && (
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Eigene Rolle kann nicht geändert werden.
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditUser(null)}>Abbrechen</Button>
+            <Button
+              onClick={saveEdit}
+              disabled={savingEdit}
+              className="bg-brand text-brand-foreground hover:bg-brand/90"
+            >
+              {savingEdit ? "Speichere…" : "Speichern"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
