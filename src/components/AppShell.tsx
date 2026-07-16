@@ -8,12 +8,13 @@ import {
   UsersRound,
   Settings,
   UserX,
-  Home,
   Search,
   Users,
+  ArrowLeft,
 } from "lucide-react";
 
 import { useProfile, useMyRole, useSession, useIsAdmin, ROLE_LABELS } from "@/lib/handwerk";
+import { PageHeaderProvider, usePageHeader } from "@/components/page-header-context";
 
 import type { LucideIcon } from "lucide-react";
 
@@ -30,13 +31,26 @@ const modules: NavItem[] = [
   { to: "/app/einstellungen", label: "Einstellungen", icon: Settings, adminOnly: true },
 ];
 
+const EXTRA_TITLES: Record<string, string> = {
+  "/app/profil": "Profil",
+};
+
 export function AppShell({ children }: { children?: ReactNode }) {
+  return (
+    <PageHeaderProvider>
+      <AppShellInner>{children}</AppShellInner>
+    </PageHeaderProvider>
+  );
+}
+
+function AppShellInner({ children }: { children?: ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { data: profile } = useProfile();
   const { data: session } = useSession();
   const role = useMyRole();
   const isAdmin = useIsAdmin();
   const navigate = useNavigate();
+  const override = usePageHeader();
 
   const email = session?.user?.email ?? "";
   const displayName = profile?.full_name?.trim() || email || "Konto";
@@ -49,56 +63,63 @@ export function AppShell({ children }: { children?: ReactNode }) {
 
   const visibleModules = modules.filter((n) => !n.adminOnly || isAdmin);
   const isHome = pathname === "/app" || pathname === "/app/";
-  const currentModule =
-    !isHome
-      ? visibleModules
-          .filter((m) => !m.exact)
-          .sort((a, b) => b.to.length - a.to.length)
-          .find((m) => pathname === m.to || pathname.startsWith(m.to + "/"))
-      : undefined;
+
+  const currentModule = visibleModules
+    .filter((m) => !m.exact)
+    .sort((a, b) => b.to.length - a.to.length)
+    .find((m) => pathname === m.to || pathname.startsWith(m.to + "/"));
+
+  const isModuleRoot = currentModule ? pathname === currentModule.to : false;
+  const defaultTitle =
+    override.title ??
+    EXTRA_TITLES[pathname] ??
+    (currentModule ? currentModule.label : "");
+  const defaultBackTo =
+    override.backTo ??
+    (currentModule && !isModuleRoot ? currentModule.to : "/app");
 
   return (
     <div className="min-h-screen bg-secondary/40">
       <header className="sticky top-0 z-30 border-b border-border bg-sidebar text-sidebar-foreground shadow-sm">
-        <div className="mx-auto flex h-16 max-w-[1600px] items-center gap-3 px-4 lg:px-6">
-          <GlobalSearch modules={visibleModules} onNavigate={(to) => navigate({ to: to as never })} />
+        {isHome ? (
+          <div className="mx-auto flex h-16 max-w-[1600px] items-center gap-3 px-4 lg:px-6">
+            <GlobalSearch modules={visibleModules} onNavigate={(to) => navigate({ to: to as never })} />
 
-          <div className="flex-1" />
+            <div className="flex-1" />
 
-          <Link
-            to="/app/profil"
-            className="group flex items-center gap-2 rounded-full py-1 pl-1 text-left transition md:pr-3 md:hover:bg-white/10"
-            aria-label="Mein Profil"
-          >
-            <span className="relative flex h-10 w-10 items-center justify-center rounded-full bg-white text-sm font-bold text-[#005aab] shadow-[0_0_0_3px_rgba(255,255,255,0.35),0_6px_20px_-4px_rgba(0,0,0,0.35)] ring-2 ring-white transition group-hover:scale-105">
-              {initials}
-              <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-[#005aab] bg-emerald-400" />
-            </span>
-            <span className="hidden min-w-0 flex-col leading-tight md:flex">
-              <span className="truncate text-sm font-semibold text-white">{displayName}</span>
-              <span className="truncate text-[11px] text-white/70">
-                {roleLabel}{profile?.tenants?.name ? ` · ${profile.tenants.name}` : ""}
+            <Link
+              to="/app/profil"
+              className="group flex items-center gap-2 rounded-full py-1 pl-1 text-left transition md:pr-3 md:hover:bg-white/10"
+              aria-label="Mein Profil"
+            >
+              <span className="relative flex h-10 w-10 items-center justify-center rounded-full bg-white text-sm font-bold text-[#005aab] shadow-[0_0_0_3px_rgba(255,255,255,0.35),0_6px_20px_-4px_rgba(0,0,0,0.35)] ring-2 ring-white transition group-hover:scale-105">
+                {initials}
+                <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-[#005aab] bg-emerald-400" />
               </span>
-            </span>
-          </Link>
-
-        </div>
+              <span className="hidden min-w-0 flex-col leading-tight md:flex">
+                <span className="truncate text-sm font-semibold text-white">{displayName}</span>
+                <span className="truncate text-[11px] text-white/70">
+                  {roleLabel}{profile?.tenants?.name ? ` · ${profile.tenants.name}` : ""}
+                </span>
+              </span>
+            </Link>
+          </div>
+        ) : (
+          <div className="mx-auto grid h-14 max-w-[1600px] grid-cols-[auto_1fr_auto] items-center gap-2 px-2 lg:px-4">
+            <Link
+              to={defaultBackTo as never}
+              className="inline-flex h-10 w-10 items-center justify-center rounded-full text-white transition hover:bg-white/10"
+              aria-label="Zurück"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </Link>
+            <h1 className="truncate text-center text-base font-semibold text-white">
+              {defaultTitle}
+            </h1>
+            <span className="h-10 w-10" />
+          </div>
+        )}
       </header>
-
-      {!isHome && (
-        <div className="border-b border-border bg-background md:hidden">
-          <Link to="/app" className="flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-brand">
-            <Home className="h-4 w-4" />
-            Zurück zum Dashboard
-            {currentModule && (
-              <span className="ml-auto flex items-center gap-1 text-muted-foreground">
-                <currentModule.icon className="h-3.5 w-3.5" />
-                {currentModule.label}
-              </span>
-            )}
-          </Link>
-        </div>
-      )}
 
       <main className="mx-auto max-w-[1600px] p-4 pb-8 lg:p-8">{children ?? <Outlet />}</main>
     </div>
