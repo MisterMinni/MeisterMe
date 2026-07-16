@@ -136,11 +136,4 @@ function Dashboard() {
   );
 }
 
-function MiniStat({ label, value, tone }: { label: string; value: number; tone?: "warn" }) {
-  return (
-    <div className="rounded-xl bg-white/10 px-3 py-2 backdrop-blur">
-      <div className={`font-display text-xl font-bold ${tone === "warn" ? "text-red-300" : "text-white"}`}>{value}</div>
-      <div className="text-[10px] uppercase text-white/60">{label}</div>
-    </div>
-  );
-}
+
