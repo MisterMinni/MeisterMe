@@ -12,7 +12,7 @@ import { SITE_STATUS, useHasPermission } from "@/lib/handwerk";
 import { toast } from "sonner";
 import { ProjectChat } from "@/components/ProjectChat";
 import { useSetPageHeader } from "@/components/page-header-context";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, MapPin, CalendarDays, Activity, FileText } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/app/baustellen/$id")({
   head: () => ({ meta: [{ title: "Baustelle – MeisterMe" }] }),
