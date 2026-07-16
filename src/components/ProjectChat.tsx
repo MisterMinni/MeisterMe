@@ -114,6 +114,28 @@ export function ProjectChat({ projectId }: { projectId: string }) {
     return out;
   }, [messages]);
 
+  // Track topmost visible message day for sticky date chip
+  useEffect(() => {
+    const container = scrollRef.current;
+    if (!container) return;
+    const update = () => {
+      const topEdge = container.getBoundingClientRect().top;
+      const nodes = container.querySelectorAll<HTMLElement>("[data-day]");
+      let found: string | null = null;
+      for (const el of Array.from(nodes)) {
+        const r = el.getBoundingClientRect();
+        if (r.bottom >= topEdge + 8) {
+          found = el.dataset.day ?? null;
+          break;
+        }
+      }
+      if (found) setCurrentDay(found);
+    };
+    update();
+    container.addEventListener("scroll", update, { passive: true });
+    return () => container.removeEventListener("scroll", update);
+  }, [grouped]);
+
   async function send() {
     const body = text.trim();
     if (!body || !profile?.tenant_id) return;
