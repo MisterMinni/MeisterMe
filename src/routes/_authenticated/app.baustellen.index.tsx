@@ -23,7 +23,7 @@ function Baustellen() {
   const qc = useQueryClient();
   const { data: profile } = useProfile();
   const canCreate = useHasPermission("sites:create");
-  const canArchive = useHasPermission("sites:update");
+  
   const [openNew, setOpenNew] = useState(false);
   const emptyForm = {
     strasse: "",
