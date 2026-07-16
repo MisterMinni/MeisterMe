@@ -9,9 +9,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { FabAdd } from "@/components/fab-add";
-import { useProfile, SITE_STATUS, formatDate, useHasPermission } from "@/lib/handwerk";
+import { useProfile, SITE_STATUS, useHasPermission } from "@/lib/handwerk";
 import { toast } from "sonner";
-import { Briefcase, Archive, MessageSquare, Users, Clock, ArrowRight } from "lucide-react";
+import { Briefcase, Archive, ArrowRight } from "lucide-react";
+
 
 export const Route = createFileRoute("/_authenticated/app/baustellen/")({
   head: () => ({ meta: [{ title: "Baustellen – MeisterMe" }] }),
