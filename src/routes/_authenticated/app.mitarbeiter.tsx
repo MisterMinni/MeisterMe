@@ -42,6 +42,7 @@ function MitarbeiterPage() {
   const deact = useServerFn(deactivateTeamMember);
   const react = useServerFn(reactivateTeamMember);
   const resetPw = useServerFn(resetTeamMemberPassword);
+  const loadDetail = useServerFn(getTeamMemberDetail);
 
   const { data: roles } = useQuery({
     queryKey: ["tenant-roles", profile?.tenant_id],
