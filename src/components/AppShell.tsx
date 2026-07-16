@@ -120,9 +120,19 @@ function AppShellInner({ children }: { children?: ReactNode }) {
             >
               <ArrowLeft className="h-5 w-5" />
             </Link>
-            <h1 key={defaultTitle} className="truncate text-center text-base font-semibold text-white animate-fade-in">
-              {defaultTitle}
-            </h1>
+            {override.onTitleClick ? (
+              <button
+                key={defaultTitle}
+                onClick={override.onTitleClick}
+                className="mx-auto truncate rounded-md px-2 text-center text-base font-semibold text-white animate-fade-in transition hover:bg-white/10"
+              >
+                {defaultTitle}
+              </button>
+            ) : (
+              <h1 key={defaultTitle} className="truncate text-center text-base font-semibold text-white animate-fade-in">
+                {defaultTitle}
+              </h1>
+            )}
             <span className="h-10 w-10" />
           </div>
         )}
