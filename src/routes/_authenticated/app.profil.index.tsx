@@ -93,25 +93,30 @@ function Profil() {
   return (
     <div className="mx-auto flex min-h-[calc(100vh-8rem)] max-w-xl flex-col px-4 pb-8">
       <section className="flex flex-col items-center gap-2 pt-8 pb-6 text-center">
-        <button
-          type="button"
-          onClick={() => fileRef.current?.click()}
-          disabled={uploading}
-          className="group relative flex h-24 w-24 items-center justify-center overflow-hidden rounded-full bg-brand text-2xl font-bold text-brand-foreground shadow-md ring-4 ring-brand/10 transition hover:ring-brand/20"
-          aria-label="Profilbild ändern"
-        >
-          {avatarUrl ? (
-            <img src={avatarUrl} alt="" className="h-full w-full object-cover" />
-          ) : (
-            <span>{initials}</span>
-          )}
-          <span className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition group-hover:opacity-100">
-            {uploading && <Loader2 className="h-6 w-6 animate-spin text-white" />}
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => fileRef.current?.click()}
+            disabled={uploading}
+            className="group flex h-24 w-24 items-center justify-center overflow-hidden rounded-full bg-brand text-2xl font-bold text-brand-foreground shadow-md ring-4 ring-brand/10 transition hover:ring-brand/20"
+            aria-label="Profilbild ändern"
+          >
+            {avatarUrl ? (
+              <img src={avatarUrl} alt="" className="h-full w-full object-cover" />
+            ) : (
+              <span>{initials}</span>
+            )}
+            <span className="pointer-events-none absolute inset-0 flex items-center justify-center rounded-full bg-black/40 opacity-0 transition group-hover:opacity-100">
+              {uploading && <Loader2 className="h-6 w-6 animate-spin text-white" />}
+            </span>
+          </button>
+          <span
+            onClick={() => fileRef.current?.click()}
+            className="absolute bottom-0 right-0 z-10 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border-2 border-background bg-brand text-brand-foreground shadow-md transition hover:scale-105"
+          >
+            {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Camera className="h-4 w-4" />}
           </span>
-          <span className="absolute bottom-0 right-0 flex h-7 w-7 items-center justify-center rounded-full border-2 border-background bg-muted-foreground/90 text-background shadow">
-            {uploading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Camera className="h-3.5 w-3.5" />}
-          </span>
-        </button>
+        </div>
         <input
           ref={fileRef}
           type="file"
