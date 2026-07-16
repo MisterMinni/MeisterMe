@@ -87,13 +87,19 @@ function Baustellen() {
               <DialogTitle>Neue Baustelle</DialogTitle>
             </DialogHeader>
             <div className="grid gap-3">
-              <div>
-                <Label>Name</Label>
-                <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+              <div className="grid grid-cols-[1fr_100px] gap-3">
+                <div>
+                  <Label>Adresse</Label>
+                  <Input value={form.strasse} onChange={(e) => setForm({ ...form, strasse: e.target.value })} placeholder="Straße" />
+                </div>
+                <div>
+                  <Label>HausNr.</Label>
+                  <Input value={form.hausnr} onChange={(e) => setForm({ ...form, hausnr: e.target.value })} />
+                </div>
               </div>
               <div>
-                <Label>Adresse</Label>
-                <Input value={form.adresse} onChange={(e) => setForm({ ...form, adresse: e.target.value })} />
+                <Label>PLZ</Label>
+                <Input value={form.plz} onChange={(e) => setForm({ ...form, plz: e.target.value })} inputMode="numeric" />
               </div>
               <div>
                 <Label>Beschreibung</Label>
@@ -120,20 +126,8 @@ function Baustellen() {
                   </SelectContent>
                 </Select>
               </div>
-              <div>
-                <Label>Farbe</Label>
-                <div className="mt-1 flex flex-wrap gap-2">
-                  {COLORS.map((c) => (
-                    <button
-                      key={c}
-                      type="button"
-                      onClick={() => setForm({ ...form, color: c })}
-                      className={`h-7 w-7 rounded-full border-2 ${form.color === c ? "border-foreground" : "border-transparent"}`}
-                      style={{ backgroundColor: c }}
-                    />
-                  ))}
-                </div>
-              </div>
+            </div>
+
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setOpenNew(false)}>Abbrechen</Button>
