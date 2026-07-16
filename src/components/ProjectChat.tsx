@@ -197,6 +197,39 @@ export function ProjectChat({ projectId }: { projectId: string }) {
 
   return (
     <div className="flex h-[calc(100vh-4rem)] flex-col">
+      {/* Search bar */}
+      <div className="flex items-center gap-2 border-b border-border bg-background px-2 py-1.5">
+        {searchOpen ? (
+          <>
+            <Search className="ml-1 h-4 w-4 shrink-0 text-muted-foreground" />
+            <input
+              autoFocus
+              value={searchQ}
+              onChange={(e) => setSearchQ(e.target.value)}
+              placeholder="Nachrichten durchsuchen …"
+              className="flex-1 bg-transparent py-1.5 text-sm outline-none placeholder:text-muted-foreground"
+            />
+            <button
+              type="button"
+              onClick={() => { setSearchQ(""); setSearchOpen(false); }}
+              className="flex h-7 w-7 items-center justify-center rounded-full text-muted-foreground hover:bg-secondary"
+              aria-label="Suche schließen"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setSearchOpen(true)}
+            className="ml-auto flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground hover:bg-secondary"
+            aria-label="Chat durchsuchen"
+          >
+            <Search className="h-4 w-4" />
+          </button>
+        )}
+      </div>
+
       {/* Message list w/ hand-drawn houses background */}
       <div
         ref={scrollRef}
