@@ -126,7 +126,7 @@ function Dashboard() {
       title: "Baustelle",
       tone: "blue",
       tiles: [
-        { to: "/app/baustellen", label: "Baustellen", icon: Briefcase, desc: "Aktive Projekte & Chat", badge: stats?.activeSites },
+        { to: "/app/baustellen", label: "Baustellen", icon: Briefcase, desc: "Aktive Projekte & Chat" },
         { to: "/app/plan", label: "Wochenplanung", icon: Calendar, desc: "Wer arbeitet wann wo?", badge: stats?.planToday },
       ],
     },
