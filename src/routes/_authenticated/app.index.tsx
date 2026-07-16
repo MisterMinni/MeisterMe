@@ -134,7 +134,7 @@ function Dashboard() {
       title: "Zeit & Abwesenheit",
       tone: "green",
       tiles: [
-        { to: "/app/zeiten", label: "Zeiterfassung", icon: Clock, desc: "Stempeln, Pausen, Bericht", highlight: true },
+        { to: "/app/zeiten", label: "Zeiterfassung", icon: Clock, desc: "Stempeln, Pausen, Bericht" },
         { to: "/app/abwesenheiten", label: "Abwesenheiten", icon: UserX, desc: "Urlaub, Krank, Anträge", badge: stats?.openAbsences, badgeTone: "warn" },
       ],
     },
