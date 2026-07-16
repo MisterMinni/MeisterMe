@@ -33,6 +33,7 @@ function Profil() {
   const qc = useQueryClient();
   const fileRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
 
   const email = session?.user?.email ?? "";
   const userId = session?.user?.id ?? "";
@@ -96,26 +97,25 @@ function Profil() {
         <div className="relative">
           <button
             type="button"
-            onClick={() => fileRef.current?.click()}
-            disabled={uploading}
+            onClick={() => avatarUrl && setPreviewOpen(true)}
             className="group flex h-24 w-24 items-center justify-center overflow-hidden rounded-full bg-brand text-2xl font-bold text-brand-foreground shadow-md ring-4 ring-brand/10 transition hover:ring-brand/20"
-            aria-label="Profilbild ändern"
+            aria-label={avatarUrl ? "Profilbild vergrößern" : "Profilbild"}
           >
             {avatarUrl ? (
               <img src={avatarUrl} alt="" className="h-full w-full object-cover" />
             ) : (
               <span>{initials}</span>
             )}
-            <span className="pointer-events-none absolute inset-0 flex items-center justify-center rounded-full bg-black/40 opacity-0 transition group-hover:opacity-100">
-              {uploading && <Loader2 className="h-6 w-6 animate-spin text-white" />}
-            </span>
           </button>
-          <span
+          <button
+            type="button"
             onClick={() => fileRef.current?.click()}
-            className="absolute bottom-0 right-0 z-10 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border-2 border-background bg-brand text-brand-foreground shadow-md transition hover:scale-105"
+            disabled={uploading}
+            aria-label="Profilbild ändern"
+            className="absolute bottom-0 right-0 z-10 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border-2 border-background bg-brand text-brand-foreground shadow-md transition hover:scale-105 disabled:opacity-70"
           >
             {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Camera className="h-4 w-4" />}
-          </span>
+          </button>
         </div>
         <input
           ref={fileRef}
@@ -163,6 +163,19 @@ function Profil() {
         <LogOut className="h-4 w-4" />
         Abmelden
       </button>
+      {previewOpen && avatarUrl && (
+        <div
+          onClick={() => setPreviewOpen(false)}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-6 animate-in fade-in"
+        >
+          <img
+            src={avatarUrl}
+            alt=""
+            className="max-h-[80vh] max-w-full rounded-2xl object-contain shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
+      )}
     </div>
   );
 }
