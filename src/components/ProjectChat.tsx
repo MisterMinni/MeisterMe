@@ -197,39 +197,6 @@ export function ProjectChat({ projectId }: { projectId: string }) {
 
   return (
     <div className="flex h-[calc(100vh-4rem)] flex-col">
-      {/* Search bar */}
-      <div className="flex items-center gap-2 border-b border-border bg-background px-2 py-1.5">
-        {searchOpen ? (
-          <>
-            <Search className="ml-1 h-4 w-4 shrink-0 text-muted-foreground" />
-            <input
-              autoFocus
-              value={searchQ}
-              onChange={(e) => setSearchQ(e.target.value)}
-              placeholder="Nachrichten durchsuchen …"
-              className="flex-1 bg-transparent py-1.5 text-sm outline-none placeholder:text-muted-foreground"
-            />
-            <button
-              type="button"
-              onClick={() => { setSearchQ(""); setSearchOpen(false); }}
-              className="flex h-7 w-7 items-center justify-center rounded-full text-muted-foreground hover:bg-secondary"
-              aria-label="Suche schließen"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          </>
-        ) : (
-          <button
-            type="button"
-            onClick={() => setSearchOpen(true)}
-            className="ml-auto flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground hover:bg-secondary"
-            aria-label="Chat durchsuchen"
-          >
-            <Search className="h-4 w-4" />
-          </button>
-        )}
-      </div>
-
       {/* Message list w/ hand-drawn houses background */}
       <div
         ref={scrollRef}
@@ -247,6 +214,43 @@ export function ProjectChat({ projectId }: { projectId: string }) {
             </span>
           </div>
         )}
+
+        {/* Floating search — sticks to right edge, moves with scroll */}
+        <div className="pointer-events-none sticky top-2 z-20 -mt-8 flex justify-end pr-2">
+          <div
+            className={`pointer-events-auto flex items-center overflow-hidden rounded-full border border-border bg-white/95 shadow-md backdrop-blur-sm transition-[width] duration-300 ease-out ${
+              searchOpen ? "w-[calc(100vw-2rem)] max-w-sm" : "w-9"
+            }`}
+          >
+            <button
+              type="button"
+              onClick={() => setSearchOpen((v) => !v)}
+              className="flex h-9 w-9 shrink-0 items-center justify-center text-muted-foreground hover:text-foreground"
+              aria-label={searchOpen ? "Suche schließen" : "Chat durchsuchen"}
+            >
+              <Search className="h-4 w-4" />
+            </button>
+            {searchOpen && (
+              <>
+                <input
+                  autoFocus
+                  value={searchQ}
+                  onChange={(e) => setSearchQ(e.target.value)}
+                  placeholder="Nachrichten durchsuchen …"
+                  className="min-w-0 flex-1 bg-transparent py-1.5 text-sm outline-none placeholder:text-muted-foreground"
+                />
+                <button
+                  type="button"
+                  onClick={() => { setSearchQ(""); setSearchOpen(false); }}
+                  className="mr-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-secondary"
+                  aria-label="Suche schließen"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </>
+            )}
+          </div>
+        </div>
         <div className="relative space-y-3 px-3 py-4">
           {grouped.length === 0 && (
             <div className="mt-16 text-center text-sm text-muted-foreground">
