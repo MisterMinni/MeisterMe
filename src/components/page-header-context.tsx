@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 
-type Header = { title?: string; backTo?: string };
+type Header = { title?: string; backTo?: string; onTitleClick?: () => void };
 type Ctx = { header: Header; set: (h: Header) => void };
 
 const PageHeaderCtx = createContext<Ctx>({ header: {}, set: () => {} });
@@ -20,5 +20,5 @@ export function useSetPageHeader(h: Header) {
     set(h);
     return () => set({});
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [h.title, h.backTo]);
+  }, [h.title, h.backTo, h.onTitleClick]);
 }
