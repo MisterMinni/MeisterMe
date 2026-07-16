@@ -44,6 +44,7 @@ function MitarbeiterPage() {
   const react = useServerFn(reactivateTeamMember);
   const resetPw = useServerFn(resetTeamMemberPassword);
   const loadDetail = useServerFn(getTeamMemberDetail);
+  const loadEmails = useServerFn(listTeamMemberEmails);
 
   const { data: roles } = useQuery({
     queryKey: ["tenant-roles", profile?.tenant_id],
@@ -57,13 +58,19 @@ function MitarbeiterPage() {
     },
   });
 
+  const { data: emails } = useQuery({
+    queryKey: ["team-emails", profile?.tenant_id],
+    enabled: !!profile?.tenant_id && isAdmin,
+    queryFn: async () => (await loadEmails()) as Record<string, string>,
+  });
+
   const { data: members } = useQuery({
     queryKey: ["team-members", profile?.tenant_id],
     enabled: !!profile?.tenant_id,
     queryFn: async () => {
       const { data: profs } = await supabase
         .from("profiles")
-        .select("id, full_name, phone, created_at, disabled_at")
+        .select("id, full_name, phone, employee_number, created_at, disabled_at")
         .eq("tenant_id", profile!.tenant_id!);
       const { data: assignments } = await supabase
         .from("user_role_assignments")
@@ -78,6 +85,8 @@ function MitarbeiterPage() {
       }));
     },
   });
+
+  const [search, setSearch] = useState("");
 
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({
