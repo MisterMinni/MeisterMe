@@ -17,7 +17,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/_authenticated/app/profil")({
+export const Route = createFileRoute("/_authenticated/app/profil/")({
   head: () => ({ meta: [{ title: "Mein Profil – MeisterMe" }] }),
   component: Profil,
 });
