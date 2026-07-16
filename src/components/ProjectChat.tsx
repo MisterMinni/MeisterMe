@@ -250,7 +250,7 @@ export function ProjectChat({ projectId }: { projectId: string }) {
         <div className="relative space-y-3 px-3 py-4">
           {grouped.length === 0 && (
             <div className="mt-16 text-center text-sm text-muted-foreground">
-              Noch keine Nachrichten. Schreib die erste!
+              {searchQ.trim() ? "Keine Treffer" : "Noch keine Nachrichten. Schreib die erste!"}
             </div>
           )}
           {grouped.map((group) => (
