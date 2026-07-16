@@ -116,22 +116,7 @@ function Dashboard() {
 
   return (
     <div className="space-y-8">
-      {/* Header */}
-      <div className="flex flex-col gap-4 rounded-2xl border border-border bg-gradient-to-br from-primary to-navy p-5 text-white shadow-lift sm:flex-row sm:items-end sm:justify-between sm:p-6">
-        <div>
-          <div className="text-xs uppercase tracking-wider text-white/60">Willkommen zurück</div>
-          <h1 className="font-display text-2xl font-bold sm:text-3xl">{profile?.full_name ?? "Meister"}</h1>
-          <div className="text-sm text-white/70">
-            {profile?.tenants?.name}
-            {role ? ` · ${ROLE_LABELS[role] ?? role}` : ""}
-          </div>
-        </div>
-        <div className="grid grid-cols-3 gap-2 sm:gap-4 sm:text-right">
-          <MiniStat label="Aktive Baustellen" value={stats?.activeSites ?? 0} />
-          <MiniStat label="Heute geplant" value={stats?.planToday ?? 0} />
-          <MiniStat label="Abwesenheits-Anträge" value={stats?.openAbsences ?? 0} tone={stats?.openAbsences ? "warn" : undefined} />
-        </div>
-      </div>
+
 
       {/* Module tiles */}
       {groups.map((group) => (
