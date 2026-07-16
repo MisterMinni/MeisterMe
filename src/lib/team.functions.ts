@@ -74,6 +74,22 @@ export const createTeamMember = createServerFn({ method: "POST" })
     return { id: uid };
   });
 
+export const getTeamMemberDetail = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ userId: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    const tenantId = await requireAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: prof } = await supabaseAdmin
+      .from("profiles")
+      .select("*")
+      .eq("id", data.userId)
+      .maybeSingle();
+    if (!prof || prof.tenant_id !== tenantId) throw new Error("Nutzer gehört nicht zum Betrieb.");
+    const { data: userRes } = await supabaseAdmin.auth.admin.getUserById(data.userId);
+    return { profile: prof, email: userRes?.user?.email ?? null };
+  });
+
 export const updateTeamMember = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) =>
