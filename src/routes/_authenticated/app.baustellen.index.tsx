@@ -289,6 +289,16 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 function SiteRow({ site, color }: { site: any; color: string }) {
   const { line1, line2 } = splitAddress(site.adresse, site.name);
   const isArchived = !!site.archived_at;
+  const [imgUrl, setImgUrl] = useState<string | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      if (!site.image_url) { setImgUrl(null); return; }
+      const { data } = await supabase.storage.from("chat-images").createSignedUrl(site.image_url, 60 * 60);
+      if (!cancelled) setImgUrl(data?.signedUrl ?? null);
+    })();
+    return () => { cancelled = true; };
+  }, [site.image_url]);
   return (
     <Link
       to="/app/baustellen/$id"
@@ -296,10 +306,14 @@ function SiteRow({ site, color }: { site: any; color: string }) {
       className="flex items-center gap-3 px-3 py-3"
     >
       <div
-        className="grid h-11 w-11 shrink-0 place-items-center rounded-xl text-white shadow-sm"
-        style={{ backgroundColor: color, opacity: isArchived ? 0.6 : 1 }}
+        className="grid h-11 w-11 shrink-0 overflow-hidden place-items-center rounded-xl text-white shadow-sm"
+        style={{ backgroundColor: imgUrl ? undefined : color, opacity: isArchived ? 0.6 : 1 }}
       >
-        <Briefcase className="h-5 w-5" />
+        {imgUrl ? (
+          <img src={imgUrl} alt="" className="h-full w-full object-cover" />
+        ) : (
+          <Briefcase className="h-5 w-5" />
+        )}
       </div>
       <div className="min-w-0 flex-1">
         <div className="truncate font-semibold text-foreground">{line1}</div>
@@ -309,6 +323,7 @@ function SiteRow({ site, color }: { site: any; color: string }) {
     </Link>
   );
 }
+
 
 function splitAddress(adresse?: string | null, fallback?: string | null): { line1: string; line2: string } {
   const src = (adresse || fallback || "").trim();
