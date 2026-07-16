@@ -22,6 +22,7 @@ import {
   deactivateTeamMember,
   reactivateTeamMember,
   resetTeamMemberPassword,
+  getTeamMemberDetail,
 } from "@/lib/team.functions";
 import { useIsAdmin, useProfile } from "@/lib/handwerk";
 import { toast } from "sonner";
@@ -41,6 +42,7 @@ function MitarbeiterPage() {
   const deact = useServerFn(deactivateTeamMember);
   const react = useServerFn(reactivateTeamMember);
   const resetPw = useServerFn(resetTeamMemberPassword);
+  const loadDetail = useServerFn(getTeamMemberDetail);
 
   const { data: roles } = useQuery({
     queryKey: ["tenant-roles", profile?.tenant_id],
@@ -86,13 +88,62 @@ function MitarbeiterPage() {
   });
   const [saving, setSaving] = useState(false);
 
-  const [editUser, setEditUser] = useState<null | {
+  type EditForm = {
     id: string;
     fullName: string;
+    email: string;
     phone: string;
     roleKey: string;
-  }>(null);
+    address: string;
+    employee_number: string;
+    entry_date: string;
+    exit_date: string;
+    weekly_hours: string;
+    vacation_days_per_year: string;
+    work_time_model: string;
+    cost_center: string;
+    subgroup: string;
+  };
+  const [editUser, setEditUser] = useState<EditForm | null>(null);
+  const [editLoading, setEditLoading] = useState(false);
   const [savingEdit, setSavingEdit] = useState(false);
+
+  async function openEdit(userId: string) {
+    setEditLoading(true);
+    setEditUser({
+      id: userId, fullName: "", email: "", phone: "", roleKey: "",
+      address: "", employee_number: "", entry_date: "", exit_date: "",
+      weekly_hours: "", vacation_days_per_year: "", work_time_model: "",
+      cost_center: "", subgroup: "",
+    });
+    try {
+      const res = await loadDetail({ data: { userId } });
+      const p = res.profile as Record<string, unknown>;
+      const roleKey = (members ?? []).find((m) => m.id === userId)?.roles[0]?.key ?? "";
+      setEditUser({
+        id: userId,
+        fullName: (p.full_name as string) ?? "",
+        email: res.email ?? "",
+        phone: (p.phone as string) ?? "",
+        roleKey,
+        address: (p.address as string) ?? "",
+        employee_number: (p.employee_number as string) ?? "",
+        entry_date: (p.entry_date as string) ?? "",
+        exit_date: (p.exit_date as string) ?? "",
+        weekly_hours: p.weekly_hours != null ? String(p.weekly_hours) : "",
+        vacation_days_per_year:
+          p.vacation_days_per_year != null ? String(p.vacation_days_per_year) : "",
+        work_time_model: (p.work_time_model as string) ?? "",
+        cost_center: (p.cost_center as string) ?? "",
+        subgroup: (p.subgroup as string) ?? "",
+      });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Fehler");
+      setEditUser(null);
+    } finally {
+      setEditLoading(false);
+    }
+  }
 
   if (!isAdmin) {
     return (
@@ -132,12 +183,27 @@ function MitarbeiterPage() {
     }
     setSavingEdit(true);
     try {
+      const s = (v: string) => (v.trim() ? v.trim() : null);
+      const n = (v: string) => (v.trim() ? Number(v) : null);
       await update({
         data: {
           userId: editUser.id,
           fullName: editUser.fullName.trim(),
-          phone: editUser.phone.trim() ? editUser.phone.trim() : null,
+          email: editUser.email.trim() || undefined,
+          phone: s(editUser.phone),
           roleKey: editUser.roleKey || undefined,
+          address: s(editUser.address),
+          employee_number: s(editUser.employee_number),
+          entry_date: s(editUser.entry_date),
+          exit_date: s(editUser.exit_date),
+          weekly_hours: n(editUser.weekly_hours),
+          vacation_days_per_year:
+            editUser.vacation_days_per_year.trim()
+              ? parseInt(editUser.vacation_days_per_year, 10)
+              : null,
+          work_time_model: s(editUser.work_time_model),
+          cost_center: s(editUser.cost_center),
+          subgroup: s(editUser.subgroup),
         },
       });
       toast.success("Mitarbeiter aktualisiert");
@@ -274,14 +340,7 @@ function MitarbeiterPage() {
                     size="icon"
                     variant="ghost"
                     aria-label="Bearbeiten"
-                    onClick={() =>
-                      setEditUser({
-                        id: m.id,
-                        fullName: m.full_name ?? "",
-                        phone: m.phone ?? "",
-                        roleKey: currentRoleKey,
-                      })
-                    }
+                    onClick={() => openEdit(m.id)}
                     className="h-8 w-8 text-muted-foreground hover:text-foreground"
                   >
                     <Pencil className="h-4 w-4" />
@@ -320,53 +379,100 @@ function MitarbeiterPage() {
       </div>
 
       <Dialog open={!!editUser} onOpenChange={(o) => !o && setEditUser(null)}>
-        <DialogContent>
+        <DialogContent className="max-h-[90vh] max-w-lg overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Mitarbeiter bearbeiten</DialogTitle>
           </DialogHeader>
           {editUser && (
-            <div className="grid gap-3">
-              <div>
-                <Label>Name *</Label>
-                <Input
-                  value={editUser.fullName}
-                  onChange={(e) => setEditUser({ ...editUser, fullName: e.target.value })}
-                />
-              </div>
-              <div>
-                <Label>Telefon</Label>
-                <Input
-                  value={editUser.phone}
-                  onChange={(e) => setEditUser({ ...editUser, phone: e.target.value })}
-                />
-              </div>
-              <div>
-                <Label>Rolle</Label>
-                <Select
-                  value={editUser.roleKey}
-                  onValueChange={(v) => setEditUser({ ...editUser, roleKey: v })}
-                  disabled={editUser.id === profile?.id}
-                >
-                  <SelectTrigger><SelectValue placeholder="Rolle wählen" /></SelectTrigger>
-                  <SelectContent>
-                    {(roles ?? []).map((r) => (
-                      <SelectItem key={r.id} value={r.key}>{r.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+            <div className="space-y-5">
+              {editLoading && (
+                <p className="text-xs text-muted-foreground">Lade Daten…</p>
+              )}
+
+              <section className="space-y-3">
+                <h4 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Kontakt</h4>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <div className="sm:col-span-2">
+                    <Label>Name *</Label>
+                    <Input value={editUser.fullName} onChange={(e) => setEditUser({ ...editUser, fullName: e.target.value })} />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <Label>E-Mail</Label>
+                    <Input type="email" value={editUser.email} onChange={(e) => setEditUser({ ...editUser, email: e.target.value })} />
+                  </div>
+                  <div>
+                    <Label>Telefon</Label>
+                    <Input value={editUser.phone} onChange={(e) => setEditUser({ ...editUser, phone: e.target.value })} />
+                  </div>
+                  <div>
+                    <Label>Adresse</Label>
+                    <Input value={editUser.address} onChange={(e) => setEditUser({ ...editUser, address: e.target.value })} />
+                  </div>
+                </div>
+              </section>
+
+              <section className="space-y-3">
+                <h4 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Beschäftigung</h4>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <div>
+                    <Label>Rolle</Label>
+                    <Select
+                      value={editUser.roleKey}
+                      onValueChange={(v) => setEditUser({ ...editUser, roleKey: v })}
+                      disabled={editUser.id === profile?.id}
+                    >
+                      <SelectTrigger><SelectValue placeholder="Rolle wählen" /></SelectTrigger>
+                      <SelectContent>
+                        {(roles ?? []).map((r) => (
+                          <SelectItem key={r.id} value={r.key}>{r.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label>Personalnummer</Label>
+                    <Input value={editUser.employee_number} onChange={(e) => setEditUser({ ...editUser, employee_number: e.target.value })} />
+                  </div>
+                  <div>
+                    <Label>Eintritt</Label>
+                    <Input type="date" value={editUser.entry_date} onChange={(e) => setEditUser({ ...editUser, entry_date: e.target.value })} />
+                  </div>
+                  <div>
+                    <Label>Austritt</Label>
+                    <Input type="date" value={editUser.exit_date} onChange={(e) => setEditUser({ ...editUser, exit_date: e.target.value })} />
+                  </div>
+                  <div>
+                    <Label>Wochenstunden</Label>
+                    <Input type="number" step="0.5" value={editUser.weekly_hours} onChange={(e) => setEditUser({ ...editUser, weekly_hours: e.target.value })} />
+                  </div>
+                  <div>
+                    <Label>Urlaubstage / Jahr</Label>
+                    <Input type="number" value={editUser.vacation_days_per_year} onChange={(e) => setEditUser({ ...editUser, vacation_days_per_year: e.target.value })} />
+                  </div>
+                  <div>
+                    <Label>Arbeitszeitmodell</Label>
+                    <Input value={editUser.work_time_model} onChange={(e) => setEditUser({ ...editUser, work_time_model: e.target.value })} />
+                  </div>
+                  <div>
+                    <Label>Kostenstelle</Label>
+                    <Input value={editUser.cost_center} onChange={(e) => setEditUser({ ...editUser, cost_center: e.target.value })} />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <Label>Untergruppe</Label>
+                    <Input value={editUser.subgroup} onChange={(e) => setEditUser({ ...editUser, subgroup: e.target.value })} />
+                  </div>
+                </div>
                 {editUser.id === profile?.id && (
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    Eigene Rolle kann nicht geändert werden.
-                  </p>
+                  <p className="text-xs text-muted-foreground">Eigene Rolle kann nicht geändert werden.</p>
                 )}
-              </div>
+              </section>
             </div>
           )}
           <DialogFooter>
             <Button variant="outline" onClick={() => setEditUser(null)}>Abbrechen</Button>
             <Button
               onClick={saveEdit}
-              disabled={savingEdit}
+              disabled={savingEdit || editLoading}
               className="bg-brand text-brand-foreground hover:bg-brand/90"
             >
               {savingEdit ? "Speichere…" : "Speichern"}
