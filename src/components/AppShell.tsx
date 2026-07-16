@@ -83,6 +83,7 @@ function AppShellInner({ children }: { children?: ReactNode }) {
     (currentModule ? currentModule.label : "");
   const defaultBackTo =
     override.backTo ??
+    EXTRA_BACK[pathname] ??
     (currentModule && !isModuleRoot ? currentModule.to : "/app");
 
   return (
