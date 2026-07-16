@@ -12,7 +12,8 @@ import { SITE_STATUS, useHasPermission } from "@/lib/handwerk";
 import { toast } from "sonner";
 import { ProjectChat } from "@/components/ProjectChat";
 import { useSetPageHeader } from "@/components/page-header-context";
-import { ArrowLeft, MapPin, CalendarDays, Activity, FileText, Check, Loader2 } from "lucide-react";
+import { ArrowLeft, MapPin, CalendarDays, Activity, FileText, Check, Loader2, Camera, Search, Images, X } from "lucide-react";
+import { useProfile } from "@/lib/handwerk";
 
 export const Route = createFileRoute("/_authenticated/app/baustellen/$id")({
   head: () => ({ meta: [{ title: "Baustelle – MeisterMe" }] }),
