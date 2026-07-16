@@ -52,12 +52,14 @@ function Baustellen() {
     if (!profile?.tenant_id) return;
     if (!form.strasse || !form.hausnr || !form.plz) return toast.error("Adresse, HausNr. und PLZ eingeben");
     const adresse = `${form.strasse} ${form.hausnr}, ${form.plz}`.trim();
+    const isArchived = form.status === "archiviert";
     const { error } = await supabase.from("sites").insert({
       tenant_id: profile.tenant_id,
       name: adresse,
       beschreibung: form.beschreibung || null,
       adresse,
-      status: form.status as never,
+      status: (isArchived ? "abgeschlossen" : form.status) as never,
+      archived_at: isArchived ? new Date().toISOString() : null,
       start_date: form.start_date || null,
       end_date: form.end_date || null,
       gewerk: "ausbau" as never,
@@ -69,21 +71,6 @@ function Baustellen() {
     qc.invalidateQueries({ queryKey: ["sites"] });
   }
 
-
-  async function archive(id: string) {
-    if (!confirm("Baustelle archivieren?")) return;
-    const { error } = await supabase.from("sites").update({ archived_at: new Date().toISOString() }).eq("id", id);
-    if (error) return toast.error(error.message);
-    toast.success("Archiviert");
-    qc.invalidateQueries({ queryKey: ["sites"] });
-  }
-
-  async function unarchive(id: string) {
-    const { error } = await supabase.from("sites").update({ archived_at: null }).eq("id", id);
-    if (error) return toast.error(error.message);
-    toast.success("Wiederhergestellt");
-    qc.invalidateQueries({ queryKey: ["sites"] });
-  }
 
 
   return (
