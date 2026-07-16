@@ -1,13 +1,11 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { type ComponentType } from "react";
-import { PageHeader } from "@/components/PageHeader";
 import {
   useProfile,
-  useMyRole,
   useSession,
   useIsAdmin,
-  ROLE_LABELS,
 } from "@/lib/handwerk";
+
 import {
   ChevronRight,
   UserRound,
