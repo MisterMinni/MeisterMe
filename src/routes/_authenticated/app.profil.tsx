@@ -25,7 +25,6 @@ export const Route = createFileRoute("/_authenticated/app/profil")({
 function Profil() {
   const { data: profile } = useProfile();
   const { data: session } = useSession();
-  const role = useMyRole();
   const isAdmin = useIsAdmin();
   const navigate = useNavigate();
 
