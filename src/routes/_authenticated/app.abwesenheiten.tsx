@@ -8,10 +8,11 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { FabAdd } from "@/components/fab-add";
 import { useProfile, formatDate } from "@/lib/handwerk";
 import { toast } from "sonner";
-import { Plus, UserX, Check, X } from "lucide-react";
+import { UserX, Check, X } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/app/abwesenheiten")({
   head: () => ({ meta: [{ title: "Abwesenheiten – MeisterMe" }] }),
