@@ -9,9 +9,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { FabAdd } from "@/components/fab-add";
-import { useProfile, SITE_STATUS, formatDate, useHasPermission } from "@/lib/handwerk";
+import { useProfile, SITE_STATUS, useHasPermission } from "@/lib/handwerk";
 import { toast } from "sonner";
-import { Briefcase, Archive, MessageSquare, Users, Clock, ArrowRight } from "lucide-react";
+import { Briefcase, Archive, ArrowRight } from "lucide-react";
+
 
 export const Route = createFileRoute("/_authenticated/app/baustellen/")({
   head: () => ({ meta: [{ title: "Baustellen – MeisterMe" }] }),
@@ -137,55 +138,158 @@ function Baustellen() {
       )}
 
 
+      <BaustellenList
+        sites={sites ?? []}
+        userId={profile?.id}
+        canCreate={canCreate}
+        canArchive={canArchive}
+        onArchive={archive}
+        onCreate={() => setOpenNew(true)}
+      />
+    </div>
+  );
+}
 
+const ROW_COLORS = ["#10B981", "#005aab", "#F59E0B", "#EF4444", "#8B5CF6", "#0EA5E9", "#EC4899"];
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {(sites ?? []).map((s) => (
-          <div key={s.id} className="group overflow-hidden rounded-2xl border border-border bg-card shadow-card transition hover:-translate-y-0.5 hover:shadow-lift">
-            <div className="h-2 w-full" style={{ backgroundColor: s.color ?? "#F26A21" }} />
-            <div className="p-4">
-              <div className="flex items-start justify-between gap-2">
-                <div className="min-w-0">
-                  <div className="truncate font-display font-semibold">{s.name}</div>
-                  <div className="text-xs text-muted-foreground capitalize">{s.status?.replace("_", " ") ?? "—"}</div>
-                </div>
-                <Briefcase className="h-5 w-5 shrink-0 text-brand" />
-              </div>
-              {s.adresse && <p className="mt-1 text-xs text-muted-foreground">{s.adresse}</p>}
-              {s.beschreibung && <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">{s.beschreibung}</p>}
-              <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground">
-                <span>{s.start_date ? formatDate(s.start_date) : "—"} → {s.end_date ? formatDate(s.end_date) : "—"}</span>
-              </div>
-              <div className="mt-4 flex gap-2">
-                <Button asChild size="sm" className="flex-1 bg-brand text-brand-foreground hover:bg-brand/90">
-                  <Link to="/app/baustellen/$id" params={{ id: s.id }}>
-                    Öffnen <ArrowRight className="ml-1 h-3 w-3" />
-                  </Link>
-                </Button>
-                {canArchive && (
-                  <Button size="sm" variant="outline" onClick={() => archive(s.id)} title="Archivieren">
-                    <Archive className="h-3 w-3" />
-                  </Button>
-                )}
-              </div>
-              <div className="mt-3 flex items-center gap-3 text-[11px] text-muted-foreground">
-                <span className="inline-flex items-center gap-1"><MessageSquare className="h-3 w-3" /> Chat</span>
-                <span className="inline-flex items-center gap-1"><Users className="h-3 w-3" /> Team</span>
-                <span className="inline-flex items-center gap-1"><Clock className="h-3 w-3" /> Zeiten</span>
-              </div>
-            </div>
-          </div>
-        ))}
-        {(!sites || sites.length === 0) && (
-          <div className="col-span-full rounded-2xl border-2 border-dashed border-border p-12 text-center text-muted-foreground">
-            <Briefcase className="mx-auto mb-2 h-8 w-8" />
-            Noch keine Baustellen.{" "}
-            {canCreate && (
-              <button onClick={() => setOpenNew(true)} className="text-brand hover:underline">Erste anlegen</button>
-            )}
-          </div>
-        )}
+function BaustellenList({
+  sites,
+  userId,
+  canCreate,
+  canArchive,
+  onArchive,
+  onCreate,
+}: {
+  sites: any[];
+  userId?: string;
+  canCreate: boolean;
+  canArchive: boolean;
+  onArchive: (id: string) => void;
+  onCreate: () => void;
+}) {
+  const [q, setQ] = useState("");
+  const today = new Date().toISOString().slice(0, 10);
+
+  const { data: todayAssignments } = useQuery({
+    queryKey: ["my-today-assignments", userId, today],
+    enabled: !!userId,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("weekly_assignments")
+        .select("site_id")
+        .eq("user_id", userId!)
+        .eq("day", today);
+      return (data ?? []).map((a: any) => a.site_id).filter(Boolean) as string[];
+    },
+  });
+
+  const todaySet = new Map<string, true>();
+  (todayAssignments ?? []).forEach((id) => todaySet.set(id, true));
+
+  const filtered = sites.filter((s) => {
+    if (!q.trim()) return true;
+    const hay = `${s.name ?? ""} ${s.adresse ?? ""} ${s.beschreibung ?? ""}`.toLowerCase();
+    return q
+      .toLowerCase()
+      .split(/\s+/)
+      .filter(Boolean)
+      .every((t) => hay.includes(t));
+  });
+
+  const heute = filtered.filter((s) => todaySet.has(s.id));
+  const weitere = filtered.filter((s) => !todaySet.has(s.id));
+
+  return (
+    <div className="space-y-6">
+      <div className="relative">
+        <Input
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          placeholder="Suchen …"
+          className="h-11 rounded-xl bg-muted/60 pl-10 border-transparent"
+        />
+        <svg className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" /><path d="m21 21-4.3-4.3" strokeLinecap="round" /></svg>
+      </div>
+
+      {heute.length > 0 && (
+        <Section title="Heute zugeteilt">
+          {heute.map((s, i) => (
+            <SiteRow key={s.id} site={s} color={s.color || ROW_COLORS[i % ROW_COLORS.length]} canArchive={canArchive} onArchive={onArchive} />
+          ))}
+        </Section>
+      )}
+
+      {weitere.length > 0 && (
+        <Section title={heute.length > 0 ? "Weitere Baustellen" : "Alle Baustellen"}>
+          {weitere.map((s, i) => (
+            <SiteRow key={s.id} site={s} color={s.color || ROW_COLORS[(i + heute.length) % ROW_COLORS.length]} canArchive={canArchive} onArchive={onArchive} />
+          ))}
+        </Section>
+      )}
+
+      {filtered.length === 0 && (
+        <div className="rounded-2xl border-2 border-dashed border-border p-12 text-center text-muted-foreground">
+          <Briefcase className="mx-auto mb-2 h-8 w-8" />
+          {q ? "Keine Treffer." : "Noch keine Baustellen."}{" "}
+          {!q && canCreate && (
+            <button onClick={onCreate} className="text-brand hover:underline">Erste anlegen</button>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <h2 className="mb-2 px-1 text-sm font-medium text-muted-foreground">{title}</h2>
+      <div className="overflow-hidden rounded-2xl bg-card shadow-card divide-y divide-border">
+        {children}
       </div>
     </div>
   );
 }
+
+function SiteRow({ site, color, canArchive, onArchive }: { site: any; color: string; canArchive: boolean; onArchive: (id: string) => void }) {
+  const { line1, line2 } = splitAddress(site.adresse, site.name);
+  return (
+    <div className="group relative flex items-center gap-3 px-3 py-3">
+      <Link
+        to="/app/baustellen/$id"
+        params={{ id: site.id }}
+        className="flex flex-1 min-w-0 items-center gap-3"
+      >
+        <div
+          className="grid h-11 w-11 shrink-0 place-items-center rounded-xl text-white shadow-sm"
+          style={{ backgroundColor: color }}
+        >
+          <Briefcase className="h-5 w-5" />
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="truncate font-semibold text-foreground">{line1}</div>
+          {line2 && <div className="truncate text-sm text-muted-foreground">{line2}</div>}
+        </div>
+        <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground/60" />
+      </Link>
+      {canArchive && (
+        <button
+          onClick={() => onArchive(site.id)}
+          className="opacity-0 group-hover:opacity-100 transition rounded-md p-1 text-muted-foreground hover:text-foreground"
+          title="Archivieren"
+        >
+          <Archive className="h-4 w-4" />
+        </button>
+      )}
+    </div>
+  );
+}
+
+function splitAddress(adresse?: string | null, fallback?: string | null): { line1: string; line2: string } {
+  const src = (adresse || fallback || "").trim();
+  if (!src) return { line1: "—", line2: "" };
+  const parts = src.split(",").map((p) => p.trim()).filter(Boolean);
+  if (parts.length >= 2) return { line1: parts[0], line2: parts.slice(1).join(", ") };
+  return { line1: src, line2: "" };
+}
+
