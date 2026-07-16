@@ -47,13 +47,10 @@ function ModuleTile({ tile }: { tile: Tile }) {
           {badge}
         </span>
       )}
-      <div
-        className={`flex h-11 w-11 items-center justify-center rounded-xl ${
-          tile.highlight ? "bg-brand text-brand-foreground" : "bg-navy text-brand"
-        } transition group-hover:scale-110`}
-      >
+      <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-brand text-brand-foreground transition group-hover:scale-110">
         <Icon className="h-6 w-6" />
       </div>
+
       <div>
         <div className="font-display text-base font-semibold leading-tight">{tile.label}</div>
         <div className="mt-0.5 text-xs text-muted-foreground">{tile.desc}</div>
