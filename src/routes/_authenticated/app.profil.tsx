@@ -40,7 +40,7 @@ function Profil() {
           .join("")
       : email.slice(0, 2)
     ).toUpperCase() || "?";
-  const roleLabel = role ? ROLE_LABELS[role] ?? role : "Kein Zugriff";
+  
 
   async function signOut() {
     await supabase.auth.signOut();
