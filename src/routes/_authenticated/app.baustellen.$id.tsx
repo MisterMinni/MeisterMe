@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useProfile, SITE_STATUS, formatDate, useHasPermission } from "@/lib/handwerk";
 import { toast } from "sonner";
 import { ProjectChat } from "@/components/ProjectChat";
+import { useSetPageHeader } from "@/components/page-header-context";
 import { ArrowLeft, MessageSquare, Users, Clock, Info, UserPlus, Trash2 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/app/baustellen/$id")({
