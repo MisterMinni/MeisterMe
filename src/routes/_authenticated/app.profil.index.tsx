@@ -187,7 +187,7 @@ function ProfileTile({
       <ChevronRight className="h-4 w-4 text-muted-foreground" />
     </div>
   );
-  if (to) return <Link to={to as never}>{inner}</Link>;
+  if (to) return <Link to={to as never} className="block">{inner}</Link>;
   return (
     <button type="button" onClick={onClick} className="block w-full">
       {inner}
