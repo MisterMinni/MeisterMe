@@ -168,6 +168,47 @@ export type Database = {
           },
         ]
       }
+      employee_documents: {
+        Row: {
+          created_at: string
+          id: string
+          kind: string | null
+          name: string
+          storage_path: string
+          tenant_id: string
+          uploaded_by: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          kind?: string | null
+          name: string
+          storage_path: string
+          tenant_id: string
+          uploaded_by?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          kind?: string | null
+          name?: string
+          storage_path?: string
+          tenant_id?: string
+          uploaded_by?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employee_documents_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       employee_qualifications: {
         Row: {
           acquired_on: string | null
