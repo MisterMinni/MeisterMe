@@ -8,10 +8,11 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { FabAdd } from "@/components/fab-add";
 import { useProfile, formatDate } from "@/lib/handwerk";
 import { toast } from "sonner";
-import { Plus, UserX, Check, X } from "lucide-react";
+import { UserX, Check, X } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/app/abwesenheiten")({
   head: () => ({ meta: [{ title: "Abwesenheiten – MeisterMe" }] }),
@@ -147,6 +148,46 @@ function Abwesenheiten() {
           </tbody>
         </table>
       </div>
+
+      <Dialog open={open} onOpenChange={setOpen}>
+        <FabAdd label="Neuer Antrag" onClick={() => setOpen(true)} />
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Neuer Abwesenheits-Antrag</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-3">
+            <div>
+              <Label>Art</Label>
+              <Select value={form.type} onValueChange={(v) => setForm({ ...form, type: v })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {TYPES.map((t) => (
+                    <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label>Start</Label>
+                <Input type="date" value={form.start_date} onChange={(e) => setForm({ ...form, start_date: e.target.value })} />
+              </div>
+              <div>
+                <Label>Ende</Label>
+                <Input type="date" value={form.end_date} onChange={(e) => setForm({ ...form, end_date: e.target.value })} />
+              </div>
+            </div>
+            <div>
+              <Label>Notiz</Label>
+              <Textarea value={form.note} onChange={(e) => setForm({ ...form, note: e.target.value })} />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setOpen(false)}>Abbrechen</Button>
+            <Button onClick={submit} className="bg-brand text-brand-foreground hover:bg-brand/90">Einreichen</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
