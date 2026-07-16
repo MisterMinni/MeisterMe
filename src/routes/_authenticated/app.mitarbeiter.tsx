@@ -86,6 +86,14 @@ function MitarbeiterPage() {
   });
   const [saving, setSaving] = useState(false);
 
+  const [editUser, setEditUser] = useState<null | {
+    id: string;
+    fullName: string;
+    phone: string;
+    roleKey: string;
+  }>(null);
+  const [savingEdit, setSavingEdit] = useState(false);
+
   if (!isAdmin) {
     return (
       <div>
