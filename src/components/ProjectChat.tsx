@@ -106,15 +106,19 @@ export function ProjectChat({ projectId }: { projectId: string }) {
   }, [messages, signed]);
 
   const grouped = useMemo(() => {
+    const term = searchQ.trim().toLowerCase();
+    const src = term
+      ? (messages ?? []).filter((m) => (m.body ?? "").toLowerCase().includes(term))
+      : (messages ?? []);
     const out: { day: string; items: Msg[] }[] = [];
-    (messages ?? []).forEach((m) => {
+    src.forEach((m) => {
       const label = formatDayLabel(m.created_at);
       const last = out[out.length - 1];
       if (last && last.day === label) last.items.push(m);
       else out.push({ day: label, items: [m] });
     });
     return out;
-  }, [messages]);
+  }, [messages, searchQ]);
 
   // Track topmost visible message day for sticky date chip
   useEffect(() => {
