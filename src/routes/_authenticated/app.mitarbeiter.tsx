@@ -202,72 +202,103 @@ function MitarbeiterPage() {
 
 
 
-      <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-card">
-        <table className="w-full text-sm">
-          <thead className="border-b border-border bg-secondary/40 text-left text-xs uppercase text-muted-foreground">
-            <tr>
-              <th className="px-4 py-3">Name</th>
-              <th className="px-4 py-3">Telefon</th>
-              <th className="px-4 py-3">Rolle</th>
-              <th className="px-4 py-3">Status</th>
-              <th className="px-4 py-3 text-right">Aktionen</th>
-            </tr>
-          </thead>
-          <tbody>
-            {(members ?? []).map((m) => {
-              const currentRoleKey = m.roles[0]?.key ?? "";
-              const isMe = m.id === profile?.id;
-              const disabled = !!m.disabled_at;
-              return (
-                <tr key={m.id} className="border-b border-border/60 last:border-0">
-                  <td className="px-4 py-3">
-                    <div className="font-medium">{m.full_name ?? "—"}</div>
-                    {isMe && <Badge variant="outline" className="mt-1 text-[10px]">Du</Badge>}
-                  </td>
-                  <td className="px-4 py-3 text-muted-foreground">{m.phone ?? "—"}</td>
-                  <td className="px-4 py-3">
-                    <Select value={currentRoleKey} onValueChange={(v) => changeRole(m.id, v)} disabled={isMe}>
-                      <SelectTrigger className="w-44"><SelectValue placeholder="Rolle wählen" /></SelectTrigger>
-                      <SelectContent>
-                        {(roles ?? []).map((r) => (
-                          <SelectItem key={r.id} value={r.key}>{r.name}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </td>
-                  <td className="px-4 py-3">
-                    {disabled ? (
-                      <Badge variant="secondary" className="bg-destructive/10 text-destructive">Deaktiviert</Badge>
-                    ) : (
-                      <Badge variant="secondary" className="bg-emerald-500/10 text-emerald-700">Aktiv</Badge>
+      <div className="space-y-3 pb-24">
+        {(members ?? []).map((m) => {
+          const currentRoleKey = m.roles[0]?.key ?? "";
+          const isMe = m.id === profile?.id;
+          const disabled = !!m.disabled_at;
+          const initials = (m.full_name ?? "?")
+            .split(" ")
+            .map((w) => w[0])
+            .filter(Boolean)
+            .slice(0, 2)
+            .join("")
+            .toUpperCase();
+          return (
+            <div
+              key={m.id}
+              className="rounded-2xl border border-border bg-card p-4 shadow-card"
+            >
+              <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3">
+                <div className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-brand/10 text-sm font-semibold text-brand">
+                  {initials}
+                </div>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="truncate font-medium">{m.full_name ?? "—"}</span>
+                    {isMe && (
+                      <Badge variant="outline" className="shrink-0 text-[10px]">
+                        Du
+                      </Badge>
                     )}
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    <Button size="sm" variant="outline" onClick={() => doReset(m.id)} className="mr-2">
-                      <KeyRound className="mr-1 h-3 w-3" /> Passwort
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => toggleActive(m.id, disabled, m.full_name ?? "Nutzer")}
-                      disabled={isMe}
-                    >
-                      {disabled ? <UserCheck className="h-3 w-3" /> : <UserX className="h-3 w-3" />}
-                    </Button>
-                  </td>
-                </tr>
-              );
-            })}
-            {(!members || members.length === 0) && (
-              <tr>
-                <td colSpan={5} className="px-4 py-12 text-center text-muted-foreground">
-                  <Users className="mx-auto mb-2 h-6 w-6" />
-                  Noch keine Mitarbeiter angelegt.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+                  </div>
+                  <div className="truncate text-xs text-muted-foreground">
+                    {m.phone ?? "Keine Telefonnummer"}
+                  </div>
+                </div>
+                {disabled ? (
+                  <Badge variant="secondary" className="shrink-0 bg-destructive/10 text-destructive">
+                    Inaktiv
+                  </Badge>
+                ) : (
+                  <Badge variant="secondary" className="shrink-0 bg-emerald-500/10 text-emerald-700">
+                    Aktiv
+                  </Badge>
+                )}
+              </div>
+
+              <div className="mt-3">
+                <Label className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                  Rolle
+                </Label>
+                <Select
+                  value={currentRoleKey}
+                  onValueChange={(v) => changeRole(m.id, v)}
+                  disabled={isMe}
+                >
+                  <SelectTrigger className="mt-1 w-full">
+                    <SelectValue placeholder="Rolle wählen" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {(roles ?? []).map((r) => (
+                      <SelectItem key={r.id} value={r.key}>
+                        {r.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="mt-3 grid grid-cols-2 gap-2">
+                <Button size="sm" variant="outline" onClick={() => doReset(m.id)}>
+                  <KeyRound className="mr-1 h-3.5 w-3.5" /> Passwort
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => toggleActive(m.id, disabled, m.full_name ?? "Nutzer")}
+                  disabled={isMe}
+                >
+                  {disabled ? (
+                    <>
+                      <UserCheck className="mr-1 h-3.5 w-3.5" /> Aktivieren
+                    </>
+                  ) : (
+                    <>
+                      <UserX className="mr-1 h-3.5 w-3.5" /> Deaktivieren
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+          );
+        })}
+        {(!members || members.length === 0) && (
+          <div className="rounded-2xl border border-border bg-card p-10 text-center text-muted-foreground shadow-card">
+            <Users className="mx-auto mb-2 h-6 w-6" />
+            Noch keine Mitarbeiter angelegt.
+          </div>
+        )}
       </div>
     </div>
   );
