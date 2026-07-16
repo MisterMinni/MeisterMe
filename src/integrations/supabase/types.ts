@@ -420,25 +420,28 @@ export type Database = {
       }
       project_messages: {
         Row: {
-          body: string
+          body: string | null
           created_at: string
           id: string
+          image_url: string | null
           project_id: string
           tenant_id: string
           user_id: string
         }
         Insert: {
-          body: string
+          body?: string | null
           created_at?: string
           id?: string
+          image_url?: string | null
           project_id: string
           tenant_id: string
           user_id: string
         }
         Update: {
-          body?: string
+          body?: string | null
           created_at?: string
           id?: string
+          image_url?: string | null
           project_id?: string
           tenant_id?: string
           user_id?: string
