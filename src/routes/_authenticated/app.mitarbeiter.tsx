@@ -124,13 +124,29 @@ function MitarbeiterPage() {
     }
   }
 
-  async function changeRole(userId: string, roleKey: string) {
+  async function saveEdit() {
+    if (!editUser) return;
+    if (!editUser.fullName.trim()) {
+      toast.error("Name darf nicht leer sein.");
+      return;
+    }
+    setSavingEdit(true);
     try {
-      await update({ data: { userId, roleKey } });
-      toast.success("Rolle geändert");
+      await update({
+        data: {
+          userId: editUser.id,
+          fullName: editUser.fullName.trim(),
+          phone: editUser.phone.trim() ? editUser.phone.trim() : null,
+          roleKey: editUser.roleKey || undefined,
+        },
+      });
+      toast.success("Mitarbeiter aktualisiert");
+      setEditUser(null);
       qc.invalidateQueries({ queryKey: ["team-members"] });
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Fehler");
+    } finally {
+      setSavingEdit(false);
     }
   }
 
