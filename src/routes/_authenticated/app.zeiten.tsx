@@ -43,14 +43,13 @@ function Zeiten() {
   });
 
   async function start() {
-    if (!siteId) return toast.error("Baustelle wählen");
     const { data: u } = await supabase.auth.getUser();
     const { data: p } = await supabase.from("profiles").select("tenant_id").eq("id", u.user!.id).single();
     const now = new Date();
     const { data, error } = await supabase.from("time_entries").insert({
       tenant_id: p!.tenant_id as string,
       user_id: u.user!.id,
-      project_id: siteId,
+      project_id: siteId || null,
       taetigkeit,
       start_ts: now.toISOString(),
     }).select("id").single();
@@ -86,7 +85,7 @@ function Zeiten() {
           <div className="font-display text-6xl font-bold tabular-nums">{startTs ? `${hh}:${mm}:${ss}` : "00:00:00"}</div>
           <div className="grid w-full max-w-lg gap-2">
             <Select value={siteId} onValueChange={setSiteId} disabled={!!runningId}>
-              <SelectTrigger className="h-12 bg-white text-foreground"><SelectValue placeholder="Baustelle wählen" /></SelectTrigger>
+              <SelectTrigger className="h-12 bg-white text-foreground [&>span[data-placeholder]]:text-muted-foreground"><SelectValue placeholder="Baustelle (optional)" /></SelectTrigger>
               <SelectContent>{sites?.map((p) => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}</SelectContent>
             </Select>
             <Input placeholder="Tätigkeit (optional)" value={taetigkeit} onChange={(e) => setTaetigkeit(e.target.value)} disabled={!!runningId} className="h-12 bg-white text-foreground" />
