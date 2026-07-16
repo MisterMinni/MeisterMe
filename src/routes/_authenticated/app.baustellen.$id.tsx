@@ -37,13 +37,6 @@ function BaustelleDetail() {
   useSetPageHeader({ title: site?.adresse || site?.name || "Baustelle", backTo: "/app/baustellen" });
 
 
-  const { data: site } = useQuery({
-    queryKey: ["site", id],
-    queryFn: async () => {
-      const { data } = await supabase.from("sites").select("*").eq("id", id).maybeSingle();
-      return data;
-    },
-  });
 
   if (!site) {
     return (
