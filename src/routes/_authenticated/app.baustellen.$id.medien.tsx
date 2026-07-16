@@ -15,7 +15,7 @@ function MedienPage() {
 
   useSetPageHeader({
     title: "Medien, Links, Doks",
-    backTo: `/app/baustellen/${id}`,
+    backTo: `/app/baustellen/${id}/info`,
   });
 
   const { data: paths, isLoading } = useQuery({
