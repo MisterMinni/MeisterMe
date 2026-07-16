@@ -152,11 +152,13 @@ function Baustellen() {
         canCreate={canCreate}
         canArchive={canArchive}
         onArchive={archive}
+        onUnarchive={unarchive}
         onCreate={() => setOpenNew(true)}
       />
     </div>
   );
 }
+
 
 const ROW_COLORS = ["#10B981", "#005aab", "#F59E0B", "#EF4444", "#8B5CF6", "#0EA5E9", "#EC4899"];
 
