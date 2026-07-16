@@ -416,13 +416,17 @@ function MitarbeiterPage() {
             </div>
           );
         })}
-        {(!members || members.length === 0) && (
+        {filtered.length === 0 && (
           <div className="rounded-2xl border border-border bg-card p-10 text-center text-muted-foreground shadow-card">
             <Users className="mx-auto mb-2 h-6 w-6" />
-            Noch keine Mitarbeiter angelegt.
+            {search.trim()
+              ? "Keine Treffer für deine Suche."
+              : "Noch keine Mitarbeiter angelegt."}
           </div>
         )}
       </div>
+        );
+      })()}
 
       <Dialog open={!!editUser} onOpenChange={(o) => !o && setEditUser(null)}>
         <DialogContent className="max-h-[90vh] max-w-lg overflow-y-auto">
