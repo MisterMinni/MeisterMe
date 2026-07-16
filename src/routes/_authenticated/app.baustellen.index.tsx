@@ -78,74 +78,69 @@ function Baustellen() {
   return (
     <div>
       {canCreate && (
-        <div className="mb-4 flex justify-end">
-          <Dialog open={openNew} onOpenChange={setOpenNew}>
-            <DialogTrigger asChild>
-              <Button className="bg-brand text-brand-foreground hover:bg-brand/90">
-                <Plus className="mr-1 h-4 w-4" /> Neue Baustelle
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Neue Baustelle</DialogTitle>
-              </DialogHeader>
-              <div className="grid gap-3">
+        <Dialog open={openNew} onOpenChange={setOpenNew}>
+          <FabAdd label="Neue Baustelle" onClick={() => setOpenNew(true)} />
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Neue Baustelle</DialogTitle>
+            </DialogHeader>
+            <div className="grid gap-3">
+              <div>
+                <Label>Name</Label>
+                <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+              </div>
+              <div>
+                <Label>Adresse</Label>
+                <Input value={form.adresse} onChange={(e) => setForm({ ...form, adresse: e.target.value })} />
+              </div>
+              <div>
+                <Label>Beschreibung</Label>
+                <Textarea value={form.beschreibung} onChange={(e) => setForm({ ...form, beschreibung: e.target.value })} />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <Label>Name</Label>
-                  <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+                  <Label>Start</Label>
+                  <Input type="date" value={form.start_date} onChange={(e) => setForm({ ...form, start_date: e.target.value })} />
                 </div>
                 <div>
-                  <Label>Adresse</Label>
-                  <Input value={form.adresse} onChange={(e) => setForm({ ...form, adresse: e.target.value })} />
-                </div>
-                <div>
-                  <Label>Beschreibung</Label>
-                  <Textarea value={form.beschreibung} onChange={(e) => setForm({ ...form, beschreibung: e.target.value })} />
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <Label>Start</Label>
-                    <Input type="date" value={form.start_date} onChange={(e) => setForm({ ...form, start_date: e.target.value })} />
-                  </div>
-                  <div>
-                    <Label>Ende</Label>
-                    <Input type="date" value={form.end_date} onChange={(e) => setForm({ ...form, end_date: e.target.value })} />
-                  </div>
-                </div>
-                <div>
-                  <Label>Status</Label>
-                  <Select value={form.status} onValueChange={(v) => setForm({ ...form, status: v })}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      {SITE_STATUS.map((s) => (
-                        <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label>Farbe</Label>
-                  <div className="mt-1 flex flex-wrap gap-2">
-                    {COLORS.map((c) => (
-                      <button
-                        key={c}
-                        type="button"
-                        onClick={() => setForm({ ...form, color: c })}
-                        className={`h-7 w-7 rounded-full border-2 ${form.color === c ? "border-foreground" : "border-transparent"}`}
-                        style={{ backgroundColor: c }}
-                      />
-                    ))}
-                  </div>
+                  <Label>Ende</Label>
+                  <Input type="date" value={form.end_date} onChange={(e) => setForm({ ...form, end_date: e.target.value })} />
                 </div>
               </div>
-              <DialogFooter>
-                <Button variant="outline" onClick={() => setOpenNew(false)}>Abbrechen</Button>
-                <Button onClick={create} className="bg-brand text-brand-foreground hover:bg-brand/90">Anlegen</Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-        </div>
+              <div>
+                <Label>Status</Label>
+                <Select value={form.status} onValueChange={(v) => setForm({ ...form, status: v })}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {SITE_STATUS.map((s) => (
+                      <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Farbe</Label>
+                <div className="mt-1 flex flex-wrap gap-2">
+                  {COLORS.map((c) => (
+                    <button
+                      key={c}
+                      type="button"
+                      onClick={() => setForm({ ...form, color: c })}
+                      className={`h-7 w-7 rounded-full border-2 ${form.color === c ? "border-foreground" : "border-transparent"}`}
+                      style={{ backgroundColor: c }}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setOpenNew(false)}>Abbrechen</Button>
+              <Button onClick={create} className="bg-brand text-brand-foreground hover:bg-brand/90">Anlegen</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       )}
+
 
 
 
