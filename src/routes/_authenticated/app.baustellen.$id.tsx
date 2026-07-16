@@ -200,3 +200,200 @@ function Section({ icon, title, children }: { icon: React.ReactNode; title: stri
     </div>
   );
 }
+
+/* ---------------- Avatar ---------------- */
+
+function SiteAvatar({ site }: { site: any }) {
+  const qc = useQueryClient();
+  const { data: profile } = useProfile();
+  const [uploading, setUploading] = useState(false);
+  const [signedUrl, setSignedUrl] = useState<string | null>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      if (!site.image_url) { setSignedUrl(null); return; }
+      const { data } = await supabase.storage.from("chat-images").createSignedUrl(site.image_url, 60 * 60);
+      if (!cancelled) setSignedUrl(data?.signedUrl ?? null);
+    })();
+    return () => { cancelled = true; };
+  }, [site.image_url]);
+
+  async function onFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file || !profile?.tenant_id) return;
+    if (!file.type.startsWith("image/")) { toast.error("Nur Bilder erlaubt"); return; }
+    setUploading(true);
+    const ext = file.name.split(".").pop() || "jpg";
+    const path = `${profile.id}/site-avatar/${site.id}-${Date.now()}.${ext}`;
+    const { error: upErr } = await supabase.storage.from("chat-images").upload(path, file, { contentType: file.type });
+    if (upErr) { setUploading(false); toast.error(upErr.message); return; }
+    const { error } = await supabase.from("sites").update({ image_url: path }).eq("id", site.id);
+    setUploading(false);
+    if (error) { toast.error(error.message); return; }
+    qc.invalidateQueries({ queryKey: ["site", site.id] });
+    qc.invalidateQueries({ queryKey: ["sites"] });
+  }
+
+  return (
+    <div className="flex flex-col items-center gap-2 py-2">
+      <div className="relative">
+        <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-full bg-brand text-2xl font-bold text-brand-foreground shadow-md">
+          {signedUrl ? (
+            <img src={signedUrl} alt="" className="h-full w-full object-cover" />
+          ) : (
+            <MapPin className="h-8 w-8" />
+          )}
+        </div>
+        <button
+          type="button"
+          onClick={() => fileRef.current?.click()}
+          disabled={uploading}
+          className="absolute -bottom-1 -right-1 flex h-8 w-8 items-center justify-center rounded-full border-2 border-background bg-brand text-brand-foreground shadow-sm hover:bg-brand/90 disabled:opacity-50"
+          aria-label="Bild ändern"
+        >
+          {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Camera className="h-4 w-4" />}
+        </button>
+        <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={onFile} />
+      </div>
+    </div>
+  );
+}
+
+/* ---------------- Message Search ---------------- */
+
+function SiteMessageSearch({ projectId }: { projectId: string }) {
+  const [q, setQ] = useState("");
+  const [results, setResults] = useState<{ id: string; body: string; created_at: string }[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const term = q.trim();
+    if (term.length < 2) { setResults([]); return; }
+    setLoading(true);
+    const t = setTimeout(async () => {
+      const { data } = await supabase
+        .from("project_messages")
+        .select("id, body, created_at")
+        .eq("project_id", projectId)
+        .not("body", "is", null)
+        .ilike("body", `%${term}%`)
+        .order("created_at", { ascending: false })
+        .limit(20);
+      setResults((data ?? []) as any);
+      setLoading(false);
+    }, 250);
+    return () => clearTimeout(t);
+  }, [q, projectId]);
+
+  return (
+    <div className="rounded-2xl border border-border bg-background p-3 shadow-sm">
+      <div className="relative">
+        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <Input
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          placeholder="Nachrichten durchsuchen …"
+          className="pl-9 pr-9"
+        />
+        {q && (
+          <button
+            type="button"
+            onClick={() => setQ("")}
+            className="absolute right-2 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground hover:bg-secondary"
+            aria-label="Zurücksetzen"
+          >
+            <X className="h-3.5 w-3.5" />
+          </button>
+        )}
+      </div>
+      {q.trim().length >= 2 && (
+        <div className="mt-3 max-h-64 space-y-2 overflow-y-auto">
+          {loading && <div className="py-2 text-center text-xs text-muted-foreground">Suche …</div>}
+          {!loading && results.length === 0 && (
+            <div className="py-2 text-center text-xs text-muted-foreground">Keine Treffer</div>
+          )}
+          {results.map((r) => (
+            <div key={r.id} className="rounded-lg bg-secondary/50 p-2 text-xs">
+              <div className="line-clamp-2 text-foreground">{r.body}</div>
+              <div className="mt-1 text-[10px] text-muted-foreground">
+                {new Intl.DateTimeFormat("de-DE", { dateStyle: "medium", timeStyle: "short" }).format(new Date(r.created_at))}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ---------------- Media ---------------- */
+
+function SiteMediaButton({ projectId }: { projectId: string }) {
+  const [open, setOpen] = useState(false);
+  const [items, setItems] = useState<{ path: string; url: string }[] | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  async function load() {
+    setLoading(true);
+    const { data } = await supabase
+      .from("project_messages")
+      .select("image_url")
+      .eq("project_id", projectId)
+      .not("image_url", "is", null)
+      .order("created_at", { ascending: false })
+      .limit(60);
+    const paths = (data ?? []).map((d: any) => d.image_url).filter(Boolean);
+    if (paths.length === 0) { setItems([]); setLoading(false); return; }
+    const { data: signed } = await supabase.storage.from("chat-images").createSignedUrls(paths, 60 * 60);
+    setItems((signed ?? []).filter((s) => s.signedUrl).map((s) => ({ path: s.path!, url: s.signedUrl! })));
+    setLoading(false);
+  }
+
+  function toggle() {
+    const next = !open;
+    setOpen(next);
+    if (next && items === null) load();
+  }
+
+  return (
+    <div className="rounded-2xl border border-border bg-background shadow-sm">
+      <button
+        type="button"
+        onClick={toggle}
+        className="flex w-full items-center gap-3 rounded-2xl p-4 text-left hover:bg-secondary/40"
+      >
+        <span className="flex h-9 w-9 items-center justify-center rounded-full bg-brand/10 text-brand">
+          <Images className="h-4 w-4" />
+        </span>
+        <span className="flex-1 text-sm font-semibold text-brand">Medien, Links, Doks</span>
+        <span className="text-xs text-muted-foreground">{items ? items.length : ""}</span>
+      </button>
+      {open && (
+        <div className="border-t border-border p-3">
+          {loading && <div className="py-4 text-center text-xs text-muted-foreground">Lädt …</div>}
+          {!loading && items && items.length === 0 && (
+            <div className="py-4 text-center text-xs text-muted-foreground">Noch keine Medien</div>
+          )}
+          {!loading && items && items.length > 0 && (
+            <div className="grid grid-cols-3 gap-1.5">
+              {items.map((it) => (
+                <a
+                  key={it.path}
+                  href={it.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="aspect-square overflow-hidden rounded-lg bg-secondary"
+                >
+                  <img src={it.url} alt="" className="h-full w-full object-cover" />
+                </a>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
