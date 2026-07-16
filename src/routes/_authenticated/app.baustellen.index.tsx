@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { FabAdd } from "@/components/fab-add";
 import { useProfile, SITE_STATUS, useHasPermission } from "@/lib/handwerk";
 import { toast } from "sonner";
-import { Briefcase, Archive, ArrowRight } from "lucide-react";
+import { Briefcase, ArrowRight } from "lucide-react";
 
 
 export const Route = createFileRoute("/_authenticated/app/baustellen/")({
