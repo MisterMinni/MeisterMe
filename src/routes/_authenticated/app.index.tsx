@@ -85,18 +85,6 @@ function Dashboard() {
     },
   });
 
-  const { data: activeSites } = useQuery({
-    queryKey: ["dashboard-sites"],
-    queryFn: async () => {
-      const { data } = await supabase
-        .from("sites")
-        .select("id, name, status, color")
-        .is("archived_at", null)
-        .order("updated_at", { ascending: false })
-        .limit(5);
-      return data ?? [];
-    },
-  });
 
   const groups: Group[] = [
     {
