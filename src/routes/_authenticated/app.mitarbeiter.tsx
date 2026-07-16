@@ -22,6 +22,7 @@ import {
   deactivateTeamMember,
   reactivateTeamMember,
   resetTeamMemberPassword,
+  getTeamMemberDetail,
 } from "@/lib/team.functions";
 import { useIsAdmin, useProfile } from "@/lib/handwerk";
 import { toast } from "sonner";
