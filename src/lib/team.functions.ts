@@ -83,6 +83,16 @@ export const updateTeamMember = createServerFn({ method: "POST" })
         fullName: z.string().optional(),
         phone: z.string().optional().nullable(),
         roleKey: z.string().optional(),
+        email: z.string().email().optional(),
+        address: z.string().optional().nullable(),
+        employee_number: z.string().optional().nullable(),
+        entry_date: z.string().optional().nullable(),
+        exit_date: z.string().optional().nullable(),
+        weekly_hours: z.number().optional().nullable(),
+        work_time_model: z.string().optional().nullable(),
+        vacation_days_per_year: z.number().int().optional().nullable(),
+        cost_center: z.string().optional().nullable(),
+        subgroup: z.string().optional().nullable(),
       })
       .parse(d),
   )
@@ -97,14 +107,35 @@ export const updateTeamMember = createServerFn({ method: "POST" })
       .maybeSingle();
     if (prof?.tenant_id !== tenantId) throw new Error("Nutzer gehört nicht zum Betrieb.");
 
-    if (data.fullName !== undefined || data.phone !== undefined) {
-      await supabaseAdmin
-        .from("profiles")
-        .update({
-          ...(data.fullName !== undefined ? { full_name: data.fullName } : {}),
-          ...(data.phone !== undefined ? { phone: data.phone } : {}),
-        })
-        .eq("id", data.userId);
+    const profileFields = [
+      "fullName",
+      "phone",
+      "address",
+      "employee_number",
+      "entry_date",
+      "exit_date",
+      "weekly_hours",
+      "work_time_model",
+      "vacation_days_per_year",
+      "cost_center",
+      "subgroup",
+    ] as const;
+    const dbMap: Record<string, string> = { fullName: "full_name" };
+    const patch: Record<string, unknown> = {};
+    for (const k of profileFields) {
+      if ((data as Record<string, unknown>)[k] !== undefined) {
+        patch[dbMap[k] ?? k] = (data as Record<string, unknown>)[k];
+      }
+    }
+    if (Object.keys(patch).length > 0) {
+      await supabaseAdmin.from("profiles").update(patch).eq("id", data.userId);
+    }
+
+    if (data.email) {
+      const { error } = await supabaseAdmin.auth.admin.updateUserById(data.userId, {
+        email: data.email,
+      });
+      if (error) throw new Error(error.message);
     }
 
     if (data.roleKey) {
