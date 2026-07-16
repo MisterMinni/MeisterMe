@@ -60,12 +60,13 @@
 
   /* Palette: #005aab (blue), #ffffff (white), #777777 (gray) */
   --background: oklch(1 0 0);                /* #ffffff */
-  --foreground: oklch(0.28 0 0);             /* dark gray for text */
+  --foreground: oklch(0.55 0 0);             /* #777777 gray text on white */
 
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.28 0 0);
+  --card-foreground: oklch(0.55 0 0);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.28 0 0);
+  --popover-foreground: oklch(0.55 0 0);
+
 
   /* Brand: single blue accent */
   --brand: oklch(0.47 0.16 250);             /* #005aab */
@@ -76,7 +77,8 @@
   --primary-foreground: oklch(1 0 0);
 
   --secondary: oklch(0.965 0 0);
-  --secondary-foreground: oklch(0.28 0 0);
+  --secondary-foreground: oklch(0.55 0 0);
+
 
   --muted: oklch(0.965 0 0);
   --muted-foreground: oklch(0.55 0 0);       /* #777777 */
