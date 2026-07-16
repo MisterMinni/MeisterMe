@@ -142,8 +142,7 @@ function Dashboard() {
       title: "Betrieb",
       tone: "slate",
       tiles: [
-        { to: "/app/mitarbeiter", label: "Mitarbeiter", icon: UsersRound, desc: "Stammdaten, Qualifikationen" },
-        { to: "/app/team", label: "Rollen & Zugänge", icon: Settings, desc: "Berechtigungen verwalten" },
+        { to: "/app/mitarbeiter", label: "Mitarbeiter", icon: UsersRound, desc: "Stammdaten, Rollen & Zugänge" },
         { to: "/app/einstellungen", label: "Einstellungen", icon: Settings, desc: "Betrieb & Profil" },
       ],
     },
