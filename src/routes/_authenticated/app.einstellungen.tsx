@@ -116,14 +116,6 @@ function EinstellungenAdmin() {
         </section>
 
         <div className="space-y-6">
-          <section className="rounded-2xl border border-border bg-card p-6 shadow-card">
-            <h3 className="mb-4 flex items-center gap-2 font-display font-semibold"><User className="h-4 w-4 text-brand" /> Dein Profil</h3>
-            <div className="space-y-3">
-              <div><Label>Name</Label><Input value={p.full_name} onChange={(e) => setP({ ...p, full_name: e.target.value })} /></div>
-              <div><Label>Telefon</Label><Input value={p.phone} onChange={(e) => setP({ ...p, phone: e.target.value })} /></div>
-              <Button onClick={saveProfile} variant="outline">Profil speichern</Button>
-            </div>
-          </section>
 
           <section className="rounded-2xl border border-border bg-card p-6 shadow-card">
             <h3 className="mb-3 flex items-center gap-2 font-display font-semibold"><ShieldCheck className="h-4 w-4 text-brand" /> Rollen</h3>
