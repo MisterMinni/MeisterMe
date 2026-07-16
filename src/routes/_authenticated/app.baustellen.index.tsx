@@ -307,14 +307,15 @@ function SiteRow({ site, color }: { site: any; color: string }) {
     >
       <div
         className="grid h-11 w-11 shrink-0 overflow-hidden place-items-center rounded-xl text-white shadow-sm"
-        style={{ backgroundColor: imgUrl ? undefined : color, opacity: isArchived ? 0.6 : 1 }}
+        style={{ backgroundColor: imgUrl ? undefined : "#005aab", opacity: isArchived ? 0.6 : 1 }}
       >
         {imgUrl ? (
           <img src={imgUrl} alt="" className="h-full w-full object-cover" />
         ) : (
-          <Briefcase className="h-5 w-5" />
+          <Home className="h-5 w-5" strokeWidth={1.75} />
         )}
       </div>
+
       <div className="min-w-0 flex-1">
         <div className="truncate font-semibold text-foreground">{line1}</div>
         {line2 && <div className="truncate text-sm text-muted-foreground">{line2}</div>}
