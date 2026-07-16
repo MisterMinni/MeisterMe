@@ -288,38 +288,27 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   );
 }
 
-function SiteRow({ site, color, canArchive, onArchive, onUnarchive }: { site: any; color: string; canArchive: boolean; onArchive: (id: string) => void; onUnarchive: (id: string) => void }) {
+function SiteRow({ site, color }: { site: any; color: string }) {
   const { line1, line2 } = splitAddress(site.adresse, site.name);
   const isArchived = !!site.archived_at;
   return (
-    <div className="group relative flex items-center gap-3 px-3 py-3">
-      <Link
-        to="/app/baustellen/$id"
-        params={{ id: site.id }}
-        className="flex flex-1 min-w-0 items-center gap-3"
+    <Link
+      to="/app/baustellen/$id"
+      params={{ id: site.id }}
+      className="flex items-center gap-3 px-3 py-3"
+    >
+      <div
+        className="grid h-11 w-11 shrink-0 place-items-center rounded-xl text-white shadow-sm"
+        style={{ backgroundColor: color, opacity: isArchived ? 0.6 : 1 }}
       >
-        <div
-          className="grid h-11 w-11 shrink-0 place-items-center rounded-xl text-white shadow-sm"
-          style={{ backgroundColor: color, opacity: isArchived ? 0.6 : 1 }}
-        >
-          <Briefcase className="h-5 w-5" />
-        </div>
-        <div className="min-w-0 flex-1">
-          <div className="truncate font-semibold text-foreground">{line1}</div>
-          {line2 && <div className="truncate text-sm text-muted-foreground">{line2}</div>}
-        </div>
-        <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground/60" />
-      </Link>
-      {canArchive && (
-        <button
-          onClick={() => (isArchived ? onUnarchive(site.id) : onArchive(site.id))}
-          className="opacity-0 group-hover:opacity-100 transition rounded-md p-1 text-muted-foreground hover:text-foreground"
-          title={isArchived ? "Wiederherstellen" : "Archivieren"}
-        >
-          <Archive className="h-4 w-4" />
-        </button>
-      )}
-    </div>
+        <Briefcase className="h-5 w-5" />
+      </div>
+      <div className="min-w-0 flex-1">
+        <div className="truncate font-semibold text-foreground">{line1}</div>
+        {line2 && <div className="truncate text-sm text-muted-foreground">{line2}</div>}
+      </div>
+      <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground/60" />
+    </Link>
   );
 }
 
