@@ -37,16 +37,16 @@ function Baustellen() {
   const [form, setForm] = useState(emptyForm);
 
   const { data: sites } = useQuery({
-    queryKey: ["sites"],
+    queryKey: ["sites", "all"],
     queryFn: async () => {
       const { data } = await supabase
         .from("sites")
         .select("*")
-        .is("archived_at", null)
         .order("updated_at", { ascending: false });
       return data ?? [];
     },
   });
+
 
   async function create() {
     if (!profile?.tenant_id) return;
@@ -77,6 +77,14 @@ function Baustellen() {
     toast.success("Archiviert");
     qc.invalidateQueries({ queryKey: ["sites"] });
   }
+
+  async function unarchive(id: string) {
+    const { error } = await supabase.from("sites").update({ archived_at: null }).eq("id", id);
+    if (error) return toast.error(error.message);
+    toast.success("Wiederhergestellt");
+    qc.invalidateQueries({ queryKey: ["sites"] });
+  }
+
 
   return (
     <div>
@@ -144,11 +152,13 @@ function Baustellen() {
         canCreate={canCreate}
         canArchive={canArchive}
         onArchive={archive}
+        onUnarchive={unarchive}
         onCreate={() => setOpenNew(true)}
       />
     </div>
   );
 }
+
 
 const ROW_COLORS = ["#10B981", "#005aab", "#F59E0B", "#EF4444", "#8B5CF6", "#0EA5E9", "#EC4899"];
 
@@ -158,6 +168,7 @@ function BaustellenList({
   canCreate,
   canArchive,
   onArchive,
+  onUnarchive,
   onCreate,
 }: {
   sites: any[];
@@ -165,9 +176,11 @@ function BaustellenList({
   canCreate: boolean;
   canArchive: boolean;
   onArchive: (id: string) => void;
+  onUnarchive: (id: string) => void;
   onCreate: () => void;
 }) {
   const [q, setQ] = useState("");
+  const [tab, setTab] = useState<"geplant" | "in_arbeit" | "fertig" | "archiviert">("in_arbeit");
   const today = new Date().toISOString().slice(0, 10);
 
   const { data: todayAssignments } = useQuery({
@@ -186,7 +199,36 @@ function BaustellenList({
   const todaySet = new Map<string, true>();
   (todayAssignments ?? []).forEach((id) => todaySet.set(id, true));
 
-  const filtered = sites.filter((s) => {
+  const TABS = [
+    { key: "geplant" as const, label: "Geplant" },
+    { key: "in_arbeit" as const, label: "In Bearbeitung" },
+    { key: "fertig" as const, label: "Fertig" },
+    { key: "archiviert" as const, label: "Archiviert" },
+  ];
+
+  function matchesTab(s: any) {
+    if (s.archived_at) return tab === "archiviert";
+    if (tab === "archiviert") return false;
+    if (tab === "geplant") return ["anfrage", "angebot", "beauftragt", "geplant"].includes(s.status);
+    if (tab === "in_arbeit") return s.status === "in_arbeit";
+    if (tab === "fertig") return ["abgeschlossen", "abgerechnet"].includes(s.status);
+    return true;
+  }
+
+  const counts = {
+    geplant: 0,
+    in_arbeit: 0,
+    fertig: 0,
+    archiviert: 0,
+  } as Record<string, number>;
+  for (const s of sites) {
+    if (s.archived_at) counts.archiviert++;
+    else if (["anfrage", "angebot", "beauftragt", "geplant"].includes(s.status)) counts.geplant++;
+    else if (s.status === "in_arbeit") counts.in_arbeit++;
+    else if (["abgeschlossen", "abgerechnet"].includes(s.status)) counts.fertig++;
+  }
+
+  const filtered = sites.filter(matchesTab).filter((s) => {
     if (!q.trim()) return true;
     const hay = `${s.name ?? ""} ${s.adresse ?? ""} ${s.beschreibung ?? ""}`.toLowerCase();
     return q
@@ -196,8 +238,9 @@ function BaustellenList({
       .every((t) => hay.includes(t));
   });
 
-  const heute = filtered.filter((s) => todaySet.has(s.id));
-  const weitere = filtered.filter((s) => !todaySet.has(s.id));
+  const showHeute = tab !== "archiviert";
+  const heute = showHeute ? filtered.filter((s) => todaySet.has(s.id)) : [];
+  const weitere = showHeute ? filtered.filter((s) => !todaySet.has(s.id)) : filtered;
 
   return (
     <div className="space-y-6">
@@ -211,18 +254,34 @@ function BaustellenList({
         <svg className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" /><path d="m21 21-4.3-4.3" strokeLinecap="round" /></svg>
       </div>
 
+      <div className="-mx-1 flex gap-1 overflow-x-auto px-1 pb-1">
+        {TABS.map((t) => {
+          const active = tab === t.key;
+          return (
+            <button
+              key={t.key}
+              onClick={() => setTab(t.key)}
+              className={`shrink-0 rounded-full px-3.5 py-1.5 text-sm font-medium transition ${active ? "bg-brand text-brand-foreground" : "bg-muted text-muted-foreground hover:bg-muted/70"}`}
+            >
+              {t.label}
+              <span className={`ml-1.5 text-xs ${active ? "opacity-80" : "opacity-60"}`}>{counts[t.key] ?? 0}</span>
+            </button>
+          );
+        })}
+      </div>
+
       {heute.length > 0 && (
         <Section title="Heute zugeteilt">
           {heute.map((s, i) => (
-            <SiteRow key={s.id} site={s} color={s.color || ROW_COLORS[i % ROW_COLORS.length]} canArchive={canArchive} onArchive={onArchive} />
+            <SiteRow key={s.id} site={s} color={s.color || ROW_COLORS[i % ROW_COLORS.length]} canArchive={canArchive} onArchive={onArchive} onUnarchive={onUnarchive} />
           ))}
         </Section>
       )}
 
       {weitere.length > 0 && (
-        <Section title={heute.length > 0 ? "Weitere Baustellen" : "Alle Baustellen"}>
+        <Section title={heute.length > 0 ? "Weitere Baustellen" : TABS.find((t) => t.key === tab)!.label}>
           {weitere.map((s, i) => (
-            <SiteRow key={s.id} site={s} color={s.color || ROW_COLORS[(i + heute.length) % ROW_COLORS.length]} canArchive={canArchive} onArchive={onArchive} />
+            <SiteRow key={s.id} site={s} color={s.color || ROW_COLORS[(i + heute.length) % ROW_COLORS.length]} canArchive={canArchive} onArchive={onArchive} onUnarchive={onUnarchive} />
           ))}
         </Section>
       )}
@@ -230,9 +289,9 @@ function BaustellenList({
       {filtered.length === 0 && (
         <div className="rounded-2xl border-2 border-dashed border-border p-12 text-center text-muted-foreground">
           <Briefcase className="mx-auto mb-2 h-8 w-8" />
-          {q ? "Keine Treffer." : "Noch keine Baustellen."}{" "}
-          {!q && canCreate && (
-            <button onClick={onCreate} className="text-brand hover:underline">Erste anlegen</button>
+          {q ? "Keine Treffer." : "Keine Baustellen in dieser Ansicht."}{" "}
+          {!q && canCreate && tab !== "archiviert" && (
+            <button onClick={onCreate} className="text-brand hover:underline">Neu anlegen</button>
           )}
         </div>
       )}
@@ -251,8 +310,9 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   );
 }
 
-function SiteRow({ site, color, canArchive, onArchive }: { site: any; color: string; canArchive: boolean; onArchive: (id: string) => void }) {
+function SiteRow({ site, color, canArchive, onArchive, onUnarchive }: { site: any; color: string; canArchive: boolean; onArchive: (id: string) => void; onUnarchive: (id: string) => void }) {
   const { line1, line2 } = splitAddress(site.adresse, site.name);
+  const isArchived = !!site.archived_at;
   return (
     <div className="group relative flex items-center gap-3 px-3 py-3">
       <Link
@@ -262,7 +322,7 @@ function SiteRow({ site, color, canArchive, onArchive }: { site: any; color: str
       >
         <div
           className="grid h-11 w-11 shrink-0 place-items-center rounded-xl text-white shadow-sm"
-          style={{ backgroundColor: color }}
+          style={{ backgroundColor: color, opacity: isArchived ? 0.6 : 1 }}
         >
           <Briefcase className="h-5 w-5" />
         </div>
@@ -274,9 +334,9 @@ function SiteRow({ site, color, canArchive, onArchive }: { site: any; color: str
       </Link>
       {canArchive && (
         <button
-          onClick={() => onArchive(site.id)}
+          onClick={() => (isArchived ? onUnarchive(site.id) : onArchive(site.id))}
           className="opacity-0 group-hover:opacity-100 transition rounded-md p-1 text-muted-foreground hover:text-foreground"
-          title="Archivieren"
+          title={isArchived ? "Wiederherstellen" : "Archivieren"}
         >
           <Archive className="h-4 w-4" />
         </button>
@@ -292,4 +352,5 @@ function splitAddress(adresse?: string | null, fallback?: string | null): { line
   if (parts.length >= 2) return { line1: parts[0], line2: parts.slice(1).join(", ") };
   return { line1: src, line2: "" };
 }
+
 
