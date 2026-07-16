@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useProfile, useMyRole, ROLE_LABELS } from "@/lib/handwerk";
+
 import {
   Briefcase,
   Clock,
@@ -63,8 +63,7 @@ function ModuleTile({ tile }: { tile: Tile }) {
 }
 
 function Dashboard() {
-  const { data: profile } = useProfile();
-  const role = useMyRole();
+
 
   const { data: stats } = useQuery({
     queryKey: ["dashboard-stats"],
