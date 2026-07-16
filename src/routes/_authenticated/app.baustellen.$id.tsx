@@ -140,8 +140,7 @@ function SiteInfo({ site, canEdit }: { site: any; canEdit: boolean }) {
       </div>
 
       <SiteAvatar site={site} />
-      <SiteMessageSearch projectId={site.id} />
-      <SiteMediaButton projectId={site.id} />
+      <MediaLink siteId={site.id} />
 
       <Section icon={<MapPin className="h-4 w-4" />} title="Adresse">
         <div className="grid grid-cols-[1fr_90px] gap-3">
