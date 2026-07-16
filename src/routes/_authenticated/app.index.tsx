@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useProfile, useMyRole, ROLE_LABELS } from "@/lib/handwerk";
+
 import {
   Briefcase,
   Clock,
@@ -63,8 +63,7 @@ function ModuleTile({ tile }: { tile: Tile }) {
 }
 
 function Dashboard() {
-  const { data: profile } = useProfile();
-  const role = useMyRole();
+
 
   const { data: stats } = useQuery({
     queryKey: ["dashboard-stats"],
@@ -116,22 +115,7 @@ function Dashboard() {
 
   return (
     <div className="space-y-8">
-      {/* Header */}
-      <div className="flex flex-col gap-4 rounded-2xl border border-border bg-gradient-to-br from-primary to-navy p-5 text-white shadow-lift sm:flex-row sm:items-end sm:justify-between sm:p-6">
-        <div>
-          <div className="text-xs uppercase tracking-wider text-white/60">Willkommen zurück</div>
-          <h1 className="font-display text-2xl font-bold sm:text-3xl">{profile?.full_name ?? "Meister"}</h1>
-          <div className="text-sm text-white/70">
-            {profile?.tenants?.name}
-            {role ? ` · ${ROLE_LABELS[role] ?? role}` : ""}
-          </div>
-        </div>
-        <div className="grid grid-cols-3 gap-2 sm:gap-4 sm:text-right">
-          <MiniStat label="Aktive Baustellen" value={stats?.activeSites ?? 0} />
-          <MiniStat label="Heute geplant" value={stats?.planToday ?? 0} />
-          <MiniStat label="Abwesenheits-Anträge" value={stats?.openAbsences ?? 0} tone={stats?.openAbsences ? "warn" : undefined} />
-        </div>
-      </div>
+
 
       {/* Module tiles */}
       {groups.map((group) => (
@@ -152,11 +136,4 @@ function Dashboard() {
   );
 }
 
-function MiniStat({ label, value, tone }: { label: string; value: number; tone?: "warn" }) {
-  return (
-    <div className="rounded-xl bg-white/10 px-3 py-2 backdrop-blur">
-      <div className={`font-display text-xl font-bold ${tone === "warn" ? "text-red-300" : "text-white"}`}>{value}</div>
-      <div className="text-[10px] uppercase text-white/60">{label}</div>
-    </div>
-  );
-}
+
