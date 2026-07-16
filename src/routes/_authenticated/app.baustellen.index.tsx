@@ -128,7 +128,6 @@ function Baustellen() {
               </div>
             </div>
 
-            </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setOpenNew(false)}>Abbrechen</Button>
               <Button onClick={create} className="bg-brand text-brand-foreground hover:bg-brand/90">Anlegen</Button>
