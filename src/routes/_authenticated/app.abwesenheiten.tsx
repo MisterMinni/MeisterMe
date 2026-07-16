@@ -85,41 +85,6 @@ function Abwesenheiten() {
 
   return (
     <div>
-      <PageHeader
-        title="Abwesenheiten"
-        subtitle="Urlaub, Krank, Sonderurlaub – Anträge und Genehmigung."
-        action={
-          <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-              <Button className="bg-brand text-brand-foreground hover:bg-brand/90">
-                <Plus className="mr-1 h-4 w-4" /> Antrag stellen
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader><DialogTitle>Neuer Antrag</DialogTitle></DialogHeader>
-              <div className="space-y-3">
-                <div>
-                  <Label>Art</Label>
-                  <Select value={form.type} onValueChange={(v) => setForm({ ...form, type: v })}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>{TYPES.map((t) => <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>)}</SelectContent>
-                  </Select>
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <div><Label>Von *</Label><Input type="date" value={form.start_date} onChange={(e) => setForm({ ...form, start_date: e.target.value })} /></div>
-                  <div><Label>Bis *</Label><Input type="date" value={form.end_date} onChange={(e) => setForm({ ...form, end_date: e.target.value })} /></div>
-                </div>
-                <div><Label>Bemerkung</Label><Textarea rows={2} value={form.note} onChange={(e) => setForm({ ...form, note: e.target.value })} /></div>
-              </div>
-              <DialogFooter>
-                <Button variant="outline" onClick={() => setOpen(false)}>Abbrechen</Button>
-                <Button onClick={submit} className="bg-brand text-brand-foreground hover:bg-brand/90">Einreichen</Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-        }
-      />
-
       <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-card">
         <table className="w-full text-sm">
           <thead className="border-b border-border bg-secondary/40 text-left text-xs uppercase text-muted-foreground">

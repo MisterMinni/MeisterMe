@@ -155,24 +155,6 @@ function TeamPage() {
 
   return (
     <div>
-      <PageHeader
-        title="Team"
-        subtitle="Mitarbeiter anlegen, Rollen vergeben, Zugänge verwalten."
-        action={
-          <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-              <Button className="bg-brand text-brand-foreground hover:bg-brand/90">
-                <UserPlus className="mr-1 h-4 w-4" /> Mitarbeiter anlegen
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Neuen Mitarbeiter anlegen</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-3">
-                <div>
-                  <Label>Name *</Label>
-                  <Input value={form.fullName} onChange={(e) => setForm({ ...form, fullName: e.target.value })} />
                 </div>
                 <div>
                   <Label>E-Mail *</Label>
