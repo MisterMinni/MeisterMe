@@ -25,7 +25,7 @@ import {
 } from "@/lib/team.functions";
 import { useIsAdmin, useProfile } from "@/lib/handwerk";
 import { toast } from "sonner";
-import { KeyRound, Users, ShieldCheck, UserX, UserCheck } from "lucide-react";
+import { KeyRound, Users, ShieldCheck, UserX, UserCheck, Pencil } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/app/mitarbeiter")({
   head: () => ({ meta: [{ title: "Mitarbeiter – MeisterMe" }] }),
