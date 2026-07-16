@@ -140,7 +140,7 @@ function EinstellungenAdmin() {
                 </li>
               ))}
             </ul>
-            <p className="mt-3 text-xs text-muted-foreground">Mitarbeiter zu Rollen zuweisen unter <Link to="/app/team" className="text-brand underline">Rollen & Zugänge</Link>.</p>
+            <p className="mt-3 text-xs text-muted-foreground">Mitarbeiter zu Rollen zuweisen unter <Link to="/app/mitarbeiter" className="text-brand underline">Mitarbeiter</Link>.</p>
           </section>
         </div>
       </div>
