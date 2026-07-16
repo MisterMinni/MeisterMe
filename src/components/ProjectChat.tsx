@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useProfile } from "@/lib/handwerk";
 import { toast } from "sonner";
-import { Send, Trash2, Paperclip, Loader2 } from "lucide-react";
+import { Send, Trash2, Paperclip, Loader2, Search, X } from "lucide-react";
 import chatBg from "@/assets/chat-bg-houses.jpg";
 
 function initials(name: string | null | undefined) {
@@ -49,6 +49,8 @@ export function ProjectChat({ projectId }: { projectId: string }) {
   const [uploading, setUploading] = useState(false);
   const [signed, setSigned] = useState<Record<string, string>>({});
   const [currentDay, setCurrentDay] = useState<string | null>(null);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQ, setSearchQ] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -104,15 +106,19 @@ export function ProjectChat({ projectId }: { projectId: string }) {
   }, [messages, signed]);
 
   const grouped = useMemo(() => {
+    const term = searchQ.trim().toLowerCase();
+    const src = term
+      ? (messages ?? []).filter((m) => (m.body ?? "").toLowerCase().includes(term))
+      : (messages ?? []);
     const out: { day: string; items: Msg[] }[] = [];
-    (messages ?? []).forEach((m) => {
+    src.forEach((m) => {
       const label = formatDayLabel(m.created_at);
       const last = out[out.length - 1];
       if (last && last.day === label) last.items.push(m);
       else out.push({ day: label, items: [m] });
     });
     return out;
-  }, [messages]);
+  }, [messages, searchQ]);
 
   // Track topmost visible message day for sticky date chip
   useEffect(() => {
@@ -191,6 +197,39 @@ export function ProjectChat({ projectId }: { projectId: string }) {
 
   return (
     <div className="flex h-[calc(100vh-4rem)] flex-col">
+      {/* Search bar */}
+      <div className="flex items-center gap-2 border-b border-border bg-background px-2 py-1.5">
+        {searchOpen ? (
+          <>
+            <Search className="ml-1 h-4 w-4 shrink-0 text-muted-foreground" />
+            <input
+              autoFocus
+              value={searchQ}
+              onChange={(e) => setSearchQ(e.target.value)}
+              placeholder="Nachrichten durchsuchen …"
+              className="flex-1 bg-transparent py-1.5 text-sm outline-none placeholder:text-muted-foreground"
+            />
+            <button
+              type="button"
+              onClick={() => { setSearchQ(""); setSearchOpen(false); }}
+              className="flex h-7 w-7 items-center justify-center rounded-full text-muted-foreground hover:bg-secondary"
+              aria-label="Suche schließen"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setSearchOpen(true)}
+            className="ml-auto flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground hover:bg-secondary"
+            aria-label="Chat durchsuchen"
+          >
+            <Search className="h-4 w-4" />
+          </button>
+        )}
+      </div>
+
       {/* Message list w/ hand-drawn houses background */}
       <div
         ref={scrollRef}
@@ -211,7 +250,7 @@ export function ProjectChat({ projectId }: { projectId: string }) {
         <div className="relative space-y-3 px-3 py-4">
           {grouped.length === 0 && (
             <div className="mt-16 text-center text-sm text-muted-foreground">
-              Noch keine Nachrichten. Schreib die erste!
+              {searchQ.trim() ? "Keine Treffer" : "Noch keine Nachrichten. Schreib die erste!"}
             </div>
           )}
           {grouped.map((group) => (
