@@ -67,19 +67,21 @@ export function AppShell({ children }: { children?: ReactNode }) {
 
           <Link
             to="/app/profil"
-            className="flex items-center gap-2 rounded-full border border-sidebar-border/50 py-1 pl-1 pr-1 text-left transition hover:bg-sidebar-accent md:pr-3"
+            className="group flex items-center gap-2 rounded-full py-1 pl-1 text-left transition md:pr-3 md:hover:bg-white/10"
             aria-label="Mein Profil"
           >
-            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-brand text-xs font-bold text-brand-foreground ring-2 ring-sidebar-border/40">
+            <span className="relative flex h-10 w-10 items-center justify-center rounded-full bg-white text-sm font-bold text-[#005aab] shadow-[0_0_0_3px_rgba(255,255,255,0.35),0_6px_20px_-4px_rgba(0,0,0,0.35)] ring-2 ring-white transition group-hover:scale-105">
               {initials}
+              <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-[#005aab] bg-emerald-400" />
             </span>
             <span className="hidden min-w-0 flex-col leading-tight md:flex">
               <span className="truncate text-sm font-semibold text-white">{displayName}</span>
-              <span className="truncate text-[11px] text-sidebar-foreground/70">
+              <span className="truncate text-[11px] text-white/70">
                 {roleLabel}{profile?.tenants?.name ? ` · ${profile.tenants.name}` : ""}
               </span>
             </span>
           </Link>
+
         </div>
       </header>
 
