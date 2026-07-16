@@ -318,6 +318,62 @@ function MitarbeiterPage() {
           </div>
         )}
       </div>
+
+      <Dialog open={!!editUser} onOpenChange={(o) => !o && setEditUser(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Mitarbeiter bearbeiten</DialogTitle>
+          </DialogHeader>
+          {editUser && (
+            <div className="grid gap-3">
+              <div>
+                <Label>Name *</Label>
+                <Input
+                  value={editUser.fullName}
+                  onChange={(e) => setEditUser({ ...editUser, fullName: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label>Telefon</Label>
+                <Input
+                  value={editUser.phone}
+                  onChange={(e) => setEditUser({ ...editUser, phone: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label>Rolle</Label>
+                <Select
+                  value={editUser.roleKey}
+                  onValueChange={(v) => setEditUser({ ...editUser, roleKey: v })}
+                  disabled={editUser.id === profile?.id}
+                >
+                  <SelectTrigger><SelectValue placeholder="Rolle wählen" /></SelectTrigger>
+                  <SelectContent>
+                    {(roles ?? []).map((r) => (
+                      <SelectItem key={r.id} value={r.key}>{r.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {editUser.id === profile?.id && (
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Eigene Rolle kann nicht geändert werden.
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditUser(null)}>Abbrechen</Button>
+            <Button
+              onClick={saveEdit}
+              disabled={savingEdit}
+              className="bg-brand text-brand-foreground hover:bg-brand/90"
+            >
+              {savingEdit ? "Speichere…" : "Speichern"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
