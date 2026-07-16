@@ -5,7 +5,7 @@ import {
   Briefcase,
   Clock,
   Calendar,
-  UsersRound,
+  
   Settings,
   UserX,
   Search,
@@ -27,7 +27,6 @@ const modules: NavItem[] = [
   { to: "/app/zeiten", label: "Zeiterfassung", icon: Clock },
   { to: "/app/abwesenheiten", label: "Abwesenheiten", icon: UserX },
   { to: "/app/mitarbeiter", label: "Mitarbeiter", icon: Users, adminOnly: true },
-  { to: "/app/team", label: "Rollen & Zugänge", icon: UsersRound, adminOnly: true },
   { to: "/app/einstellungen", label: "Einstellungen", icon: Settings, adminOnly: true },
 ];
 
@@ -141,8 +140,7 @@ const SEARCH_ALIASES: Record<string, string[]> = {
   "/app/plan": ["plan", "wochenplanung", "einsatz", "kalender"],
   "/app/zeiten": ["zeit", "stunden", "stempel", "arbeitszeit"],
   "/app/abwesenheiten": ["urlaub", "krank", "abwesenheit", "antrag"],
-  "/app/mitarbeiter": ["mitarbeiter", "personal", "stammdaten"],
-  "/app/team": ["team", "rollen", "zugang", "berechtigungen"],
+  "/app/mitarbeiter": ["mitarbeiter", "personal", "stammdaten", "team", "rollen", "zugang", "berechtigungen"],
   "/app/einstellungen": ["einstellung", "settings", "betrieb"],
 };
 
