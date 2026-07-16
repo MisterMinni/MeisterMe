@@ -74,6 +74,31 @@ export const createTeamMember = createServerFn({ method: "POST" })
     return { id: uid };
   });
 
+export const listTeamMemberEmails = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const tenantId = await requireAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: profs } = await supabaseAdmin
+      .from("profiles")
+      .select("id")
+      .eq("tenant_id", tenantId);
+    const ids = new Set((profs ?? []).map((p) => p.id));
+    const map: Record<string, string> = {};
+    let page = 1;
+    // paginate through auth users
+    while (true) {
+      const { data, error } = await supabaseAdmin.auth.admin.listUsers({ page, perPage: 200 });
+      if (error) break;
+      for (const u of data?.users ?? []) {
+        if (ids.has(u.id) && u.email) map[u.id] = u.email;
+      }
+      if (!data?.users || data.users.length < 200) break;
+      page += 1;
+    }
+    return map;
+  });
+
 export const getTeamMemberDetail = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => z.object({ userId: z.string().uuid() }).parse(d))

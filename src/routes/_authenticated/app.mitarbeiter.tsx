@@ -23,10 +23,11 @@ import {
   reactivateTeamMember,
   resetTeamMemberPassword,
   getTeamMemberDetail,
+  listTeamMemberEmails,
 } from "@/lib/team.functions";
 import { useIsAdmin, useProfile } from "@/lib/handwerk";
 import { toast } from "sonner";
-import { KeyRound, Users, ShieldCheck, UserX, UserCheck, Pencil } from "lucide-react";
+import { KeyRound, Users, ShieldCheck, UserX, UserCheck, Pencil, Search, X } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/app/mitarbeiter")({
   head: () => ({ meta: [{ title: "Mitarbeiter – MeisterMe" }] }),
@@ -43,6 +44,7 @@ function MitarbeiterPage() {
   const react = useServerFn(reactivateTeamMember);
   const resetPw = useServerFn(resetTeamMemberPassword);
   const loadDetail = useServerFn(getTeamMemberDetail);
+  const loadEmails = useServerFn(listTeamMemberEmails);
 
   const { data: roles } = useQuery({
     queryKey: ["tenant-roles", profile?.tenant_id],
@@ -56,13 +58,19 @@ function MitarbeiterPage() {
     },
   });
 
+  const { data: emails } = useQuery({
+    queryKey: ["team-emails", profile?.tenant_id],
+    enabled: !!profile?.tenant_id && isAdmin,
+    queryFn: async () => (await loadEmails()) as Record<string, string>,
+  });
+
   const { data: members } = useQuery({
     queryKey: ["team-members", profile?.tenant_id],
     enabled: !!profile?.tenant_id,
     queryFn: async () => {
       const { data: profs } = await supabase
         .from("profiles")
-        .select("id, full_name, phone, created_at, disabled_at")
+        .select("id, full_name, phone, employee_number, created_at, disabled_at")
         .eq("tenant_id", profile!.tenant_id!);
       const { data: assignments } = await supabase
         .from("user_role_assignments")
@@ -77,6 +85,8 @@ function MitarbeiterPage() {
       }));
     },
   });
+
+  const [search, setSearch] = useState("");
 
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({
@@ -292,8 +302,44 @@ function MitarbeiterPage() {
 
 
 
+      <div className="relative mb-3">
+        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <Input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Suche nach Name, E-Mail, Personalnr. oder Telefon"
+          className="pl-9 pr-9"
+        />
+        {search && (
+          <button
+            type="button"
+            onClick={() => setSearch("")}
+            aria-label="Suche leeren"
+            className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-muted-foreground hover:text-foreground"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        )}
+      </div>
+
+      {(() => {
+        const q = search.trim().toLowerCase();
+        const filtered = (members ?? []).filter((m) => {
+          if (!q) return true;
+          const email = emails?.[m.id] ?? "";
+          const hay = [
+            m.full_name ?? "",
+            email,
+            m.phone ?? "",
+            m.employee_number ?? "",
+          ]
+            .join(" ")
+            .toLowerCase();
+          return q.split(/\s+/).every((t) => hay.includes(t));
+        });
+        return (
       <div className="space-y-3 pb-24">
-        {(members ?? []).map((m) => {
+        {filtered.map((m) => {
           const currentRoleKey = m.roles[0]?.key ?? "";
           const isMe = m.id === profile?.id;
           const disabled = !!m.disabled_at;
@@ -370,13 +416,17 @@ function MitarbeiterPage() {
             </div>
           );
         })}
-        {(!members || members.length === 0) && (
+        {filtered.length === 0 && (
           <div className="rounded-2xl border border-border bg-card p-10 text-center text-muted-foreground shadow-card">
             <Users className="mx-auto mb-2 h-6 w-6" />
-            Noch keine Mitarbeiter angelegt.
+            {search.trim()
+              ? "Keine Treffer für deine Suche."
+              : "Noch keine Mitarbeiter angelegt."}
           </div>
         )}
       </div>
+        );
+      })()}
 
       <Dialog open={!!editUser} onOpenChange={(o) => !o && setEditUser(null)}>
         <DialogContent className="max-h-[90vh] max-w-lg overflow-y-auto">
