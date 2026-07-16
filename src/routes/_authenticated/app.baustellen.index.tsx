@@ -137,9 +137,6 @@ function Baustellen() {
         sites={sites ?? []}
         userId={profile?.id}
         canCreate={canCreate}
-        canArchive={canArchive}
-        onArchive={archive}
-        onUnarchive={unarchive}
         onCreate={() => setOpenNew(true)}
       />
     </div>
