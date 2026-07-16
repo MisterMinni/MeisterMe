@@ -5,7 +5,7 @@ import {
   Briefcase,
   Clock,
   Calendar,
-  UsersRound,
+  
   Settings,
   UserX,
   Search,
