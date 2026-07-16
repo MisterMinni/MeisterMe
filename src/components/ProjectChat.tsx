@@ -48,6 +48,7 @@ export function ProjectChat({ projectId }: { projectId: string }) {
   const [sending, setSending] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [signed, setSigned] = useState<Record<string, string>>({});
+  const [currentDay, setCurrentDay] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
