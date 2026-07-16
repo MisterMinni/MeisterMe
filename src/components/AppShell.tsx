@@ -112,10 +112,10 @@ function AppShellInner({ children }: { children?: ReactNode }) {
             </Link>
           </div>
         ) : (
-          <div className="mx-auto grid h-16 max-w-[1600px] grid-cols-[auto_1fr_auto] items-center gap-2 px-2 lg:px-4">
+          <div className="mx-auto flex h-16 max-w-[1600px] items-center gap-1 px-2 lg:px-4">
             <Link
               to={defaultBackTo as never}
-              className="inline-flex h-10 w-10 items-center justify-center rounded-full text-white transition hover:bg-white/10"
+              className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-white transition hover:bg-white/10"
               aria-label="Zurück"
             >
               <ArrowLeft className="h-5 w-5" />
@@ -124,16 +124,16 @@ function AppShellInner({ children }: { children?: ReactNode }) {
               <button
                 key={defaultTitle}
                 onClick={override.onTitleClick}
-                className="mx-auto truncate rounded-md px-2 text-center text-base font-semibold text-white animate-fade-in transition hover:bg-white/10"
+                className="flex h-12 flex-1 items-center justify-center truncate rounded-md px-2 text-center text-base font-semibold text-white animate-fade-in transition hover:bg-white/10"
               >
                 {defaultTitle}
               </button>
             ) : (
-              <h1 key={defaultTitle} className="truncate text-center text-base font-semibold text-white animate-fade-in">
+              <h1 key={defaultTitle} className="flex-1 truncate text-center text-base font-semibold text-white animate-fade-in">
                 {defaultTitle}
               </h1>
             )}
-            <span className="h-10 w-10" />
+            <span className="h-10 w-10 shrink-0" />
           </div>
         )}
       </header>
