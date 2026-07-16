@@ -379,53 +379,100 @@ function MitarbeiterPage() {
       </div>
 
       <Dialog open={!!editUser} onOpenChange={(o) => !o && setEditUser(null)}>
-        <DialogContent>
+        <DialogContent className="max-h-[90vh] max-w-lg overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Mitarbeiter bearbeiten</DialogTitle>
           </DialogHeader>
           {editUser && (
-            <div className="grid gap-3">
-              <div>
-                <Label>Name *</Label>
-                <Input
-                  value={editUser.fullName}
-                  onChange={(e) => setEditUser({ ...editUser, fullName: e.target.value })}
-                />
-              </div>
-              <div>
-                <Label>Telefon</Label>
-                <Input
-                  value={editUser.phone}
-                  onChange={(e) => setEditUser({ ...editUser, phone: e.target.value })}
-                />
-              </div>
-              <div>
-                <Label>Rolle</Label>
-                <Select
-                  value={editUser.roleKey}
-                  onValueChange={(v) => setEditUser({ ...editUser, roleKey: v })}
-                  disabled={editUser.id === profile?.id}
-                >
-                  <SelectTrigger><SelectValue placeholder="Rolle wählen" /></SelectTrigger>
-                  <SelectContent>
-                    {(roles ?? []).map((r) => (
-                      <SelectItem key={r.id} value={r.key}>{r.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+            <div className="space-y-5">
+              {editLoading && (
+                <p className="text-xs text-muted-foreground">Lade Daten…</p>
+              )}
+
+              <section className="space-y-3">
+                <h4 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Kontakt</h4>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <div className="sm:col-span-2">
+                    <Label>Name *</Label>
+                    <Input value={editUser.fullName} onChange={(e) => setEditUser({ ...editUser, fullName: e.target.value })} />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <Label>E-Mail</Label>
+                    <Input type="email" value={editUser.email} onChange={(e) => setEditUser({ ...editUser, email: e.target.value })} />
+                  </div>
+                  <div>
+                    <Label>Telefon</Label>
+                    <Input value={editUser.phone} onChange={(e) => setEditUser({ ...editUser, phone: e.target.value })} />
+                  </div>
+                  <div>
+                    <Label>Adresse</Label>
+                    <Input value={editUser.address} onChange={(e) => setEditUser({ ...editUser, address: e.target.value })} />
+                  </div>
+                </div>
+              </section>
+
+              <section className="space-y-3">
+                <h4 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Beschäftigung</h4>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <div>
+                    <Label>Rolle</Label>
+                    <Select
+                      value={editUser.roleKey}
+                      onValueChange={(v) => setEditUser({ ...editUser, roleKey: v })}
+                      disabled={editUser.id === profile?.id}
+                    >
+                      <SelectTrigger><SelectValue placeholder="Rolle wählen" /></SelectTrigger>
+                      <SelectContent>
+                        {(roles ?? []).map((r) => (
+                          <SelectItem key={r.id} value={r.key}>{r.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label>Personalnummer</Label>
+                    <Input value={editUser.employee_number} onChange={(e) => setEditUser({ ...editUser, employee_number: e.target.value })} />
+                  </div>
+                  <div>
+                    <Label>Eintritt</Label>
+                    <Input type="date" value={editUser.entry_date} onChange={(e) => setEditUser({ ...editUser, entry_date: e.target.value })} />
+                  </div>
+                  <div>
+                    <Label>Austritt</Label>
+                    <Input type="date" value={editUser.exit_date} onChange={(e) => setEditUser({ ...editUser, exit_date: e.target.value })} />
+                  </div>
+                  <div>
+                    <Label>Wochenstunden</Label>
+                    <Input type="number" step="0.5" value={editUser.weekly_hours} onChange={(e) => setEditUser({ ...editUser, weekly_hours: e.target.value })} />
+                  </div>
+                  <div>
+                    <Label>Urlaubstage / Jahr</Label>
+                    <Input type="number" value={editUser.vacation_days_per_year} onChange={(e) => setEditUser({ ...editUser, vacation_days_per_year: e.target.value })} />
+                  </div>
+                  <div>
+                    <Label>Arbeitszeitmodell</Label>
+                    <Input value={editUser.work_time_model} onChange={(e) => setEditUser({ ...editUser, work_time_model: e.target.value })} />
+                  </div>
+                  <div>
+                    <Label>Kostenstelle</Label>
+                    <Input value={editUser.cost_center} onChange={(e) => setEditUser({ ...editUser, cost_center: e.target.value })} />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <Label>Untergruppe</Label>
+                    <Input value={editUser.subgroup} onChange={(e) => setEditUser({ ...editUser, subgroup: e.target.value })} />
+                  </div>
+                </div>
                 {editUser.id === profile?.id && (
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    Eigene Rolle kann nicht geändert werden.
-                  </p>
+                  <p className="text-xs text-muted-foreground">Eigene Rolle kann nicht geändert werden.</p>
                 )}
-              </div>
+              </section>
             </div>
           )}
           <DialogFooter>
             <Button variant="outline" onClick={() => setEditUser(null)}>Abbrechen</Button>
             <Button
               onClick={saveEdit}
-              disabled={savingEdit}
+              disabled={savingEdit || editLoading}
               className="bg-brand text-brand-foreground hover:bg-brand/90"
             >
               {savingEdit ? "Speichere…" : "Speichern"}
