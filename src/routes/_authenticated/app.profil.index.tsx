@@ -91,13 +91,13 @@ function Profil() {
   }
 
   return (
-    <div className="mx-auto flex min-h-[calc(100vh-8rem)] max-w-xl flex-col">
-      <section className="flex flex-1 flex-col items-center justify-center gap-3 px-4 py-6 text-center">
+    <div className="mx-auto flex min-h-[calc(100vh-8rem)] max-w-xl flex-col px-4 pb-8">
+      <section className="flex flex-col items-center gap-2 pt-8 pb-6 text-center">
         <button
           type="button"
           onClick={() => fileRef.current?.click()}
           disabled={uploading}
-          className="group relative flex h-28 w-28 items-center justify-center overflow-hidden rounded-full bg-brand text-3xl font-bold text-brand-foreground shadow-md ring-4 ring-brand/10 transition hover:ring-brand/20"
+          className="group relative flex h-24 w-24 items-center justify-center overflow-hidden rounded-full bg-brand text-2xl font-bold text-brand-foreground shadow-md ring-4 ring-brand/10 transition hover:ring-brand/20"
           aria-label="Profilbild ändern"
         >
           {avatarUrl ? (
@@ -105,15 +105,11 @@ function Profil() {
           ) : (
             <span>{initials}</span>
           )}
-          <span className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition group-hover:opacity-100">
-            {uploading ? (
-              <Loader2 className="h-6 w-6 animate-spin text-white" />
-            ) : (
-              <Camera className="h-6 w-6 text-white" />
-            )}
+          <span className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition group-hover:opacity-100">
+            {uploading && <Loader2 className="h-6 w-6 animate-spin text-white" />}
           </span>
-          <span className="absolute -bottom-1 -right-1 flex h-8 w-8 items-center justify-center rounded-full border-2 border-background bg-brand text-brand-foreground shadow">
-            {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Camera className="h-4 w-4" />}
+          <span className="absolute bottom-0 right-0 flex h-7 w-7 items-center justify-center rounded-full border-2 border-background bg-muted-foreground/90 text-background shadow">
+            {uploading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Camera className="h-3.5 w-3.5" />}
           </span>
         </button>
         <input
@@ -123,39 +119,33 @@ function Profil() {
           className="hidden"
           onChange={onPickFile}
         />
-        <h2 className="mt-2 font-display text-2xl font-semibold">{displayName}</h2>
+        <h2 className="mt-3 font-display text-xl font-semibold text-foreground">{displayName}</h2>
         <p className="text-sm text-muted-foreground">{email}</p>
         {profile?.tenants?.name && (
-          <span className="mt-1 rounded-full bg-secondary px-2.5 py-0.5 text-xs font-medium text-secondary-foreground">
-            {profile.tenants.name}
-          </span>
+          <p className="text-xs text-muted-foreground/80">{profile.tenants.name}</p>
         )}
       </section>
 
-      <div className="space-y-2 px-1">
+      <div className="space-y-2.5">
         <ProfileTile
           icon={UserRound}
           label="Persönliche Daten"
-          subtitle="Kontakt, Anschrift, Vertrag"
           to="/app/profil/daten"
         />
         <ProfileTile
           icon={FileText}
           label="Dokumente"
-          subtitle="Vertrag, Lohnabrechnungen"
           to="/app/profil/dokumente"
         />
         <ProfileTile
           icon={Palmtree}
           label="Urlaub & Abwesenheiten"
-          subtitle="Anträge & Übersicht"
           to="/app/abwesenheiten"
         />
         {isAdmin && (
           <ProfileTile
             icon={Settings}
             label="Einstellungen"
-            subtitle="Betrieb & Rollen"
             to="/app/einstellungen"
           />
         )}
@@ -163,7 +153,7 @@ function Profil() {
 
       <button
         onClick={signOut}
-        className="mt-6 flex w-full items-center justify-center gap-2 rounded-2xl border border-border bg-card px-4 py-4 text-sm font-semibold text-foreground shadow-card transition hover:bg-secondary"
+        className="mt-8 flex w-full items-center justify-center gap-2 rounded-2xl border border-border bg-card px-4 py-3.5 text-sm font-semibold text-muted-foreground shadow-card transition hover:bg-secondary hover:text-foreground"
       >
         <LogOut className="h-4 w-4" />
         Abmelden
@@ -175,26 +165,19 @@ function Profil() {
 function ProfileTile({
   icon: Icon,
   label,
-  subtitle,
   to,
   onClick,
 }: {
   icon: ComponentType<{ className?: string }>;
   label: string;
-  subtitle?: string;
   to?: string;
   onClick?: () => void;
 }) {
   const inner = (
-    <div className="flex w-full items-center gap-3 rounded-2xl border border-border bg-card px-4 py-3.5 text-left shadow-card transition hover:bg-secondary/60">
-      <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand/10 text-brand">
-        <Icon className="h-5 w-5" />
-      </span>
-      <div className="min-w-0 flex-1">
-        <div className="text-sm font-semibold text-foreground">{label}</div>
-        {subtitle && (
-          <div className="truncate text-xs text-muted-foreground">{subtitle}</div>
-        )}
+    <div className="flex w-full items-center gap-4 rounded-2xl border border-border bg-card px-4 py-4 text-left shadow-card transition hover:bg-secondary/60">
+      <Icon className="h-5 w-5 shrink-0 text-muted-foreground" />
+      <div className="min-w-0 flex-1 text-[15px] font-medium text-foreground">
+        {label}
       </div>
       <ChevronRight className="h-4 w-4 text-muted-foreground" />
     </div>
@@ -206,3 +189,4 @@ function ProfileTile({
     </button>
   );
 }
+
