@@ -178,7 +178,6 @@ export function ProjectChat({ projectId }: { projectId: string }) {
           backgroundSize: "420px auto",
         }}
       >
-        <div className="absolute inset-0 bg-white/55 pointer-events-none" />
         <div className="relative space-y-3 px-3 py-4">
           {grouped.length === 0 && (
             <div className="mt-16 text-center text-sm text-muted-foreground">
@@ -187,11 +186,6 @@ export function ProjectChat({ projectId }: { projectId: string }) {
           )}
           {grouped.map((group) => (
             <div key={group.day} className="space-y-2">
-              <div className="flex justify-center">
-                <span className="rounded-full bg-white/85 px-3 py-1 text-[11px] font-medium text-muted-foreground shadow-sm">
-                  {group.day}
-                </span>
-              </div>
               {group.items.map((m) => {
                 const mine = m.user_id === profile?.id;
                 const imgUrl = m.image_url ? signed[m.image_url] : null;
