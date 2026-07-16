@@ -155,42 +155,57 @@ function TeamPage() {
 
   return (
     <div>
-                </div>
-                <div>
-                  <Label>E-Mail *</Label>
-                  <Input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
-                </div>
-                <div>
-                  <Label>Start-Passwort *</Label>
-                  <Input value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} placeholder="min. 8 Zeichen" />
-                  <p className="mt-1 text-xs text-muted-foreground">Passwort persönlich weitergeben. Mitarbeiter kann es später ändern.</p>
-                </div>
-                <div>
-                  <Label>Telefon</Label>
-                  <Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
-                </div>
-                <div>
-                  <Label>Rolle *</Label>
-                  <Select value={form.roleKey} onValueChange={(v) => setForm({ ...form, roleKey: v })}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      {(roles ?? []).map((r) => (
-                        <SelectItem key={r.id} value={r.key}>{r.name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+      <div className="mb-4 flex justify-end">
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogTrigger asChild>
+            <Button className="bg-brand text-brand-foreground hover:bg-brand/90">
+              <UserPlus className="mr-1 h-4 w-4" /> Mitarbeiter anlegen
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Neuen Mitarbeiter anlegen</DialogTitle>
+            </DialogHeader>
+            <div className="grid gap-3">
+              <div>
+                <Label>Name *</Label>
+                <Input value={form.fullName} onChange={(e) => setForm({ ...form, fullName: e.target.value })} />
               </div>
-              <DialogFooter>
-                <Button variant="outline" onClick={() => setOpen(false)}>Abbrechen</Button>
-                <Button onClick={submit} disabled={saving} className="bg-brand text-brand-foreground hover:bg-brand/90">
-                  {saving ? "Lege an…" : "Anlegen"}
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-        }
-      />
+              <div>
+                <Label>E-Mail *</Label>
+                <Input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
+              </div>
+              <div>
+                <Label>Start-Passwort *</Label>
+                <Input value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} placeholder="min. 8 Zeichen" />
+                <p className="mt-1 text-xs text-muted-foreground">Passwort persönlich weitergeben. Mitarbeiter kann es später ändern.</p>
+              </div>
+              <div>
+                <Label>Telefon</Label>
+                <Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
+              </div>
+              <div>
+                <Label>Rolle *</Label>
+                <Select value={form.roleKey} onValueChange={(v) => setForm({ ...form, roleKey: v })}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {(roles ?? []).map((r) => (
+                      <SelectItem key={r.id} value={r.key}>{r.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setOpen(false)}>Abbrechen</Button>
+              <Button onClick={submit} disabled={saving} className="bg-brand text-brand-foreground hover:bg-brand/90">
+                {saving ? "Lege an…" : "Anlegen"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
+
 
       <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-card">
         <table className="w-full text-sm">
