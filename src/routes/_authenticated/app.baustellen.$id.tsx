@@ -138,6 +138,11 @@ function SiteInfo({ site, canEdit }: { site: any; canEdit: boolean }) {
         {saveState === "saving" && (<><Loader2 className="h-3 w-3 animate-spin" /> Wird gespeichert …</>)}
         {saveState === "saved" && (<><Check className="h-3 w-3 text-emerald-500" /> Gespeichert</>)}
       </div>
+
+      <SiteAvatar site={site} />
+      <SiteMessageSearch projectId={site.id} />
+      <SiteMediaButton projectId={site.id} />
+
       <Section icon={<MapPin className="h-4 w-4" />} title="Adresse">
         <div className="grid grid-cols-[1fr_90px] gap-3">
           <div>
