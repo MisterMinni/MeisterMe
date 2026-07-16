@@ -33,6 +33,13 @@ const modules: NavItem[] = [
 
 const EXTRA_TITLES: Record<string, string> = {
   "/app/profil": "Profil",
+  "/app/profil/daten": "Persönliche Daten",
+  "/app/profil/dokumente": "Dokumente",
+};
+
+const EXTRA_BACK: Record<string, string> = {
+  "/app/profil/daten": "/app/profil",
+  "/app/profil/dokumente": "/app/profil",
 };
 
 export function AppShell({ children }: { children?: ReactNode }) {
