@@ -33,6 +33,7 @@ function Profil() {
   const qc = useQueryClient();
   const fileRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
 
   const email = session?.user?.email ?? "";
   const userId = session?.user?.id ?? "";
