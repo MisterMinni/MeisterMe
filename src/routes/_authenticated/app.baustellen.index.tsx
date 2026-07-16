@@ -150,17 +150,11 @@ function BaustellenList({
   sites,
   userId,
   canCreate,
-  canArchive,
-  onArchive,
-  onUnarchive,
   onCreate,
 }: {
   sites: any[];
   userId?: string;
   canCreate: boolean;
-  canArchive: boolean;
-  onArchive: (id: string) => void;
-  onUnarchive: (id: string) => void;
   onCreate: () => void;
 }) {
   const [q, setQ] = useState("");
