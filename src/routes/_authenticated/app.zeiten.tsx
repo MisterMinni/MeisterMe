@@ -43,14 +43,13 @@ function Zeiten() {
   });
 
   async function start() {
-    if (!siteId) return toast.error("Baustelle wählen");
     const { data: u } = await supabase.auth.getUser();
     const { data: p } = await supabase.from("profiles").select("tenant_id").eq("id", u.user!.id).single();
     const now = new Date();
     const { data, error } = await supabase.from("time_entries").insert({
       tenant_id: p!.tenant_id as string,
       user_id: u.user!.id,
-      project_id: siteId,
+      project_id: siteId || null,
       taetigkeit,
       start_ts: now.toISOString(),
     }).select("id").single();
