@@ -18,23 +18,22 @@ export const Route = createFileRoute("/_authenticated/app/baustellen/")({
   component: Baustellen,
 });
 
-const COLORS = ["#F26A21", "#0B1B34", "#0EA5E9", "#10B981", "#EAB308", "#8B5CF6", "#EF4444"];
-
 function Baustellen() {
   const qc = useQueryClient();
   const { data: profile } = useProfile();
   const canCreate = useHasPermission("sites:create");
   const canArchive = useHasPermission("sites:update");
   const [openNew, setOpenNew] = useState(false);
-  const [form, setForm] = useState({
-    name: "",
+  const emptyForm = {
+    strasse: "",
+    hausnr: "",
+    plz: "",
     beschreibung: "",
     status: "geplant",
-    color: COLORS[0],
     start_date: "",
     end_date: "",
-    adresse: "",
-  });
+  };
+  const [form, setForm] = useState(emptyForm);
 
   const { data: sites } = useQuery({
     queryKey: ["sites"],
@@ -49,14 +48,15 @@ function Baustellen() {
   });
 
   async function create() {
-    if (!form.name || !profile?.tenant_id) return toast.error("Name eingeben");
+    if (!profile?.tenant_id) return;
+    if (!form.strasse || !form.hausnr || !form.plz) return toast.error("Adresse, HausNr. und PLZ eingeben");
+    const adresse = `${form.strasse} ${form.hausnr}, ${form.plz}`.trim();
     const { error } = await supabase.from("sites").insert({
       tenant_id: profile.tenant_id,
-      name: form.name,
+      name: adresse,
       beschreibung: form.beschreibung || null,
-      adresse: form.adresse || null,
+      adresse,
       status: form.status as never,
-      color: form.color,
       start_date: form.start_date || null,
       end_date: form.end_date || null,
       gewerk: "ausbau" as never,
@@ -64,9 +64,10 @@ function Baustellen() {
     if (error) return toast.error(error.message);
     toast.success("Baustelle angelegt");
     setOpenNew(false);
-    setForm({ name: "", beschreibung: "", status: "geplant", color: COLORS[0], start_date: "", end_date: "", adresse: "" });
+    setForm(emptyForm);
     qc.invalidateQueries({ queryKey: ["sites"] });
   }
+
 
   async function archive(id: string) {
     if (!confirm("Baustelle archivieren?")) return;
