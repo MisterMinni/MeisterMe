@@ -48,6 +48,7 @@ export function ProjectChat({ projectId }: { projectId: string }) {
   const [sending, setSending] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [signed, setSigned] = useState<Record<string, string>>({});
+  const [currentDay, setCurrentDay] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -112,6 +113,28 @@ export function ProjectChat({ projectId }: { projectId: string }) {
     });
     return out;
   }, [messages]);
+
+  // Track topmost visible message day for sticky date chip
+  useEffect(() => {
+    const container = scrollRef.current;
+    if (!container) return;
+    const update = () => {
+      const topEdge = container.getBoundingClientRect().top;
+      const nodes = container.querySelectorAll<HTMLElement>("[data-day]");
+      let found: string | null = null;
+      for (const el of Array.from(nodes)) {
+        const r = el.getBoundingClientRect();
+        if (r.bottom >= topEdge + 8) {
+          found = el.dataset.day ?? null;
+          break;
+        }
+      }
+      if (found) setCurrentDay(found);
+    };
+    update();
+    container.addEventListener("scroll", update, { passive: true });
+    return () => container.removeEventListener("scroll", update);
+  }, [grouped]);
 
   async function send() {
     const body = text.trim();
@@ -178,6 +201,13 @@ export function ProjectChat({ projectId }: { projectId: string }) {
           backgroundSize: "420px auto",
         }}
       >
+        {currentDay && grouped.length > 0 && (
+          <div className="pointer-events-none sticky top-2 z-10 flex justify-center">
+            <span className="rounded-full bg-white/90 px-3 py-1 text-[11px] font-medium text-muted-foreground shadow-sm backdrop-blur-sm">
+              {currentDay}
+            </span>
+          </div>
+        )}
         <div className="relative space-y-3 px-3 py-4">
           {grouped.length === 0 && (
             <div className="mt-16 text-center text-sm text-muted-foreground">
@@ -190,7 +220,7 @@ export function ProjectChat({ projectId }: { projectId: string }) {
                 const mine = m.user_id === profile?.id;
                 const imgUrl = m.image_url ? signed[m.image_url] : null;
                 return (
-                  <div key={m.id} className={`flex items-end gap-2 ${mine ? "flex-row-reverse" : ""}`}>
+                  <div key={m.id} data-day={group.day} className={`flex items-end gap-2 ${mine ? "flex-row-reverse" : ""}`}>
                     {!mine && (
                       <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand text-[11px] font-semibold text-brand-foreground shadow-sm">
                         {initials(m.author)}
