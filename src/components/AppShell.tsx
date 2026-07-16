@@ -27,7 +27,6 @@ const modules: NavItem[] = [
   { to: "/app/zeiten", label: "Zeiterfassung", icon: Clock },
   { to: "/app/abwesenheiten", label: "Abwesenheiten", icon: UserX },
   { to: "/app/mitarbeiter", label: "Mitarbeiter", icon: Users, adminOnly: true },
-  { to: "/app/team", label: "Rollen & Zugänge", icon: UsersRound, adminOnly: true },
   { to: "/app/einstellungen", label: "Einstellungen", icon: Settings, adminOnly: true },
 ];
 
