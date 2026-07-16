@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,7 +12,7 @@ import { SITE_STATUS, useHasPermission } from "@/lib/handwerk";
 import { toast } from "sonner";
 import { ProjectChat } from "@/components/ProjectChat";
 import { useSetPageHeader } from "@/components/page-header-context";
-import { ArrowLeft, MapPin, CalendarDays, Activity, FileText } from "lucide-react";
+import { ArrowLeft, MapPin, CalendarDays, Activity, FileText, Check, Loader2 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/app/baustellen/$id")({
   head: () => ({ meta: [{ title: "Baustelle – MeisterMe" }] }),
@@ -54,12 +54,12 @@ function BaustelleDetail() {
       <ProjectChat projectId={id} />
 
       <Sheet open={infoOpen} onOpenChange={setInfoOpen}>
-        <SheetContent side="right" className="w-full overflow-y-auto bg-secondary/30 p-0 sm:max-w-lg">
+        <SheetContent side="right" className="w-full overflow-y-auto bg-secondary p-0 sm:max-w-lg">
           <SheetHeader className="sticky top-0 z-10 border-b border-border bg-background px-5 py-4">
             <SheetTitle>Baustelleninformationen</SheetTitle>
           </SheetHeader>
           <div className="px-4 py-4 pb-8">
-            <SiteInfo site={site} canEdit={canEdit} onSaved={() => setInfoOpen(false)} />
+            <SiteInfo site={site} canEdit={canEdit} />
           </div>
         </SheetContent>
       </Sheet>
@@ -78,7 +78,7 @@ function parseAdresse(a: string | null) {
   return { strasse, hausnr, plz: right ?? "" };
 }
 
-function SiteInfo({ site, canEdit, onSaved }: { site: any; canEdit: boolean; onSaved?: () => void }) {
+function SiteInfo({ site, canEdit }: { site: any; canEdit: boolean }) {
   const qc = useQueryClient();
   const parsed = parseAdresse(site.adresse);
   const [form, setForm] = useState({
@@ -90,31 +90,53 @@ function SiteInfo({ site, canEdit, onSaved }: { site: any; canEdit: boolean; onS
     start_date: site.start_date ?? "",
     end_date: site.end_date ?? "",
   });
+  const [saveState, setSaveState] = useState<"idle" | "saving" | "saved">("idle");
+  const skipRef = useRef(true);
+  const savedTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  async function save() {
-    const isArchived = form.status === "archiviert";
-    const adresse = [form.strasse, form.hausnr].filter(Boolean).join(" ").trim();
-    const adresseFull = [adresse, form.plz].filter(Boolean).join(", ").trim();
-    const { error } = await supabase
-      .from("sites")
-      .update({
-        adresse: adresseFull || null,
-        beschreibung: form.beschreibung || null,
-        status: (isArchived ? (site.status ?? "abgeschlossen") : form.status) as never,
-        archived_at: isArchived ? (site.archived_at ?? new Date().toISOString()) : null,
-        start_date: form.start_date || null,
-        end_date: form.end_date || null,
-      })
-      .eq("id", site.id);
-    if (error) return toast.error(error.message);
-    toast.success("Gespeichert");
-    qc.invalidateQueries({ queryKey: ["site", site.id] });
-    qc.invalidateQueries({ queryKey: ["sites"] });
-    onSaved?.();
-  }
+  useEffect(() => {
+    if (!canEdit) return;
+    if (skipRef.current) {
+      skipRef.current = false;
+      return;
+    }
+    setSaveState("saving");
+    const t = setTimeout(async () => {
+      const isArchived = form.status === "archiviert";
+      const adresse = [form.strasse, form.hausnr].filter(Boolean).join(" ").trim();
+      const adresseFull = [adresse, form.plz].filter(Boolean).join(", ").trim();
+      const { error } = await supabase
+        .from("sites")
+        .update({
+          adresse: adresseFull || null,
+          beschreibung: form.beschreibung || null,
+          status: (isArchived ? (site.status ?? "abgeschlossen") : form.status) as never,
+          archived_at: isArchived ? (site.archived_at ?? new Date().toISOString()) : null,
+          start_date: form.start_date || null,
+          end_date: form.end_date || null,
+        })
+        .eq("id", site.id);
+      if (error) {
+        setSaveState("idle");
+        toast.error(error.message);
+        return;
+      }
+      setSaveState("saved");
+      qc.invalidateQueries({ queryKey: ["site", site.id] });
+      qc.invalidateQueries({ queryKey: ["sites"] });
+      if (savedTimer.current) clearTimeout(savedTimer.current);
+      savedTimer.current = setTimeout(() => setSaveState("idle"), 1500);
+    }, 600);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [form.strasse, form.hausnr, form.plz, form.beschreibung, form.status, form.start_date, form.end_date]);
 
   return (
     <div className="space-y-4">
+      <div className="flex h-5 items-center justify-end gap-1.5 text-xs text-muted-foreground">
+        {saveState === "saving" && (<><Loader2 className="h-3 w-3 animate-spin" /> Wird gespeichert …</>)}
+        {saveState === "saved" && (<><Check className="h-3 w-3 text-emerald-500" /> Gespeichert</>)}
+      </div>
       <Section icon={<MapPin className="h-4 w-4" />} title="Adresse">
         <div className="grid grid-cols-[1fr_90px] gap-3">
           <div>
@@ -157,12 +179,6 @@ function SiteInfo({ site, canEdit, onSaved }: { site: any; canEdit: boolean; onS
       <Section icon={<FileText className="h-4 w-4" />} title="Beschreibung">
         <Textarea disabled={!canEdit} rows={4} value={form.beschreibung} onChange={(e) => setForm({ ...form, beschreibung: e.target.value })} placeholder="Notizen zur Baustelle …" />
       </Section>
-
-      {canEdit && (
-        <div className="sticky bottom-0 -mx-4 border-t border-border bg-background/95 px-4 py-3 backdrop-blur">
-          <Button onClick={save} className="w-full bg-brand text-brand-foreground hover:bg-brand/90">Speichern</Button>
-        </div>
-      )}
     </div>
   );
 }
