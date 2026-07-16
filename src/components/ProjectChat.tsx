@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useProfile } from "@/lib/handwerk";
 import { toast } from "sonner";
-import { Send, Trash2, Paperclip, Loader2 } from "lucide-react";
+import { Send, Trash2, Paperclip, Loader2, Search, X } from "lucide-react";
 import chatBg from "@/assets/chat-bg-houses.jpg";
 
 function initials(name: string | null | undefined) {
