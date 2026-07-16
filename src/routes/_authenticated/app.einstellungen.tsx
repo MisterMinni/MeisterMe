@@ -2,7 +2,6 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -88,7 +87,6 @@ function EinstellungenAdmin() {
 
   return (
     <div>
-      <PageHeader title="Einstellungen" subtitle="Betrieb, Profil und Rollen." />
       <div className="grid gap-6 lg:grid-cols-2">
         <section className="rounded-2xl border border-border bg-card p-6 shadow-card">
           <h3 className="mb-4 flex items-center gap-2 font-display font-semibold"><Building2 className="h-4 w-4 text-brand" /> Betrieb</h3>

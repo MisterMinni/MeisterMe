@@ -2,7 +2,6 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -90,7 +89,6 @@ function TeamPage() {
   if (!isAdmin) {
     return (
       <div>
-        <PageHeader title="Team" subtitle="Mitarbeiter verwalten" />
         <div className="rounded-2xl border border-border bg-card p-8 text-center text-muted-foreground">
           <ShieldCheck className="mx-auto mb-2 h-8 w-8 text-brand" />
           Nur Betriebsinhaber und Administratoren dürfen das Team verwalten.
