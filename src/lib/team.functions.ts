@@ -128,7 +128,7 @@ export const updateTeamMember = createServerFn({ method: "POST" })
       }
     }
     if (Object.keys(patch).length > 0) {
-      await supabaseAdmin.from("profiles").update(patch).eq("id", data.userId);
+      await supabaseAdmin.from("profiles").update(patch as never).eq("id", data.userId);
     }
 
     if (data.email) {
