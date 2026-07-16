@@ -37,16 +37,16 @@ function Baustellen() {
   const [form, setForm] = useState(emptyForm);
 
   const { data: sites } = useQuery({
-    queryKey: ["sites"],
+    queryKey: ["sites", "all"],
     queryFn: async () => {
       const { data } = await supabase
         .from("sites")
         .select("*")
-        .is("archived_at", null)
         .order("updated_at", { ascending: false });
       return data ?? [];
     },
   });
+
 
   async function create() {
     if (!profile?.tenant_id) return;
