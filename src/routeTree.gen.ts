@@ -29,6 +29,7 @@ import { Route as AuthenticatedAppProfilDatenRouteImport } from './routes/_authe
 import { Route as AuthenticatedAppBaustellenIdRouteImport } from './routes/_authenticated/app.baustellen.$id'
 import { Route as AuthenticatedAppBaustellenIdIndexRouteImport } from './routes/_authenticated/app.baustellen.$id.index'
 import { Route as AuthenticatedAppBaustellenIdMedienRouteImport } from './routes/_authenticated/app.baustellen.$id.medien'
+import { Route as AuthenticatedAppBaustellenIdInfoRouteImport } from './routes/_authenticated/app.baustellen.$id.info'
 
 const PreiseRoute = PreiseRouteImport.update({
   id: '/preise',
@@ -139,6 +140,12 @@ const AuthenticatedAppBaustellenIdMedienRoute =
     path: '/medien',
     getParentRoute: () => AuthenticatedAppBaustellenIdRoute,
   } as any)
+const AuthenticatedAppBaustellenIdInfoRoute =
+  AuthenticatedAppBaustellenIdInfoRouteImport.update({
+    id: '/info',
+    path: '/info',
+    getParentRoute: () => AuthenticatedAppBaustellenIdRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -158,6 +165,7 @@ export interface FileRoutesByFullPath {
   '/app/profil/dokumente': typeof AuthenticatedAppProfilDokumenteRoute
   '/app/baustellen/': typeof AuthenticatedAppBaustellenIndexRoute
   '/app/profil/': typeof AuthenticatedAppProfilIndexRoute
+  '/app/baustellen/$id/info': typeof AuthenticatedAppBaustellenIdInfoRoute
   '/app/baustellen/$id/medien': typeof AuthenticatedAppBaustellenIdMedienRoute
   '/app/baustellen/$id/': typeof AuthenticatedAppBaustellenIdIndexRoute
 }
@@ -177,6 +185,7 @@ export interface FileRoutesByTo {
   '/app/profil/dokumente': typeof AuthenticatedAppProfilDokumenteRoute
   '/app/baustellen': typeof AuthenticatedAppBaustellenIndexRoute
   '/app/profil': typeof AuthenticatedAppProfilIndexRoute
+  '/app/baustellen/$id/info': typeof AuthenticatedAppBaustellenIdInfoRoute
   '/app/baustellen/$id/medien': typeof AuthenticatedAppBaustellenIdMedienRoute
   '/app/baustellen/$id': typeof AuthenticatedAppBaustellenIdIndexRoute
 }
@@ -200,6 +209,7 @@ export interface FileRoutesById {
   '/_authenticated/app/profil/dokumente': typeof AuthenticatedAppProfilDokumenteRoute
   '/_authenticated/app/baustellen/': typeof AuthenticatedAppBaustellenIndexRoute
   '/_authenticated/app/profil/': typeof AuthenticatedAppProfilIndexRoute
+  '/_authenticated/app/baustellen/$id/info': typeof AuthenticatedAppBaustellenIdInfoRoute
   '/_authenticated/app/baustellen/$id/medien': typeof AuthenticatedAppBaustellenIdMedienRoute
   '/_authenticated/app/baustellen/$id/': typeof AuthenticatedAppBaustellenIdIndexRoute
 }
@@ -223,6 +233,7 @@ export interface FileRouteTypes {
     | '/app/profil/dokumente'
     | '/app/baustellen/'
     | '/app/profil/'
+    | '/app/baustellen/$id/info'
     | '/app/baustellen/$id/medien'
     | '/app/baustellen/$id/'
   fileRoutesByTo: FileRoutesByTo
@@ -242,6 +253,7 @@ export interface FileRouteTypes {
     | '/app/profil/dokumente'
     | '/app/baustellen'
     | '/app/profil'
+    | '/app/baustellen/$id/info'
     | '/app/baustellen/$id/medien'
     | '/app/baustellen/$id'
   id:
@@ -264,6 +276,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/profil/dokumente'
     | '/_authenticated/app/baustellen/'
     | '/_authenticated/app/profil/'
+    | '/_authenticated/app/baustellen/$id/info'
     | '/_authenticated/app/baustellen/$id/medien'
     | '/_authenticated/app/baustellen/$id/'
   fileRoutesById: FileRoutesById
@@ -419,16 +432,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppBaustellenIdMedienRouteImport
       parentRoute: typeof AuthenticatedAppBaustellenIdRoute
     }
+    '/_authenticated/app/baustellen/$id/info': {
+      id: '/_authenticated/app/baustellen/$id/info'
+      path: '/info'
+      fullPath: '/app/baustellen/$id/info'
+      preLoaderRoute: typeof AuthenticatedAppBaustellenIdInfoRouteImport
+      parentRoute: typeof AuthenticatedAppBaustellenIdRoute
+    }
   }
 }
 
 interface AuthenticatedAppBaustellenIdRouteChildren {
+  AuthenticatedAppBaustellenIdInfoRoute: typeof AuthenticatedAppBaustellenIdInfoRoute
   AuthenticatedAppBaustellenIdMedienRoute: typeof AuthenticatedAppBaustellenIdMedienRoute
   AuthenticatedAppBaustellenIdIndexRoute: typeof AuthenticatedAppBaustellenIdIndexRoute
 }
 
 const AuthenticatedAppBaustellenIdRouteChildren: AuthenticatedAppBaustellenIdRouteChildren =
   {
+    AuthenticatedAppBaustellenIdInfoRoute:
+      AuthenticatedAppBaustellenIdInfoRoute,
     AuthenticatedAppBaustellenIdMedienRoute:
       AuthenticatedAppBaustellenIdMedienRoute,
     AuthenticatedAppBaustellenIdIndexRoute:
