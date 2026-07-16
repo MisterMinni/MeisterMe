@@ -302,8 +302,44 @@ function MitarbeiterPage() {
 
 
 
+      <div className="relative mb-3">
+        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <Input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Suche nach Name, E-Mail, Personalnr. oder Telefon"
+          className="pl-9 pr-9"
+        />
+        {search && (
+          <button
+            type="button"
+            onClick={() => setSearch("")}
+            aria-label="Suche leeren"
+            className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-muted-foreground hover:text-foreground"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        )}
+      </div>
+
+      {(() => {
+        const q = search.trim().toLowerCase();
+        const filtered = (members ?? []).filter((m) => {
+          if (!q) return true;
+          const email = emails?.[m.id] ?? "";
+          const hay = [
+            m.full_name ?? "",
+            email,
+            m.phone ?? "",
+            m.employee_number ?? "",
+          ]
+            .join(" ")
+            .toLowerCase();
+          return q.split(/\s+/).every((t) => hay.includes(t));
+        });
+        return (
       <div className="space-y-3 pb-24">
-        {(members ?? []).map((m) => {
+        {filtered.map((m) => {
           const currentRoleKey = m.roles[0]?.key ?? "";
           const isMe = m.id === profile?.id;
           const disabled = !!m.disabled_at;
