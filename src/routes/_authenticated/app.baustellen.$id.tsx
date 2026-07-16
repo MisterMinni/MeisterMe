@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,7 +12,7 @@ import { SITE_STATUS, useHasPermission } from "@/lib/handwerk";
 import { toast } from "sonner";
 import { ProjectChat } from "@/components/ProjectChat";
 import { useSetPageHeader } from "@/components/page-header-context";
-import { ArrowLeft, MapPin, CalendarDays, Activity, FileText } from "lucide-react";
+import { ArrowLeft, MapPin, CalendarDays, Activity, FileText, Check, Loader2 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/app/baustellen/$id")({
   head: () => ({ meta: [{ title: "Baustelle – MeisterMe" }] }),
