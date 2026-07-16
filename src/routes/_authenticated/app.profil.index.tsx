@@ -163,6 +163,19 @@ function Profil() {
         <LogOut className="h-4 w-4" />
         Abmelden
       </button>
+      {previewOpen && avatarUrl && (
+        <div
+          onClick={() => setPreviewOpen(false)}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-6 animate-in fade-in"
+        >
+          <img
+            src={avatarUrl}
+            alt=""
+            className="max-h-[80vh] max-w-full rounded-2xl object-contain shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
+      )}
     </div>
   );
 }
