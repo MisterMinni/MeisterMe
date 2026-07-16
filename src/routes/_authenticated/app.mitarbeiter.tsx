@@ -88,13 +88,62 @@ function MitarbeiterPage() {
   });
   const [saving, setSaving] = useState(false);
 
-  const [editUser, setEditUser] = useState<null | {
+  type EditForm = {
     id: string;
     fullName: string;
+    email: string;
     phone: string;
     roleKey: string;
-  }>(null);
+    address: string;
+    employee_number: string;
+    entry_date: string;
+    exit_date: string;
+    weekly_hours: string;
+    vacation_days_per_year: string;
+    work_time_model: string;
+    cost_center: string;
+    subgroup: string;
+  };
+  const [editUser, setEditUser] = useState<EditForm | null>(null);
+  const [editLoading, setEditLoading] = useState(false);
   const [savingEdit, setSavingEdit] = useState(false);
+
+  async function openEdit(userId: string) {
+    setEditLoading(true);
+    setEditUser({
+      id: userId, fullName: "", email: "", phone: "", roleKey: "",
+      address: "", employee_number: "", entry_date: "", exit_date: "",
+      weekly_hours: "", vacation_days_per_year: "", work_time_model: "",
+      cost_center: "", subgroup: "",
+    });
+    try {
+      const res = await loadDetail({ data: { userId } });
+      const p = res.profile as Record<string, unknown>;
+      const roleKey = (members ?? []).find((m) => m.id === userId)?.roles[0]?.key ?? "";
+      setEditUser({
+        id: userId,
+        fullName: (p.full_name as string) ?? "",
+        email: res.email ?? "",
+        phone: (p.phone as string) ?? "",
+        roleKey,
+        address: (p.address as string) ?? "",
+        employee_number: (p.employee_number as string) ?? "",
+        entry_date: (p.entry_date as string) ?? "",
+        exit_date: (p.exit_date as string) ?? "",
+        weekly_hours: p.weekly_hours != null ? String(p.weekly_hours) : "",
+        vacation_days_per_year:
+          p.vacation_days_per_year != null ? String(p.vacation_days_per_year) : "",
+        work_time_model: (p.work_time_model as string) ?? "",
+        cost_center: (p.cost_center as string) ?? "",
+        subgroup: (p.subgroup as string) ?? "",
+      });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Fehler");
+      setEditUser(null);
+    } finally {
+      setEditLoading(false);
+    }
+  }
 
   if (!isAdmin) {
     return (
