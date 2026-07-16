@@ -163,61 +163,6 @@ function Dashboard() {
         </section>
       ))}
 
-      {/* Live board */}
-      <div className="grid gap-4 lg:grid-cols-2">
-        <div className="rounded-2xl border border-border bg-card p-5 shadow-card">
-          <div className="mb-3 flex items-center justify-between">
-            <h2 className="flex items-center gap-2 font-display text-lg font-semibold">
-              <Briefcase className="h-4 w-4 text-brand" /> Aktive Baustellen
-            </h2>
-            <Link to="/app/baustellen" className="text-xs text-brand hover:underline">Alle ansehen</Link>
-          </div>
-          {activeSites && activeSites.length > 0 ? (
-            <ul className="divide-y divide-border">
-              {activeSites.map((s) => (
-                <li key={s.id}>
-                  <Link to="/app/baustellen" className="flex items-center gap-3 py-3 hover:text-brand">
-                    <span className="h-3 w-3 shrink-0 rounded-full" style={{ backgroundColor: s.color ?? "#F26A21" }} />
-                    <div className="min-w-0 flex-1">
-                      <div className="truncate font-medium">{s.name}</div>
-                      <div className="text-xs text-muted-foreground">{s.status ?? "—"}</div>
-                    </div>
-                    <ArrowRight className="h-4 w-4" />
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <div className="py-10 text-center text-sm text-muted-foreground">Noch keine Baustellen.</div>
-          )}
-        </div>
-
-        <div className="rounded-2xl border border-border bg-card p-5 shadow-card">
-          <div className="mb-3 flex items-center justify-between">
-            <h2 className="flex items-center gap-2 font-display text-lg font-semibold">
-              <MessageSquare className="h-4 w-4 text-brand" /> Baustellen-Chat
-            </h2>
-          </div>
-          <p className="text-sm text-muted-foreground">
-            Jede Baustelle hat einen WhatsApp-ähnlichen Chat. Nachrichten, Fotos und Sprachnotizen bleiben zusammen mit dem Projekt.
-          </p>
-          <div className="mt-4 text-xs text-muted-foreground">Gesamt-Nachrichten: {stats?.messages ?? 0}</div>
-        </div>
-      </div>
-
-      {/* Tipp */}
-      <div className="flex items-start gap-3 rounded-2xl border border-brand/30 bg-brand/5 p-4">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand text-brand-foreground">
-          <Sparkles className="h-5 w-5" />
-        </div>
-        <div className="flex-1 text-sm">
-          <div className="font-semibold">Neu in MeisterMe</div>
-          <div className="text-muted-foreground">
-            Rollen sind jetzt frei konfigurierbar (Aktion × Ressource). Standard-Rollen sind Unternehmensinhaber, Administrator,
-            Personalverwaltung, Buchhaltung, Bauleiter, Vorarbeiter, Mitarbeiter.
-          </div>
-        </div>
-      </div>
     </div>
   );
 }
