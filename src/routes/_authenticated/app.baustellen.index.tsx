@@ -267,10 +267,7 @@ function BaustellenList({
       {filtered.length === 0 && (
         <div className="rounded-2xl border-2 border-dashed border-border p-12 text-center text-muted-foreground">
           <Briefcase className="mx-auto mb-2 h-8 w-8" />
-          {q ? "Keine Treffer." : "Keine Baustellen in dieser Ansicht."}{" "}
-          {!q && canCreate && tab !== "archiviert" && (
-            <button onClick={onCreate} className="text-brand hover:underline">Neu anlegen</button>
-          )}
+          {q ? "Keine Treffer." : "Keine Baustellen in dieser Ansicht."}
         </div>
       )}
     </div>
