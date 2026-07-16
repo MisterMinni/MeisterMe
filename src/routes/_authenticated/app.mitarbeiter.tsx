@@ -183,12 +183,27 @@ function MitarbeiterPage() {
     }
     setSavingEdit(true);
     try {
+      const s = (v: string) => (v.trim() ? v.trim() : null);
+      const n = (v: string) => (v.trim() ? Number(v) : null);
       await update({
         data: {
           userId: editUser.id,
           fullName: editUser.fullName.trim(),
-          phone: editUser.phone.trim() ? editUser.phone.trim() : null,
+          email: editUser.email.trim() || undefined,
+          phone: s(editUser.phone),
           roleKey: editUser.roleKey || undefined,
+          address: s(editUser.address),
+          employee_number: s(editUser.employee_number),
+          entry_date: s(editUser.entry_date),
+          exit_date: s(editUser.exit_date),
+          weekly_hours: n(editUser.weekly_hours),
+          vacation_days_per_year:
+            editUser.vacation_days_per_year.trim()
+              ? parseInt(editUser.vacation_days_per_year, 10)
+              : null,
+          work_time_model: s(editUser.work_time_model),
+          cost_center: s(editUser.cost_center),
+          subgroup: s(editUser.subgroup),
         },
       });
       toast.success("Mitarbeiter aktualisiert");
