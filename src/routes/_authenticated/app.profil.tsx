@@ -1,13 +1,11 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { type ComponentType } from "react";
-import { PageHeader } from "@/components/PageHeader";
 import {
   useProfile,
-  useMyRole,
   useSession,
   useIsAdmin,
-  ROLE_LABELS,
 } from "@/lib/handwerk";
+
 import {
   ChevronRight,
   UserRound,
@@ -27,7 +25,6 @@ export const Route = createFileRoute("/_authenticated/app/profil")({
 function Profil() {
   const { data: profile } = useProfile();
   const { data: session } = useSession();
-  const role = useMyRole();
   const isAdmin = useIsAdmin();
   const navigate = useNavigate();
 
@@ -43,7 +40,7 @@ function Profil() {
           .join("")
       : email.slice(0, 2)
     ).toUpperCase() || "?";
-  const roleLabel = role ? ROLE_LABELS[role] ?? role : "Kein Zugriff";
+  
 
   async function signOut() {
     await supabase.auth.signOut();
@@ -53,8 +50,6 @@ function Profil() {
 
   return (
     <div className="mx-auto max-w-xl">
-      <PageHeader title="Profil" />
-
       <section className="flex flex-col items-center gap-2 rounded-2xl border border-border bg-card p-8 text-center shadow-card">
         <span className="flex h-24 w-24 items-center justify-center rounded-full bg-brand text-3xl font-bold text-brand-foreground shadow-md ring-4 ring-brand/10">
           {initials}
@@ -64,17 +59,15 @@ function Profil() {
         {profile?.phone && (
           <p className="text-sm text-muted-foreground">{profile.phone}</p>
         )}
-        <div className="mt-2 flex flex-wrap items-center justify-center gap-1.5">
-          <span className="rounded-full bg-brand/10 px-2.5 py-0.5 text-xs font-semibold text-brand">
-            {roleLabel}
-          </span>
-          {profile?.tenants?.name && (
+        {profile?.tenants?.name && (
+          <div className="mt-2 flex flex-wrap items-center justify-center gap-1.5">
             <span className="rounded-full bg-secondary px-2.5 py-0.5 text-xs font-medium text-secondary-foreground">
               {profile.tenants.name}
             </span>
-          )}
-        </div>
+          </div>
+        )}
       </section>
+
 
       <div className="mt-4 space-y-2">
         <ProfileTile
