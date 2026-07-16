@@ -246,19 +246,21 @@ function SiteInfo({ site, canEdit }: { site: any; canEdit: boolean }) {
     name: site.name ?? "",
     adresse: site.adresse ?? "",
     beschreibung: site.beschreibung ?? "",
-    status: site.status ?? "geplant",
+    status: site.archived_at ? "archiviert" : (site.status ?? "geplant"),
     start_date: site.start_date ?? "",
     end_date: site.end_date ?? "",
   });
 
   async function save() {
+    const isArchived = form.status === "archiviert";
     const { error } = await supabase
       .from("sites")
       .update({
         name: form.name,
         adresse: form.adresse || null,
         beschreibung: form.beschreibung || null,
-        status: form.status as never,
+        status: (isArchived ? (site.status ?? "abgeschlossen") : form.status) as never,
+        archived_at: isArchived ? (site.archived_at ?? new Date().toISOString()) : null,
         start_date: form.start_date || null,
         end_date: form.end_date || null,
       })

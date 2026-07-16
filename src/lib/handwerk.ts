@@ -18,6 +18,7 @@ export const SITE_STATUS = [
   { value: "geplant", label: "Geplant" },
   { value: "in_arbeit", label: "In Bearbeitung" },
   { value: "abgeschlossen", label: "Fertig" },
+  { value: "archiviert", label: "Archiviert" },
 ] as const;
 
 export function formatEur(n: number | null | undefined) {

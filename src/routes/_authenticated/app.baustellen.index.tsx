@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { FabAdd } from "@/components/fab-add";
 import { useProfile, SITE_STATUS, useHasPermission } from "@/lib/handwerk";
 import { toast } from "sonner";
-import { Briefcase, Archive, ArrowRight } from "lucide-react";
+import { Briefcase, ArrowRight } from "lucide-react";
 
 
 export const Route = createFileRoute("/_authenticated/app/baustellen/")({
@@ -23,7 +23,7 @@ function Baustellen() {
   const qc = useQueryClient();
   const { data: profile } = useProfile();
   const canCreate = useHasPermission("sites:create");
-  const canArchive = useHasPermission("sites:update");
+  
   const [openNew, setOpenNew] = useState(false);
   const emptyForm = {
     strasse: "",
@@ -52,12 +52,14 @@ function Baustellen() {
     if (!profile?.tenant_id) return;
     if (!form.strasse || !form.hausnr || !form.plz) return toast.error("Adresse, HausNr. und PLZ eingeben");
     const adresse = `${form.strasse} ${form.hausnr}, ${form.plz}`.trim();
+    const isArchived = form.status === "archiviert";
     const { error } = await supabase.from("sites").insert({
       tenant_id: profile.tenant_id,
       name: adresse,
       beschreibung: form.beschreibung || null,
       adresse,
-      status: form.status as never,
+      status: (isArchived ? "abgeschlossen" : form.status) as never,
+      archived_at: isArchived ? new Date().toISOString() : null,
       start_date: form.start_date || null,
       end_date: form.end_date || null,
       gewerk: "ausbau" as never,
@@ -69,21 +71,6 @@ function Baustellen() {
     qc.invalidateQueries({ queryKey: ["sites"] });
   }
 
-
-  async function archive(id: string) {
-    if (!confirm("Baustelle archivieren?")) return;
-    const { error } = await supabase.from("sites").update({ archived_at: new Date().toISOString() }).eq("id", id);
-    if (error) return toast.error(error.message);
-    toast.success("Archiviert");
-    qc.invalidateQueries({ queryKey: ["sites"] });
-  }
-
-  async function unarchive(id: string) {
-    const { error } = await supabase.from("sites").update({ archived_at: null }).eq("id", id);
-    if (error) return toast.error(error.message);
-    toast.success("Wiederhergestellt");
-    qc.invalidateQueries({ queryKey: ["sites"] });
-  }
 
 
   return (
@@ -150,9 +137,6 @@ function Baustellen() {
         sites={sites ?? []}
         userId={profile?.id}
         canCreate={canCreate}
-        canArchive={canArchive}
-        onArchive={archive}
-        onUnarchive={unarchive}
         onCreate={() => setOpenNew(true)}
       />
     </div>
@@ -166,17 +150,11 @@ function BaustellenList({
   sites,
   userId,
   canCreate,
-  canArchive,
-  onArchive,
-  onUnarchive,
   onCreate,
 }: {
   sites: any[];
   userId?: string;
   canCreate: boolean;
-  canArchive: boolean;
-  onArchive: (id: string) => void;
-  onUnarchive: (id: string) => void;
   onCreate: () => void;
 }) {
   const [q, setQ] = useState("");
@@ -273,7 +251,7 @@ function BaustellenList({
       {heute.length > 0 && (
         <Section title="Heute zugeteilt">
           {heute.map((s, i) => (
-            <SiteRow key={s.id} site={s} color={s.color || ROW_COLORS[i % ROW_COLORS.length]} canArchive={canArchive} onArchive={onArchive} onUnarchive={onUnarchive} />
+            <SiteRow key={s.id} site={s} color={s.color || ROW_COLORS[i % ROW_COLORS.length]} />
           ))}
         </Section>
       )}
@@ -281,7 +259,7 @@ function BaustellenList({
       {weitere.length > 0 && (
         <Section title={heute.length > 0 ? "Weitere Baustellen" : TABS.find((t) => t.key === tab)!.label}>
           {weitere.map((s, i) => (
-            <SiteRow key={s.id} site={s} color={s.color || ROW_COLORS[(i + heute.length) % ROW_COLORS.length]} canArchive={canArchive} onArchive={onArchive} onUnarchive={onUnarchive} />
+            <SiteRow key={s.id} site={s} color={s.color || ROW_COLORS[(i + heute.length) % ROW_COLORS.length]} />
           ))}
         </Section>
       )}
@@ -310,38 +288,27 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   );
 }
 
-function SiteRow({ site, color, canArchive, onArchive, onUnarchive }: { site: any; color: string; canArchive: boolean; onArchive: (id: string) => void; onUnarchive: (id: string) => void }) {
+function SiteRow({ site, color }: { site: any; color: string }) {
   const { line1, line2 } = splitAddress(site.adresse, site.name);
   const isArchived = !!site.archived_at;
   return (
-    <div className="group relative flex items-center gap-3 px-3 py-3">
-      <Link
-        to="/app/baustellen/$id"
-        params={{ id: site.id }}
-        className="flex flex-1 min-w-0 items-center gap-3"
+    <Link
+      to="/app/baustellen/$id"
+      params={{ id: site.id }}
+      className="flex items-center gap-3 px-3 py-3"
+    >
+      <div
+        className="grid h-11 w-11 shrink-0 place-items-center rounded-xl text-white shadow-sm"
+        style={{ backgroundColor: color, opacity: isArchived ? 0.6 : 1 }}
       >
-        <div
-          className="grid h-11 w-11 shrink-0 place-items-center rounded-xl text-white shadow-sm"
-          style={{ backgroundColor: color, opacity: isArchived ? 0.6 : 1 }}
-        >
-          <Briefcase className="h-5 w-5" />
-        </div>
-        <div className="min-w-0 flex-1">
-          <div className="truncate font-semibold text-foreground">{line1}</div>
-          {line2 && <div className="truncate text-sm text-muted-foreground">{line2}</div>}
-        </div>
-        <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground/60" />
-      </Link>
-      {canArchive && (
-        <button
-          onClick={() => (isArchived ? onUnarchive(site.id) : onArchive(site.id))}
-          className="opacity-0 group-hover:opacity-100 transition rounded-md p-1 text-muted-foreground hover:text-foreground"
-          title={isArchived ? "Wiederherstellen" : "Archivieren"}
-        >
-          <Archive className="h-4 w-4" />
-        </button>
-      )}
-    </div>
+        <Briefcase className="h-5 w-5" />
+      </div>
+      <div className="min-w-0 flex-1">
+        <div className="truncate font-semibold text-foreground">{line1}</div>
+        {line2 && <div className="truncate text-sm text-muted-foreground">{line2}</div>}
+      </div>
+      <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground/60" />
+    </Link>
   );
 }
 
