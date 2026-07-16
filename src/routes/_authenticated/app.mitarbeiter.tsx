@@ -325,14 +325,7 @@ function MitarbeiterPage() {
                     size="icon"
                     variant="ghost"
                     aria-label="Bearbeiten"
-                    onClick={() =>
-                      setEditUser({
-                        id: m.id,
-                        fullName: m.full_name ?? "",
-                        phone: m.phone ?? "",
-                        roleKey: currentRoleKey,
-                      })
-                    }
+                    onClick={() => openEdit(m.id)}
                     className="h-8 w-8 text-muted-foreground hover:text-foreground"
                   >
                     <Pencil className="h-4 w-4" />
