@@ -54,12 +54,12 @@ function BaustelleDetail() {
       <ProjectChat projectId={id} />
 
       <Sheet open={infoOpen} onOpenChange={setInfoOpen}>
-        <SheetContent side="right" className="w-full overflow-y-auto bg-secondary/30 p-0 sm:max-w-lg">
+        <SheetContent side="right" className="w-full overflow-y-auto bg-secondary p-0 sm:max-w-lg">
           <SheetHeader className="sticky top-0 z-10 border-b border-border bg-background px-5 py-4">
             <SheetTitle>Baustelleninformationen</SheetTitle>
           </SheetHeader>
           <div className="px-4 py-4 pb-8">
-            <SiteInfo site={site} canEdit={canEdit} onSaved={() => setInfoOpen(false)} />
+            <SiteInfo site={site} canEdit={canEdit} />
           </div>
         </SheetContent>
       </Sheet>
