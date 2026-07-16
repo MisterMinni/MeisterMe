@@ -2,7 +2,6 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -81,8 +80,6 @@ function Zeiten() {
 
   return (
     <div>
-      <PageHeader title="Zeiterfassung" subtitle="Start/Stopp direkt auf der Baustelle." />
-
       <div className="mb-6 rounded-3xl border border-border bg-navy p-6 text-white shadow-lift">
         <div className="flex flex-col items-center gap-4">
           <div className="text-xs uppercase tracking-wider text-white/60">{runningId ? "Läuft" : "Bereit"}</div>

@@ -2,7 +2,6 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -49,12 +48,6 @@ function BaustelleDetail() {
 
   return (
     <div>
-      <PageHeader
-        title={site.name}
-        subtitle={
-          <span className="flex flex-wrap items-center gap-3 text-sm">
-            <span className="inline-flex items-center gap-1.5">
-              <span className="h-3 w-3 rounded-full" style={{ backgroundColor: site.color ?? "#0B1B34" }} />
               {SITE_STATUS.find((s) => s.value === site.status)?.label ?? site.status}
             </span>
             {site.adresse && <span>· {site.adresse}</span>}

@@ -1,7 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { PageHeader } from "@/components/PageHeader";
 import { useProfile, useIsAdmin, formatDate } from "@/lib/handwerk";
 import { Badge } from "@/components/ui/badge";
 import { Users, Lock, Link as LinkIcon } from "lucide-react";
@@ -41,10 +40,6 @@ function Mitarbeiter() {
 
   return (
     <div>
-      <PageHeader
-        title="Mitarbeiter"
-        subtitle="Stammdaten, Ein-/Austritt, Wochenstunden. Zugänge & Rollen unter Team."
-      />
       <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-card">
         <table className="w-full text-sm">
           <thead className="border-b border-border bg-secondary/40 text-left text-xs uppercase text-muted-foreground">

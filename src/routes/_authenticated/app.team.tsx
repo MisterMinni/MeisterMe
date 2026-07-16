@@ -2,7 +2,6 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -90,7 +89,6 @@ function TeamPage() {
   if (!isAdmin) {
     return (
       <div>
-        <PageHeader title="Team" subtitle="Mitarbeiter verwalten" />
         <div className="rounded-2xl border border-border bg-card p-8 text-center text-muted-foreground">
           <ShieldCheck className="mx-auto mb-2 h-8 w-8 text-brand" />
           Nur Betriebsinhaber und Administratoren dürfen das Team verwalten.
@@ -157,24 +155,6 @@ function TeamPage() {
 
   return (
     <div>
-      <PageHeader
-        title="Team"
-        subtitle="Mitarbeiter anlegen, Rollen vergeben, Zugänge verwalten."
-        action={
-          <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-              <Button className="bg-brand text-brand-foreground hover:bg-brand/90">
-                <UserPlus className="mr-1 h-4 w-4" /> Mitarbeiter anlegen
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Neuen Mitarbeiter anlegen</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-3">
-                <div>
-                  <Label>Name *</Label>
-                  <Input value={form.fullName} onChange={(e) => setForm({ ...form, fullName: e.target.value })} />
                 </div>
                 <div>
                   <Label>E-Mail *</Label>

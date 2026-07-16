@@ -1,7 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { PageHeader } from "@/components/PageHeader";
 import { useProfile, useHasPermission } from "@/lib/handwerk";
 import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
@@ -141,21 +140,6 @@ function Plan() {
 
   return (
     <div>
-      <PageHeader
-        title="Wochenplanung"
-        subtitle={canWrite ? "Klicke auf eine Zelle, um eine Baustelle zuzuweisen." : "Übersicht der Zuweisungen für die Woche."}
-        action={
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={() => setAnchor(addDays(anchor, -7))}><ChevronLeft className="h-4 w-4" /></Button>
-            <div className="hidden font-display text-sm font-semibold sm:block">
-              KW {getWeekNumber(weekStart)} · {isoDate(weekStart)} – {isoDate(weekEnd)}
-            </div>
-            <Button variant="outline" size="sm" onClick={() => setAnchor(addDays(anchor, 7))}><ChevronRight className="h-4 w-4" /></Button>
-            <Button size="sm" onClick={() => setAnchor(startOfWeek(new Date()))} className="bg-brand text-brand-foreground hover:bg-brand/90">Heute</Button>
-          </div>
-        }
-      />
-
       <div className="overflow-x-auto rounded-2xl border border-border bg-card shadow-card">
         <table className="w-full min-w-[720px] text-sm">
           <thead className="border-b border-border bg-secondary/40 text-left text-xs uppercase text-muted-foreground">

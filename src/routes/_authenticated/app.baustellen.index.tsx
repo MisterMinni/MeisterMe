@@ -2,7 +2,6 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -78,45 +77,6 @@ function Baustellen() {
 
   return (
     <div>
-      <PageHeader
-        title="Baustellen"
-        subtitle="Aktive Projekte mit Team, Chat und Zeiterfassung."
-        action={
-          canCreate ? (
-            <Dialog open={openNew} onOpenChange={setOpenNew}>
-              <DialogTrigger asChild>
-                <Button className="bg-brand text-brand-foreground hover:bg-brand/90">
-                  <Plus className="mr-1 h-4 w-4" /> Neue Baustelle
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader><DialogTitle>Neue Baustelle</DialogTitle></DialogHeader>
-                <div className="space-y-3">
-                  <div><Label>Name *</Label><Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></div>
-                  <div><Label>Adresse</Label><Input value={form.adresse} onChange={(e) => setForm({ ...form, adresse: e.target.value })} /></div>
-                  <div><Label>Kurzbeschreibung</Label><Textarea rows={2} value={form.beschreibung} onChange={(e) => setForm({ ...form, beschreibung: e.target.value })} /></div>
-                  <div className="grid grid-cols-2 gap-2">
-                    <div><Label>Start</Label><Input type="date" value={form.start_date} onChange={(e) => setForm({ ...form, start_date: e.target.value })} /></div>
-                    <div><Label>Ende</Label><Input type="date" value={form.end_date} onChange={(e) => setForm({ ...form, end_date: e.target.value })} /></div>
-                  </div>
-                  <div>
-                    <Label>Status</Label>
-                    <Select value={form.status} onValueChange={(v) => setForm({ ...form, status: v })}>
-                      <SelectTrigger><SelectValue /></SelectTrigger>
-                      <SelectContent>{SITE_STATUS.map((s) => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}</SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label>Farbe</Label>
-                    <div className="mt-1 flex gap-2">
-                      {COLORS.map((c) => (
-                        <button
-                          key={c}
-                          type="button"
-                          onClick={() => setForm({ ...form, color: c })}
-                          className={`h-8 w-8 rounded-full ring-2 transition ${form.color === c ? "ring-foreground" : "ring-transparent"}`}
-                          style={{ backgroundColor: c }}
-                        />
                       ))}
                     </div>
                   </div>
