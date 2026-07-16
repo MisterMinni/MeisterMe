@@ -15,13 +15,9 @@ export const GEWERKE = [
 ] as const;
 
 export const SITE_STATUS = [
-  { value: "anfrage", label: "Anfrage" },
-  { value: "angebot", label: "Angebot" },
-  { value: "beauftragt", label: "Beauftragt" },
   { value: "geplant", label: "Geplant" },
-  { value: "in_arbeit", label: "In Arbeit" },
-  { value: "abgeschlossen", label: "Abgeschlossen" },
-  { value: "abgerechnet", label: "Abgerechnet" },
+  { value: "in_arbeit", label: "In Bearbeitung" },
+  { value: "abgeschlossen", label: "Fertig" },
 ] as const;
 
 export function formatEur(n: number | null | undefined) {
