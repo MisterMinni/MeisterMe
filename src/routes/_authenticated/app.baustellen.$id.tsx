@@ -48,16 +48,7 @@ function BaustelleDetail() {
 
   return (
     <div>
-              {SITE_STATUS.find((s) => s.value === site.status)?.label ?? site.status}
-            </span>
-            {site.adresse && <span>· {site.adresse}</span>}
-            <span>· {site.start_date ? formatDate(site.start_date) : "?"} → {site.end_date ? formatDate(site.end_date) : "?"}</span>
-          </span>
-        }
-        action={
-          <Button asChild variant="outline" size="sm"><Link to="/app/baustellen"><ArrowLeft className="mr-1 h-4 w-4" /> Alle Baustellen</Link></Button>
-        }
-      />
+
 
       <div className="mb-4 flex overflow-x-auto rounded-2xl border border-border bg-card p-1 shadow-card">
         <TabBtn active={tab === "chat"} onClick={() => setTab("chat")} icon={MessageSquare}>Chat</TabBtn>
