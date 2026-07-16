@@ -105,7 +105,7 @@ function AppShellInner({ children }: { children?: ReactNode }) {
             </Link>
           </div>
         ) : (
-          <div className="mx-auto grid h-14 max-w-[1600px] grid-cols-[auto_1fr_auto] items-center gap-2 px-2 lg:px-4">
+          <div className="mx-auto grid h-16 max-w-[1600px] grid-cols-[auto_1fr_auto] items-center gap-2 px-2 lg:px-4">
             <Link
               to={defaultBackTo as never}
               className="inline-flex h-10 w-10 items-center justify-center rounded-full text-white transition hover:bg-white/10"
@@ -113,7 +113,7 @@ function AppShellInner({ children }: { children?: ReactNode }) {
             >
               <ArrowLeft className="h-5 w-5" />
             </Link>
-            <h1 className="truncate text-center text-base font-semibold text-white">
+            <h1 key={defaultTitle} className="truncate text-center text-base font-semibold text-white animate-fade-in">
               {defaultTitle}
             </h1>
             <span className="h-10 w-10" />
@@ -121,7 +121,8 @@ function AppShellInner({ children }: { children?: ReactNode }) {
         )}
       </header>
 
-      <main className="mx-auto max-w-[1600px] p-4 pb-8 lg:p-8">{children ?? <Outlet />}</main>
+      <main key={pathname} className="mx-auto max-w-[1600px] p-4 pb-8 lg:p-8 animate-fade-in">{children ?? <Outlet />}</main>
+
     </div>
   );
 }
