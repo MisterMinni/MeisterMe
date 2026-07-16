@@ -25,6 +25,7 @@ import { Route as AuthenticatedAppEinstellungenRouteImport } from './routes/_aut
 import { Route as AuthenticatedAppAbwesenheitenRouteImport } from './routes/_authenticated/app.abwesenheiten'
 import { Route as AuthenticatedAppProfilIndexRouteImport } from './routes/_authenticated/app.profil.index'
 import { Route as AuthenticatedAppBaustellenIndexRouteImport } from './routes/_authenticated/app.baustellen.index'
+import { Route as AuthenticatedAppProfilDokumenteRouteImport } from './routes/_authenticated/app.profil.dokumente'
 import { Route as AuthenticatedAppProfilDatenRouteImport } from './routes/_authenticated/app.profil.daten'
 import { Route as AuthenticatedAppBaustellenIdRouteImport } from './routes/_authenticated/app.baustellen.$id'
 
@@ -112,6 +113,12 @@ const AuthenticatedAppBaustellenIndexRoute =
     path: '/baustellen/',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
+const AuthenticatedAppProfilDokumenteRoute =
+  AuthenticatedAppProfilDokumenteRouteImport.update({
+    id: '/profil/dokumente',
+    path: '/profil/dokumente',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
 const AuthenticatedAppProfilDatenRoute =
   AuthenticatedAppProfilDatenRouteImport.update({
     id: '/profil/daten',
@@ -141,6 +148,7 @@ export interface FileRoutesByFullPath {
   '/app/': typeof AuthenticatedAppIndexRoute
   '/app/baustellen/$id': typeof AuthenticatedAppBaustellenIdRoute
   '/app/profil/daten': typeof AuthenticatedAppProfilDatenRoute
+  '/app/profil/dokumente': typeof AuthenticatedAppProfilDokumenteRoute
   '/app/baustellen/': typeof AuthenticatedAppBaustellenIndexRoute
   '/app/profil/': typeof AuthenticatedAppProfilIndexRoute
 }
@@ -159,6 +167,7 @@ export interface FileRoutesByTo {
   '/app': typeof AuthenticatedAppIndexRoute
   '/app/baustellen/$id': typeof AuthenticatedAppBaustellenIdRoute
   '/app/profil/daten': typeof AuthenticatedAppProfilDatenRoute
+  '/app/profil/dokumente': typeof AuthenticatedAppProfilDokumenteRoute
   '/app/baustellen': typeof AuthenticatedAppBaustellenIndexRoute
   '/app/profil': typeof AuthenticatedAppProfilIndexRoute
 }
@@ -180,6 +189,7 @@ export interface FileRoutesById {
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
   '/_authenticated/app/baustellen/$id': typeof AuthenticatedAppBaustellenIdRoute
   '/_authenticated/app/profil/daten': typeof AuthenticatedAppProfilDatenRoute
+  '/_authenticated/app/profil/dokumente': typeof AuthenticatedAppProfilDokumenteRoute
   '/_authenticated/app/baustellen/': typeof AuthenticatedAppBaustellenIndexRoute
   '/_authenticated/app/profil/': typeof AuthenticatedAppProfilIndexRoute
 }
@@ -201,6 +211,7 @@ export interface FileRouteTypes {
     | '/app/'
     | '/app/baustellen/$id'
     | '/app/profil/daten'
+    | '/app/profil/dokumente'
     | '/app/baustellen/'
     | '/app/profil/'
   fileRoutesByTo: FileRoutesByTo
@@ -219,6 +230,7 @@ export interface FileRouteTypes {
     | '/app'
     | '/app/baustellen/$id'
     | '/app/profil/daten'
+    | '/app/profil/dokumente'
     | '/app/baustellen'
     | '/app/profil'
   id:
@@ -239,6 +251,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/'
     | '/_authenticated/app/baustellen/$id'
     | '/_authenticated/app/profil/daten'
+    | '/_authenticated/app/profil/dokumente'
     | '/_authenticated/app/baustellen/'
     | '/_authenticated/app/profil/'
   fileRoutesById: FileRoutesById
@@ -366,6 +379,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppBaustellenIndexRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/profil/dokumente': {
+      id: '/_authenticated/app/profil/dokumente'
+      path: '/profil/dokumente'
+      fullPath: '/app/profil/dokumente'
+      preLoaderRoute: typeof AuthenticatedAppProfilDokumenteRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
     '/_authenticated/app/profil/daten': {
       id: '/_authenticated/app/profil/daten'
       path: '/profil/daten'
@@ -393,6 +413,7 @@ interface AuthenticatedAppRouteChildren {
   AuthenticatedAppIndexRoute: typeof AuthenticatedAppIndexRoute
   AuthenticatedAppBaustellenIdRoute: typeof AuthenticatedAppBaustellenIdRoute
   AuthenticatedAppProfilDatenRoute: typeof AuthenticatedAppProfilDatenRoute
+  AuthenticatedAppProfilDokumenteRoute: typeof AuthenticatedAppProfilDokumenteRoute
   AuthenticatedAppBaustellenIndexRoute: typeof AuthenticatedAppBaustellenIndexRoute
   AuthenticatedAppProfilIndexRoute: typeof AuthenticatedAppProfilIndexRoute
 }
@@ -407,6 +428,7 @@ const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppIndexRoute: AuthenticatedAppIndexRoute,
   AuthenticatedAppBaustellenIdRoute: AuthenticatedAppBaustellenIdRoute,
   AuthenticatedAppProfilDatenRoute: AuthenticatedAppProfilDatenRoute,
+  AuthenticatedAppProfilDokumenteRoute: AuthenticatedAppProfilDokumenteRoute,
   AuthenticatedAppBaustellenIndexRoute: AuthenticatedAppBaustellenIndexRoute,
   AuthenticatedAppProfilIndexRoute: AuthenticatedAppProfilIndexRoute,
 }
