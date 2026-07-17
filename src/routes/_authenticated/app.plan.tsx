@@ -1,15 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useProfile, useHasPermission } from "@/lib/handwerk";
+import { useProfile, useHasPermission, GEWERKE } from "@/lib/handwerk";
 import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { toast } from "sonner";
-import { ChevronLeft, ChevronRight, Calendar, Trash2, Plus, Clock, StickyNote } from "lucide-react";
+import { ChevronLeft, ChevronRight, Calendar, Trash2, Plus, Clock, StickyNote, LayoutGrid, List } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/app/plan")({
   head: () => ({ meta: [{ title: "Wochenplanung – MeisterMe" }] }),
@@ -40,6 +41,7 @@ function getWeekNumber(d: Date) {
 }
 
 const DAYS = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"];
+const GEWERK_LABEL: Record<string, string> = Object.fromEntries(GEWERKE.map((g) => [g.value, g.label]));
 
 type CellAssignment = {
   id: string;
@@ -52,19 +54,25 @@ type CellAssignment = {
   sites: { name: string | null; color: string | null; adresse: string | null } | null;
 };
 
+type Member = { id: string; full_name: string | null; gewerk: string | null };
+
 function Plan() {
   const qc = useQueryClient();
   const { data: profile } = useProfile();
   const canWrite = useHasPermission("plan:write");
   const [anchor, setAnchor] = useState(startOfWeek(new Date()));
+  const [view, setView] = useState<"week" | "day">("week");
+  const [showWeekend, setShowWeekend] = useState(false);
   const [selectedIdx, setSelectedIdx] = useState<number>(() => (new Date().getDay() + 6) % 7);
   const [editing, setEditing] = useState<{ userId: string; day: string; userName: string } | null>(null);
+  const [detail, setDetail] = useState<CellAssignment | null>(null);
   const [form, setForm] = useState({ site_id: "", start_time: "07:00", end_time: "16:30", note: "" });
 
   const weekStart = anchor;
+  const dayCount = showWeekend ? 7 : 5;
   const weekEnd = addDays(anchor, 6);
-  const days = useMemo(() => Array.from({ length: 7 }, (_, i) => addDays(weekStart, i)), [weekStart]);
-  const selectedDay = days[selectedIdx];
+  const days = useMemo(() => Array.from({ length: dayCount }, (_, i) => addDays(weekStart, i)), [weekStart, dayCount]);
+  const selectedDay = days[Math.min(selectedIdx, dayCount - 1)] ?? days[0];
   const selectedIso = isoDate(selectedDay);
 
   const { data: members } = useQuery({
@@ -73,11 +81,11 @@ function Plan() {
     queryFn: async () => {
       const { data } = await supabase
         .from("profiles")
-        .select("id, full_name")
+        .select("id, full_name, gewerk")
         .eq("tenant_id", profile!.tenant_id!)
         .is("disabled_at", null)
         .order("full_name");
-      return data ?? [];
+      return (data ?? []) as Member[];
     },
   });
 
@@ -123,6 +131,19 @@ function Plan() {
     return c;
   }, [assignments]);
 
+  const grouped = useMemo(() => {
+    const g = new Map<string, Member[]>();
+    for (const m of members ?? []) {
+      const key = m.gewerk ?? "sonstige";
+      const arr = g.get(key) ?? [];
+      arr.push(m);
+      g.set(key, arr);
+    }
+    return Array.from(g.entries()).sort(([a], [b]) =>
+      (GEWERK_LABEL[a] ?? a).localeCompare(GEWERK_LABEL[b] ?? b),
+    );
+  }, [members]);
+
   function openCell(userId: string, day: string, userName: string) {
     if (!canWrite) return;
     setEditing({ userId, day, userName });
@@ -151,11 +172,13 @@ function Plan() {
   async function remove(id: string) {
     const { error } = await supabase.from("weekly_assignments").delete().eq("id", id);
     if (error) return toast.error(error.message);
+    setDetail(null);
     qc.invalidateQueries({ queryKey: ["plan-assignments"] });
   }
 
-  const weekLabel = `${weekStart.getDate()}.${weekStart.getMonth() + 1}. – ${weekEnd.getDate()}.${weekEnd.getMonth() + 1}.${weekEnd.getFullYear()}`;
+  const weekLabel = `${weekStart.getDate()}.${weekStart.getMonth() + 1}. – ${addDays(weekStart, dayCount - 1).getDate()}.${addDays(weekStart, dayCount - 1).getMonth() + 1}.`;
   const kw = getWeekNumber(weekStart);
+  const todayIso = isoDate(new Date());
 
   function initials(name?: string | null) {
     if (!name) return "?";
@@ -163,8 +186,14 @@ function Plan() {
     return ((p[0]?.[0] ?? "") + (p[1]?.[0] ?? "")).toUpperCase() || "?";
   }
 
+  // Site color helpers → tinted background + strong left bar
+  function tint(hex: string | null | undefined) {
+    const c = hex ?? "#005aab";
+    return { backgroundColor: `${c}1A`, borderColor: `${c}55`, color: c };
+  }
+
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       {/* Week navigator */}
       <div className="flex items-center justify-between rounded-2xl bg-card p-2 shadow-card">
         <button
@@ -179,7 +208,7 @@ function Plan() {
           className="flex flex-col items-center leading-tight"
         >
           <span className="text-xs font-medium text-muted-foreground">KW {kw}</span>
-          <span className="text-sm font-semibold text-foreground">{weekLabel}</span>
+          <span className="text-sm font-semibold text-foreground">{weekLabel}{weekStart.getFullYear()}</span>
         </button>
         <button
           onClick={() => setAnchor(addDays(anchor, 7))}
@@ -190,128 +219,195 @@ function Plan() {
         </button>
       </div>
 
-      {/* Day pills */}
-      <div className="-mx-1 flex gap-1.5 overflow-x-auto px-1 pb-1">
-        {days.map((d, i) => {
-          const active = i === selectedIdx;
-          const iso = isoDate(d);
-          const cnt = countByDay.get(iso) ?? 0;
-          const isToday = iso === isoDate(new Date());
-          return (
-            <button
-              key={i}
-              onClick={() => setSelectedIdx(i)}
-              className={`relative flex min-w-[52px] shrink-0 flex-col items-center rounded-2xl px-3 py-2 transition ${
-                active ? "bg-brand text-brand-foreground shadow-sm" : "bg-muted text-muted-foreground hover:bg-muted/70"
-              }`}
-            >
-              <span className="text-[11px] font-medium uppercase opacity-80">{DAYS[i]}</span>
-              <span className="text-lg font-bold leading-tight">{d.getDate()}</span>
-              {cnt > 0 && (
-                <span className={`mt-0.5 h-1.5 w-1.5 rounded-full ${active ? "bg-white" : "bg-brand"}`} />
-              )}
-              {isToday && !active && (
-                <span className="absolute inset-0 rounded-2xl ring-2 ring-brand/40" />
-              )}
-            </button>
-          );
-        })}
+      {/* View toggle + weekend */}
+      <div className="flex items-center gap-2">
+        <div className="inline-flex rounded-full bg-muted p-0.5">
+          <button
+            onClick={() => setView("week")}
+            className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition ${view === "week" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}
+          >
+            <LayoutGrid className="h-3.5 w-3.5" /> Woche
+          </button>
+          <button
+            onClick={() => setView("day")}
+            className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition ${view === "day" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}
+          >
+            <List className="h-3.5 w-3.5" /> Tag
+          </button>
+        </div>
+        {view === "week" && (
+          <button
+            onClick={() => setShowWeekend((v) => !v)}
+            className={`ml-auto rounded-full px-3 py-1.5 text-xs font-semibold transition ${showWeekend ? "bg-brand text-brand-foreground" : "bg-muted text-muted-foreground"}`}
+          >
+            Sa/So
+          </button>
+        )}
       </div>
 
-      {/* Selected day header */}
-      <div className="flex items-baseline justify-between px-1">
-        <h2 className="text-lg font-semibold text-foreground">
-          {selectedDay.toLocaleDateString("de-DE", { weekday: "long", day: "numeric", month: "long" })}
-        </h2>
-        <span className="text-xs text-muted-foreground">
-          {countByDay.get(selectedIso) ?? 0} Einsätze
-        </span>
-      </div>
+      {view === "week" ? (
+        <WeekMatrix
+          days={days}
+          grouped={grouped}
+          byUserDay={byUserDay}
+          todayIso={todayIso}
+          canWrite={canWrite}
+          onCell={openCell}
+          onOpenDetail={setDetail}
+          initials={initials}
+          tint={tint}
+        />
+      ) : (
+        <>
+          {/* Day pills */}
+          <div className="-mx-1 flex gap-1.5 overflow-x-auto px-1 pb-1">
+            {days.map((d, i) => {
+              const active = i === selectedIdx;
+              const iso = isoDate(d);
+              const cnt = countByDay.get(iso) ?? 0;
+              const isToday = iso === todayIso;
+              return (
+                <button
+                  key={i}
+                  onClick={() => setSelectedIdx(i)}
+                  className={`relative flex min-w-[52px] shrink-0 flex-col items-center rounded-2xl px-3 py-2 transition ${
+                    active ? "bg-brand text-brand-foreground shadow-sm" : "bg-muted text-muted-foreground hover:bg-muted/70"
+                  }`}
+                >
+                  <span className="text-[11px] font-medium uppercase opacity-80">{DAYS[i]}</span>
+                  <span className="text-lg font-bold leading-tight">{d.getDate()}</span>
+                  {cnt > 0 && (
+                    <span className={`mt-0.5 h-1.5 w-1.5 rounded-full ${active ? "bg-white" : "bg-brand"}`} />
+                  )}
+                  {isToday && !active && (
+                    <span className="absolute inset-0 rounded-2xl ring-2 ring-brand/40" />
+                  )}
+                </button>
+              );
+            })}
+          </div>
 
-      {/* Member list for selected day */}
-      <div className="space-y-3">
-        {(members ?? []).map((m) => {
-          const list = byUserDay.get(`${m.id}|${selectedIso}`) ?? [];
-          return (
-            <div key={m.id} className="rounded-2xl bg-card p-3 shadow-card">
-              <div className="mb-2 flex items-center gap-3">
-                <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-brand/10 text-sm font-semibold text-brand">
-                  {initials(m.full_name)}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="truncate font-semibold text-foreground">{m.full_name ?? "—"}</div>
-                  <div className="text-xs text-muted-foreground">
-                    {list.length === 0 ? "Keine Zuweisung" : `${list.length} Einsatz${list.length === 1 ? "" : "e"}`}
+          <div className="flex items-baseline justify-between px-1">
+            <h2 className="text-lg font-semibold text-foreground">
+              {selectedDay.toLocaleDateString("de-DE", { weekday: "long", day: "numeric", month: "long" })}
+            </h2>
+            <span className="text-xs text-muted-foreground">{countByDay.get(selectedIso) ?? 0} Einsätze</span>
+          </div>
+
+          <div className="space-y-3">
+            {(members ?? []).map((m) => {
+              const list = byUserDay.get(`${m.id}|${selectedIso}`) ?? [];
+              return (
+                <div key={m.id} className="rounded-2xl bg-card p-3 shadow-card">
+                  <div className="mb-2 flex items-center gap-3">
+                    <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-brand/10 text-sm font-semibold text-brand">
+                      {initials(m.full_name)}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate font-semibold text-foreground">{m.full_name ?? "—"}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {list.length === 0 ? "Keine Zuweisung" : `${list.length} Einsatz${list.length === 1 ? "" : "e"}`}
+                      </div>
+                    </div>
+                    {canWrite && (
+                      <button
+                        onClick={() => openCell(m.id, selectedIso, m.full_name ?? "")}
+                        className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-brand text-brand-foreground shadow-sm active:scale-95"
+                        aria-label="Zuweisen"
+                      >
+                        <Plus className="h-5 w-5" />
+                      </button>
+                    )}
                   </div>
-                </div>
-                {canWrite && (
-                  <button
-                    onClick={() => openCell(m.id, selectedIso, m.full_name ?? "")}
-                    className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-brand text-brand-foreground shadow-sm active:scale-95"
-                    aria-label="Zuweisen"
-                  >
-                    <Plus className="h-5 w-5" />
-                  </button>
-                )}
-              </div>
 
-              {list.length > 0 && (
-                <div className="space-y-2">
-                  {list.map((a) => (
-                    <div
-                      key={a.id}
-                      className="relative overflow-hidden rounded-xl border border-border/60 bg-background p-3 pl-4"
-                    >
-                      <span
-                        className="absolute inset-y-0 left-0 w-1"
-                        style={{ backgroundColor: a.sites?.color ?? "#005aab" }}
-                      />
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="min-w-0 flex-1">
-                          <div className="truncate font-semibold text-foreground">{a.sites?.name ?? "—"}</div>
-                          {a.sites?.adresse && (
-                            <div className="truncate text-xs text-muted-foreground">{a.sites.adresse}</div>
-                          )}
-                          <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
-                            {(a.start_time || a.end_time) && (
-                              <span className="inline-flex items-center gap-1">
-                                <Clock className="h-3 w-3" />
-                                {a.start_time?.slice(0, 5) ?? "–"} – {a.end_time?.slice(0, 5) ?? "–"}
-                              </span>
-                            )}
-                            {a.note && (
-                              <span className="inline-flex min-w-0 items-center gap-1">
-                                <StickyNote className="h-3 w-3 shrink-0" />
-                                <span className="truncate">{a.note}</span>
-                              </span>
+                  {list.length > 0 && (
+                    <div className="space-y-2">
+                      {list.map((a) => (
+                        <div key={a.id} className="relative overflow-hidden rounded-xl border border-border/60 bg-background p-3 pl-4">
+                          <span className="absolute inset-y-0 left-0 w-1" style={{ backgroundColor: a.sites?.color ?? "#005aab" }} />
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="min-w-0 flex-1">
+                              <div className="truncate font-semibold text-foreground">{a.sites?.name ?? "—"}</div>
+                              {a.sites?.adresse && <div className="truncate text-xs text-muted-foreground">{a.sites.adresse}</div>}
+                              <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                                {(a.start_time || a.end_time) && (
+                                  <span className="inline-flex items-center gap-1">
+                                    <Clock className="h-3 w-3" />
+                                    {a.start_time?.slice(0, 5) ?? "–"} – {a.end_time?.slice(0, 5) ?? "–"}
+                                  </span>
+                                )}
+                                {a.note && (
+                                  <span className="inline-flex min-w-0 items-center gap-1">
+                                    <StickyNote className="h-3 w-3 shrink-0" />
+                                    <span className="truncate">{a.note}</span>
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                            {canWrite && (
+                              <button
+                                onClick={() => remove(a.id)}
+                                className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                                aria-label="Löschen"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </button>
                             )}
                           </div>
                         </div>
-                        {canWrite && (
-                          <button
-                            onClick={() => remove(a.id)}
-                            className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
-                            aria-label="Löschen"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
-                        )}
-                      </div>
+                      ))}
                     </div>
-                  ))}
+                  )}
+                </div>
+              );
+            })}
+
+            {(!members || members.length === 0) && (
+              <div className="rounded-2xl border-2 border-dashed border-border p-12 text-center text-muted-foreground">
+                <Calendar className="mx-auto mb-2 h-8 w-8" />
+                Noch keine Mitarbeiter im Betrieb.
+              </div>
+            )}
+          </div>
+        </>
+      )}
+
+      {/* Detail sheet for a single assignment */}
+      <Sheet open={!!detail} onOpenChange={(o) => !o && setDetail(null)}>
+        <SheetContent side="bottom" className="rounded-t-3xl">
+          {detail && (
+            <>
+              <SheetHeader>
+                <SheetTitle className="flex items-center gap-2">
+                  <span className="inline-block h-3 w-3 rounded-full" style={{ backgroundColor: detail.sites?.color ?? "#005aab" }} />
+                  {detail.sites?.name ?? "Einsatz"}
+                </SheetTitle>
+              </SheetHeader>
+              <div className="mt-4 space-y-2 text-sm">
+                {detail.sites?.adresse && <div className="text-muted-foreground">{detail.sites.adresse}</div>}
+                <div className="text-muted-foreground">
+                  {new Date(detail.day).toLocaleDateString("de-DE", { weekday: "long", day: "numeric", month: "long" })}
+                </div>
+                {(detail.start_time || detail.end_time) && (
+                  <div className="inline-flex items-center gap-1 text-foreground">
+                    <Clock className="h-4 w-4" /> {detail.start_time?.slice(0, 5) ?? "–"} – {detail.end_time?.slice(0, 5) ?? "–"}
+                  </div>
+                )}
+                {detail.note && (
+                  <div className="rounded-xl bg-muted p-3 text-foreground">{detail.note}</div>
+                )}
+              </div>
+              {canWrite && (
+                <div className="mt-6 flex justify-end">
+                  <Button variant="destructive" onClick={() => remove(detail.id)}>
+                    <Trash2 className="mr-1 h-4 w-4" /> Entfernen
+                  </Button>
                 </div>
               )}
-            </div>
-          );
-        })}
-
-        {(!members || members.length === 0) && (
-          <div className="rounded-2xl border-2 border-dashed border-border p-12 text-center text-muted-foreground">
-            <Calendar className="mx-auto mb-2 h-8 w-8" />
-            Noch keine Mitarbeiter im Betrieb.
-          </div>
-        )}
-      </div>
+            </>
+          )}
+        </SheetContent>
+      </Sheet>
 
       <Dialog open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
         <DialogContent>
@@ -351,6 +447,163 @@ function Plan() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+    </div>
+  );
+}
+
+function WeekMatrix({
+  days,
+  grouped,
+  byUserDay,
+  todayIso,
+  canWrite,
+  onCell,
+  onOpenDetail,
+  initials,
+  tint,
+}: {
+  days: Date[];
+  grouped: [string, Member[]][];
+  byUserDay: Map<string, CellAssignment[]>;
+  todayIso: string;
+  canWrite: boolean;
+  onCell: (userId: string, day: string, userName: string) => void;
+  onOpenDetail: (a: CellAssignment) => void;
+  initials: (n?: string | null) => string;
+  tint: (hex: string | null | undefined) => { backgroundColor: string; borderColor: string; color: string };
+}) {
+  const NAME_COL = 108;
+  const CELL_W = 96;
+
+  if (grouped.length === 0) {
+    return (
+      <div className="rounded-2xl border-2 border-dashed border-border p-12 text-center text-muted-foreground">
+        <Calendar className="mx-auto mb-2 h-8 w-8" />
+        Noch keine Mitarbeiter im Betrieb.
+      </div>
+    );
+  }
+
+  return (
+    <div className="overflow-hidden rounded-2xl bg-card shadow-card">
+      <div className="overflow-x-auto">
+        <div style={{ minWidth: NAME_COL + CELL_W * days.length }}>
+          {/* Header row */}
+          <div
+            className="sticky top-0 z-10 grid border-b border-border/70 bg-card"
+            style={{ gridTemplateColumns: `${NAME_COL}px repeat(${days.length}, ${CELL_W}px)` }}
+          >
+            <div className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+              Mitarbeiter
+            </div>
+            {days.map((d, i) => {
+              const iso = isoDate(d);
+              const isToday = iso === todayIso;
+              return (
+                <div
+                  key={i}
+                  className={`flex flex-col items-center py-2 ${isToday ? "bg-brand/10" : ""}`}
+                >
+                  <span className={`text-[10px] font-semibold uppercase ${isToday ? "text-brand" : "text-muted-foreground"}`}>
+                    {DAYS[i]}
+                  </span>
+                  <span className={`text-sm font-bold leading-tight ${isToday ? "text-brand" : "text-foreground"}`}>
+                    {d.getDate()}.{d.getMonth() + 1}.
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Groups */}
+          {grouped.map(([gewerk, list]) => (
+            <div key={gewerk}>
+              <div
+                className="sticky left-0 border-b border-border/50 bg-muted/60 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground"
+                style={{ width: NAME_COL + CELL_W * days.length }}
+              >
+                {GEWERK_LABEL[gewerk] ?? gewerk}
+              </div>
+
+              {list.map((m) => (
+                <div
+                  key={m.id}
+                  className="grid border-b border-border/40 last:border-b-0"
+                  style={{ gridTemplateColumns: `${NAME_COL}px repeat(${days.length}, ${CELL_W}px)` }}
+                >
+                  <div className="sticky left-0 z-[1] flex items-center gap-2 border-r border-border/50 bg-card px-2 py-2">
+                    <div className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-brand/10 text-[11px] font-semibold text-brand">
+                      {initials(m.full_name)}
+                    </div>
+                    <div className="min-w-0 text-xs font-semibold leading-tight text-foreground">
+                      <div className="truncate">{m.full_name ?? "—"}</div>
+                    </div>
+                  </div>
+
+                  {days.map((d, i) => {
+                    const iso = isoDate(d);
+                    const cell = byUserDay.get(`${m.id}|${iso}`) ?? [];
+                    const isToday = iso === todayIso;
+                    return (
+                      <div
+                        key={i}
+                        className={`min-h-[56px] border-l border-border/40 p-1 ${isToday ? "bg-brand/5" : ""}`}
+                      >
+                        {cell.length === 0 ? (
+                          <button
+                            disabled={!canWrite}
+                            onClick={() => onCell(m.id, iso, m.full_name ?? "")}
+                            className={`grid h-full w-full place-items-center rounded-lg border border-dashed ${canWrite ? "border-border/60 text-muted-foreground/60 hover:border-brand/50 hover:text-brand" : "border-transparent"}`}
+                            aria-label="Zuweisen"
+                          >
+                            {canWrite && <Plus className="h-4 w-4" />}
+                          </button>
+                        ) : (
+                          <div className="flex h-full flex-col gap-1">
+                            {cell.map((a) => {
+                              const t = tint(a.sites?.color);
+                              return (
+                                <button
+                                  key={a.id}
+                                  onClick={() => onOpenDetail(a)}
+                                  className="relative overflow-hidden rounded-lg border pl-1.5 pr-1.5 py-1 text-left"
+                                  style={t}
+                                >
+                                  <span
+                                    className="absolute inset-y-0 left-0 w-1"
+                                    style={{ backgroundColor: a.sites?.color ?? "#005aab" }}
+                                  />
+                                  <div className="ml-1 truncate text-[11px] font-semibold leading-tight">
+                                    {a.sites?.name ?? "—"}
+                                  </div>
+                                  {(a.start_time || a.end_time) && (
+                                    <div className="ml-1 text-[10px] opacity-80">
+                                      {a.start_time?.slice(0, 5) ?? "–"}–{a.end_time?.slice(0, 5) ?? "–"}
+                                    </div>
+                                  )}
+                                </button>
+                              );
+                            })}
+                            {canWrite && (
+                              <button
+                                onClick={() => onCell(m.id, iso, m.full_name ?? "")}
+                                className="grid h-4 w-full place-items-center rounded text-muted-foreground/60 hover:text-brand"
+                                aria-label="Weiteren Einsatz hinzufügen"
+                              >
+                                <Plus className="h-3 w-3" />
+                              </button>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
