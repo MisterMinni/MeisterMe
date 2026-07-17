@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useProfile, useHasPermission, GEWERKE } from "@/lib/handwerk";
+import { useProfile, useHasPermission } from "@/lib/handwerk";
 import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -41,7 +41,7 @@ function getWeekNumber(d: Date) {
 }
 
 const DAYS = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"];
-void GEWERKE;
+// grouped by subgroup
 
 type CellAssignment = {
   id: string;
@@ -54,7 +54,7 @@ type CellAssignment = {
   sites: { name: string | null; color: string | null; adresse: string | null } | null;
 };
 
-type Member = { id: string; full_name: string | null; gewerk: string | null };
+type Member = { id: string; full_name: string | null; subgroup: string | null };
 
 function Plan() {
   const qc = useQueryClient();
@@ -81,7 +81,7 @@ function Plan() {
     queryFn: async () => {
       const { data } = await supabase
         .from("profiles")
-        .select("id, full_name, gewerk")
+        .select("id, full_name, subgroup")
         .eq("tenant_id", profile!.tenant_id!)
         .is("disabled_at", null)
         .order("full_name");
@@ -134,13 +134,13 @@ function Plan() {
   const grouped = useMemo(() => {
     const g = new Map<string, Member[]>();
     for (const m of members ?? []) {
-      const key = m.gewerk ?? "sonstige";
+      const key = m.subgroup ?? "Team";
       const arr = g.get(key) ?? [];
       arr.push(m);
       g.set(key, arr);
     }
     return Array.from(g.entries()).sort(([a], [b]) =>
-      (GEWERK_LABEL[a] ?? a).localeCompare(GEWERK_LABEL[b] ?? b),
+      a.localeCompare(b),
     );
   }, [members]);
 
@@ -522,7 +522,7 @@ function WeekMatrix({
                 className="sticky left-0 border-b border-border/50 bg-muted/60 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground"
                 style={{ width: NAME_COL + CELL_W * days.length }}
               >
-                {GEWERK_LABEL[gewerk] ?? gewerk}
+                {gewerk}
               </div>
 
               {list.map((m) => (
