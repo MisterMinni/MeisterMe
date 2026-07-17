@@ -41,7 +41,7 @@ function getWeekNumber(d: Date) {
 }
 
 const DAYS = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"];
-const GEWERK_LABEL: Record<string, string> = Object.fromEntries(GEWERKE.map((g) => [g.value, g.label]));
+void GEWERKE;
 
 type CellAssignment = {
   id: string;
