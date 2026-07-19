@@ -9,6 +9,7 @@ import {
   UserX,
   UsersRound,
   Settings,
+  Sparkles,
   ChevronRight,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
@@ -128,6 +129,7 @@ function Dashboard() {
       tiles: [
         { to: "/app/baustellen", label: "Baustellen", icon: Briefcase, desc: "Aktive Projekte & Chat" },
         { to: "/app/plan", label: "Wochenplanung", icon: Calendar, desc: "Wer arbeitet wann wo?", badge: stats?.planToday },
+        { to: "/app/ki-assistent", label: "KI-Assistent", icon: Sparkles, desc: "Berichte, Angebote & E-Mails" },
       ],
     },
     {

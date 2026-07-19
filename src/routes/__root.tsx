@@ -18,7 +18,6 @@ import { useEffect, type ReactNode } from "react";
 import { Toaster } from "@/components/ui/sonner";
 
 import appCss from "../styles.css?url";
-import { reportLovableError } from "../lib/lovable-error-reporting";
 import { supabase } from "@/integrations/supabase/client";
 
 function NotFoundComponent() {
@@ -47,7 +46,7 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   console.error(error);
   const router = useRouter();
   useEffect(() => {
-    reportLovableError(error, { boundary: "tanstack_root_error_component" });
+    console.error("[MeisterMe error boundary]", error);
   }, [error]);
 
   return (
@@ -93,6 +92,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           "MeisterMe ist die KI-gestützte Handwerkersoftware für Angebot, Aufmaß, Zeiterfassung, Baustellenbericht und Rechnung. Weniger Büro. Mehr Baustelle.",
       },
       { name: "author", content: "MeisterMe" },
+      { name: "theme-color", content: "#005aab" },
+      { name: "mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-status-bar-style", content: "default" },
+      { name: "apple-mobile-web-app-title", content: "MeisterMe" },
       { property: "og:title", content: "MeisterMe – KI-Software für Handwerker" },
       {
         property: "og:description",
@@ -105,6 +109,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     links: [
       { rel: "stylesheet", href: appCss },
       { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      { rel: "manifest", href: "/manifest.webmanifest" },
+      { rel: "apple-touch-icon", href: "/app-icon.svg" },
     ],
   }),
   shellComponent: RootShell,
@@ -127,12 +133,6 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
-// TEMP: Dev-Auto-Login. Vor Produktion entfernen.
-const DEV_AUTO_LOGIN = {
-  email: "bastiskiller2@gmail.com",
-  password: "bababasti1!",
-};
-
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const router = useRouter();
@@ -147,16 +147,11 @@ function RootComponent() {
   }, [router, queryClient]);
 
   useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      const { data } = await supabase.auth.getSession();
-      if (cancelled || data.session) return;
-      const { error } = await supabase.auth.signInWithPassword(DEV_AUTO_LOGIN);
-      if (error) console.error("[dev auto-login]", error.message);
-    })();
-    return () => {
-      cancelled = true;
-    };
+    if (import.meta.env.PROD && "serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/sw.js").catch((error) => {
+        console.warn("[PWA] Service Worker konnte nicht registriert werden", error);
+      });
+    }
   }, []);
 
   return (

@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import type { Database } from "@/integrations/supabase/types";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -49,7 +50,9 @@ function parseAdresse(a: string | null) {
   return { strasse, hausnr, plz: right ?? "" };
 }
 
-function SiteInfo({ site, canEdit, siteId }: { site: any; canEdit: boolean; siteId: string }) {
+type Site = Database["public"]["Tables"]["sites"]["Row"];
+
+function SiteInfo({ site, canEdit, siteId }: { site: Site; canEdit: boolean; siteId: string }) {
   const qc = useQueryClient();
   const parsed = parseAdresse(site.adresse);
   const [form, setForm] = useState({
@@ -170,7 +173,7 @@ function Section({ icon, title, children }: { icon: React.ReactNode; title: stri
   );
 }
 
-function SiteAvatar({ site }: { site: any }) {
+function SiteAvatar({ site }: { site: Site }) {
   const qc = useQueryClient();
   const { data: profile } = useProfile();
   const [uploading, setUploading] = useState(false);

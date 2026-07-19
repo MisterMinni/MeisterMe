@@ -9,41 +9,36 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as PreiseRouteImport } from './routes/preise'
-import { Route as KontaktRouteImport } from './routes/kontakt'
-import { Route as FunktionenRouteImport } from './routes/funktionen'
-import { Route as AuthRouteImport } from './routes/auth'
-import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as FunktionenRouteImport } from './routes/funktionen'
+import { Route as KontaktRouteImport } from './routes/kontakt'
+import { Route as PreiseRouteImport } from './routes/preise'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app.index'
-import { Route as AuthenticatedAppZeitenRouteImport } from './routes/_authenticated/app.zeiten'
-import { Route as AuthenticatedAppPlanRouteImport } from './routes/_authenticated/app.plan'
-import { Route as AuthenticatedAppMitarbeiterRouteImport } from './routes/_authenticated/app.mitarbeiter'
-import { Route as AuthenticatedAppEinstellungenRouteImport } from './routes/_authenticated/app.einstellungen'
 import { Route as AuthenticatedAppAbwesenheitenRouteImport } from './routes/_authenticated/app.abwesenheiten'
-import { Route as AuthenticatedAppProfilIndexRouteImport } from './routes/_authenticated/app.profil.index'
+import { Route as AuthenticatedAppEinstellungenRouteImport } from './routes/_authenticated/app.einstellungen'
+import { Route as AuthenticatedAppKiAssistentRouteImport } from './routes/_authenticated/app.ki-assistent'
+import { Route as AuthenticatedAppMitarbeiterRouteImport } from './routes/_authenticated/app.mitarbeiter'
+import { Route as AuthenticatedAppPlanRouteImport } from './routes/_authenticated/app.plan'
+import { Route as AuthenticatedAppZeitenRouteImport } from './routes/_authenticated/app.zeiten'
 import { Route as AuthenticatedAppBaustellenIndexRouteImport } from './routes/_authenticated/app.baustellen.index'
-import { Route as AuthenticatedAppProfilDokumenteRouteImport } from './routes/_authenticated/app.profil.dokumente'
-import { Route as AuthenticatedAppProfilDatenRouteImport } from './routes/_authenticated/app.profil.daten'
 import { Route as AuthenticatedAppBaustellenIdRouteImport } from './routes/_authenticated/app.baustellen.$id'
+import { Route as AuthenticatedAppProfilIndexRouteImport } from './routes/_authenticated/app.profil.index'
+import { Route as AuthenticatedAppProfilDatenRouteImport } from './routes/_authenticated/app.profil.daten'
+import { Route as AuthenticatedAppProfilDokumenteRouteImport } from './routes/_authenticated/app.profil.dokumente'
 import { Route as AuthenticatedAppBaustellenIdIndexRouteImport } from './routes/_authenticated/app.baustellen.$id.index'
-import { Route as AuthenticatedAppBaustellenIdMedienRouteImport } from './routes/_authenticated/app.baustellen.$id.medien'
 import { Route as AuthenticatedAppBaustellenIdInfoRouteImport } from './routes/_authenticated/app.baustellen.$id.info'
+import { Route as AuthenticatedAppBaustellenIdMedienRouteImport } from './routes/_authenticated/app.baustellen.$id.medien'
 
-const PreiseRoute = PreiseRouteImport.update({
-  id: '/preise',
-  path: '/preise',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const KontaktRoute = KontaktRouteImport.update({
-  id: '/kontakt',
-  path: '/kontakt',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FunktionenRoute = FunktionenRouteImport.update({
-  id: '/funktionen',
-  path: '/funktionen',
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -51,13 +46,19 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
-  id: '/_authenticated',
+const FunktionenRoute = FunktionenRouteImport.update({
+  id: '/funktionen',
+  path: '/funktionen',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const KontaktRoute = KontaktRouteImport.update({
+  id: '/kontakt',
+  path: '/kontakt',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PreiseRoute = PreiseRouteImport.update({
+  id: '/preise',
+  path: '/preise',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAppRoute = AuthenticatedAppRouteImport.update({
@@ -70,20 +71,10 @@ const AuthenticatedAppIndexRoute = AuthenticatedAppIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
-const AuthenticatedAppZeitenRoute = AuthenticatedAppZeitenRouteImport.update({
-  id: '/zeiten',
-  path: '/zeiten',
-  getParentRoute: () => AuthenticatedAppRoute,
-} as any)
-const AuthenticatedAppPlanRoute = AuthenticatedAppPlanRouteImport.update({
-  id: '/plan',
-  path: '/plan',
-  getParentRoute: () => AuthenticatedAppRoute,
-} as any)
-const AuthenticatedAppMitarbeiterRoute =
-  AuthenticatedAppMitarbeiterRouteImport.update({
-    id: '/mitarbeiter',
-    path: '/mitarbeiter',
+const AuthenticatedAppAbwesenheitenRoute =
+  AuthenticatedAppAbwesenheitenRouteImport.update({
+    id: '/abwesenheiten',
+    path: '/abwesenheiten',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
 const AuthenticatedAppEinstellungenRoute =
@@ -92,34 +83,32 @@ const AuthenticatedAppEinstellungenRoute =
     path: '/einstellungen',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
-const AuthenticatedAppAbwesenheitenRoute =
-  AuthenticatedAppAbwesenheitenRouteImport.update({
-    id: '/abwesenheiten',
-    path: '/abwesenheiten',
+const AuthenticatedAppKiAssistentRoute =
+  AuthenticatedAppKiAssistentRouteImport.update({
+    id: '/ki-assistent',
+    path: '/ki-assistent',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
-const AuthenticatedAppProfilIndexRoute =
-  AuthenticatedAppProfilIndexRouteImport.update({
-    id: '/profil/',
-    path: '/profil/',
+const AuthenticatedAppMitarbeiterRoute =
+  AuthenticatedAppMitarbeiterRouteImport.update({
+    id: '/mitarbeiter',
+    path: '/mitarbeiter',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
+const AuthenticatedAppPlanRoute = AuthenticatedAppPlanRouteImport.update({
+  id: '/plan',
+  path: '/plan',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
+const AuthenticatedAppZeitenRoute = AuthenticatedAppZeitenRouteImport.update({
+  id: '/zeiten',
+  path: '/zeiten',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
 const AuthenticatedAppBaustellenIndexRoute =
   AuthenticatedAppBaustellenIndexRouteImport.update({
     id: '/baustellen/',
     path: '/baustellen/',
-    getParentRoute: () => AuthenticatedAppRoute,
-  } as any)
-const AuthenticatedAppProfilDokumenteRoute =
-  AuthenticatedAppProfilDokumenteRouteImport.update({
-    id: '/profil/dokumente',
-    path: '/profil/dokumente',
-    getParentRoute: () => AuthenticatedAppRoute,
-  } as any)
-const AuthenticatedAppProfilDatenRoute =
-  AuthenticatedAppProfilDatenRouteImport.update({
-    id: '/profil/daten',
-    path: '/profil/daten',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
 const AuthenticatedAppBaustellenIdRoute =
@@ -128,22 +117,40 @@ const AuthenticatedAppBaustellenIdRoute =
     path: '/baustellen/$id',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
+const AuthenticatedAppProfilIndexRoute =
+  AuthenticatedAppProfilIndexRouteImport.update({
+    id: '/profil/',
+    path: '/profil/',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppProfilDatenRoute =
+  AuthenticatedAppProfilDatenRouteImport.update({
+    id: '/profil/daten',
+    path: '/profil/daten',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppProfilDokumenteRoute =
+  AuthenticatedAppProfilDokumenteRouteImport.update({
+    id: '/profil/dokumente',
+    path: '/profil/dokumente',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
 const AuthenticatedAppBaustellenIdIndexRoute =
   AuthenticatedAppBaustellenIdIndexRouteImport.update({
     id: '/',
     path: '/',
     getParentRoute: () => AuthenticatedAppBaustellenIdRoute,
   } as any)
-const AuthenticatedAppBaustellenIdMedienRoute =
-  AuthenticatedAppBaustellenIdMedienRouteImport.update({
-    id: '/medien',
-    path: '/medien',
-    getParentRoute: () => AuthenticatedAppBaustellenIdRoute,
-  } as any)
 const AuthenticatedAppBaustellenIdInfoRoute =
   AuthenticatedAppBaustellenIdInfoRouteImport.update({
     id: '/info',
     path: '/info',
+    getParentRoute: () => AuthenticatedAppBaustellenIdRoute,
+  } as any)
+const AuthenticatedAppBaustellenIdMedienRoute =
+  AuthenticatedAppBaustellenIdMedienRouteImport.update({
+    id: '/medien',
+    path: '/medien',
     getParentRoute: () => AuthenticatedAppBaustellenIdRoute,
   } as any)
 
@@ -156,6 +163,7 @@ export interface FileRoutesByFullPath {
   '/app': typeof AuthenticatedAppRouteWithChildren
   '/app/abwesenheiten': typeof AuthenticatedAppAbwesenheitenRoute
   '/app/einstellungen': typeof AuthenticatedAppEinstellungenRoute
+  '/app/ki-assistent': typeof AuthenticatedAppKiAssistentRoute
   '/app/mitarbeiter': typeof AuthenticatedAppMitarbeiterRoute
   '/app/plan': typeof AuthenticatedAppPlanRoute
   '/app/zeiten': typeof AuthenticatedAppZeitenRoute
@@ -177,6 +185,7 @@ export interface FileRoutesByTo {
   '/preise': typeof PreiseRoute
   '/app/abwesenheiten': typeof AuthenticatedAppAbwesenheitenRoute
   '/app/einstellungen': typeof AuthenticatedAppEinstellungenRoute
+  '/app/ki-assistent': typeof AuthenticatedAppKiAssistentRoute
   '/app/mitarbeiter': typeof AuthenticatedAppMitarbeiterRoute
   '/app/plan': typeof AuthenticatedAppPlanRoute
   '/app/zeiten': typeof AuthenticatedAppZeitenRoute
@@ -200,6 +209,7 @@ export interface FileRoutesById {
   '/_authenticated/app': typeof AuthenticatedAppRouteWithChildren
   '/_authenticated/app/abwesenheiten': typeof AuthenticatedAppAbwesenheitenRoute
   '/_authenticated/app/einstellungen': typeof AuthenticatedAppEinstellungenRoute
+  '/_authenticated/app/ki-assistent': typeof AuthenticatedAppKiAssistentRoute
   '/_authenticated/app/mitarbeiter': typeof AuthenticatedAppMitarbeiterRoute
   '/_authenticated/app/plan': typeof AuthenticatedAppPlanRoute
   '/_authenticated/app/zeiten': typeof AuthenticatedAppZeitenRoute
@@ -224,6 +234,7 @@ export interface FileRouteTypes {
     | '/app'
     | '/app/abwesenheiten'
     | '/app/einstellungen'
+    | '/app/ki-assistent'
     | '/app/mitarbeiter'
     | '/app/plan'
     | '/app/zeiten'
@@ -245,6 +256,7 @@ export interface FileRouteTypes {
     | '/preise'
     | '/app/abwesenheiten'
     | '/app/einstellungen'
+    | '/app/ki-assistent'
     | '/app/mitarbeiter'
     | '/app/plan'
     | '/app/zeiten'
@@ -267,6 +279,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app'
     | '/_authenticated/app/abwesenheiten'
     | '/_authenticated/app/einstellungen'
+    | '/_authenticated/app/ki-assistent'
     | '/_authenticated/app/mitarbeiter'
     | '/_authenticated/app/plan'
     | '/_authenticated/app/zeiten'
@@ -292,32 +305,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/preise': {
-      id: '/preise'
-      path: '/preise'
-      fullPath: '/preise'
-      preLoaderRoute: typeof PreiseRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/kontakt': {
-      id: '/kontakt'
-      path: '/kontakt'
-      fullPath: '/kontakt'
-      preLoaderRoute: typeof KontaktRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/funktionen': {
-      id: '/funktionen'
-      path: '/funktionen'
-      fullPath: '/funktionen'
-      preLoaderRoute: typeof FunktionenRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/auth': {
-      id: '/auth'
-      path: '/auth'
-      fullPath: '/auth'
-      preLoaderRoute: typeof AuthRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated': {
@@ -327,11 +319,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/funktionen': {
+      id: '/funktionen'
+      path: '/funktionen'
+      fullPath: '/funktionen'
+      preLoaderRoute: typeof FunktionenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/kontakt': {
+      id: '/kontakt'
+      path: '/kontakt'
+      fullPath: '/kontakt'
+      preLoaderRoute: typeof KontaktRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/preise': {
+      id: '/preise'
+      path: '/preise'
+      fullPath: '/preise'
+      preLoaderRoute: typeof PreiseRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/app': {
@@ -348,25 +361,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppIndexRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
-    '/_authenticated/app/zeiten': {
-      id: '/_authenticated/app/zeiten'
-      path: '/zeiten'
-      fullPath: '/app/zeiten'
-      preLoaderRoute: typeof AuthenticatedAppZeitenRouteImport
-      parentRoute: typeof AuthenticatedAppRoute
-    }
-    '/_authenticated/app/plan': {
-      id: '/_authenticated/app/plan'
-      path: '/plan'
-      fullPath: '/app/plan'
-      preLoaderRoute: typeof AuthenticatedAppPlanRouteImport
-      parentRoute: typeof AuthenticatedAppRoute
-    }
-    '/_authenticated/app/mitarbeiter': {
-      id: '/_authenticated/app/mitarbeiter'
-      path: '/mitarbeiter'
-      fullPath: '/app/mitarbeiter'
-      preLoaderRoute: typeof AuthenticatedAppMitarbeiterRouteImport
+    '/_authenticated/app/abwesenheiten': {
+      id: '/_authenticated/app/abwesenheiten'
+      path: '/abwesenheiten'
+      fullPath: '/app/abwesenheiten'
+      preLoaderRoute: typeof AuthenticatedAppAbwesenheitenRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
     '/_authenticated/app/einstellungen': {
@@ -376,18 +375,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppEinstellungenRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
-    '/_authenticated/app/abwesenheiten': {
-      id: '/_authenticated/app/abwesenheiten'
-      path: '/abwesenheiten'
-      fullPath: '/app/abwesenheiten'
-      preLoaderRoute: typeof AuthenticatedAppAbwesenheitenRouteImport
+    '/_authenticated/app/ki-assistent': {
+      id: '/_authenticated/app/ki-assistent'
+      path: '/ki-assistent'
+      fullPath: '/app/ki-assistent'
+      preLoaderRoute: typeof AuthenticatedAppKiAssistentRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
-    '/_authenticated/app/profil/': {
-      id: '/_authenticated/app/profil/'
-      path: '/profil'
-      fullPath: '/app/profil/'
-      preLoaderRoute: typeof AuthenticatedAppProfilIndexRouteImport
+    '/_authenticated/app/mitarbeiter': {
+      id: '/_authenticated/app/mitarbeiter'
+      path: '/mitarbeiter'
+      fullPath: '/app/mitarbeiter'
+      preLoaderRoute: typeof AuthenticatedAppMitarbeiterRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/plan': {
+      id: '/_authenticated/app/plan'
+      path: '/plan'
+      fullPath: '/app/plan'
+      preLoaderRoute: typeof AuthenticatedAppPlanRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/zeiten': {
+      id: '/_authenticated/app/zeiten'
+      path: '/zeiten'
+      fullPath: '/app/zeiten'
+      preLoaderRoute: typeof AuthenticatedAppZeitenRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
     '/_authenticated/app/baustellen/': {
@@ -397,11 +410,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppBaustellenIndexRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
-    '/_authenticated/app/profil/dokumente': {
-      id: '/_authenticated/app/profil/dokumente'
-      path: '/profil/dokumente'
-      fullPath: '/app/profil/dokumente'
-      preLoaderRoute: typeof AuthenticatedAppProfilDokumenteRouteImport
+    '/_authenticated/app/baustellen/$id': {
+      id: '/_authenticated/app/baustellen/$id'
+      path: '/baustellen/$id'
+      fullPath: '/app/baustellen/$id'
+      preLoaderRoute: typeof AuthenticatedAppBaustellenIdRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/profil/': {
+      id: '/_authenticated/app/profil/'
+      path: '/profil'
+      fullPath: '/app/profil/'
+      preLoaderRoute: typeof AuthenticatedAppProfilIndexRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
     '/_authenticated/app/profil/daten': {
@@ -411,11 +431,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppProfilDatenRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
-    '/_authenticated/app/baustellen/$id': {
-      id: '/_authenticated/app/baustellen/$id'
-      path: '/baustellen/$id'
-      fullPath: '/app/baustellen/$id'
-      preLoaderRoute: typeof AuthenticatedAppBaustellenIdRouteImport
+    '/_authenticated/app/profil/dokumente': {
+      id: '/_authenticated/app/profil/dokumente'
+      path: '/profil/dokumente'
+      fullPath: '/app/profil/dokumente'
+      preLoaderRoute: typeof AuthenticatedAppProfilDokumenteRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
     '/_authenticated/app/baustellen/$id/': {
@@ -425,18 +445,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppBaustellenIdIndexRouteImport
       parentRoute: typeof AuthenticatedAppBaustellenIdRoute
     }
-    '/_authenticated/app/baustellen/$id/medien': {
-      id: '/_authenticated/app/baustellen/$id/medien'
-      path: '/medien'
-      fullPath: '/app/baustellen/$id/medien'
-      preLoaderRoute: typeof AuthenticatedAppBaustellenIdMedienRouteImport
-      parentRoute: typeof AuthenticatedAppBaustellenIdRoute
-    }
     '/_authenticated/app/baustellen/$id/info': {
       id: '/_authenticated/app/baustellen/$id/info'
       path: '/info'
       fullPath: '/app/baustellen/$id/info'
       preLoaderRoute: typeof AuthenticatedAppBaustellenIdInfoRouteImport
+      parentRoute: typeof AuthenticatedAppBaustellenIdRoute
+    }
+    '/_authenticated/app/baustellen/$id/medien': {
+      id: '/_authenticated/app/baustellen/$id/medien'
+      path: '/medien'
+      fullPath: '/app/baustellen/$id/medien'
+      preLoaderRoute: typeof AuthenticatedAppBaustellenIdMedienRouteImport
       parentRoute: typeof AuthenticatedAppBaustellenIdRoute
     }
   }
@@ -466,6 +486,7 @@ const AuthenticatedAppBaustellenIdRouteWithChildren =
 interface AuthenticatedAppRouteChildren {
   AuthenticatedAppAbwesenheitenRoute: typeof AuthenticatedAppAbwesenheitenRoute
   AuthenticatedAppEinstellungenRoute: typeof AuthenticatedAppEinstellungenRoute
+  AuthenticatedAppKiAssistentRoute: typeof AuthenticatedAppKiAssistentRoute
   AuthenticatedAppMitarbeiterRoute: typeof AuthenticatedAppMitarbeiterRoute
   AuthenticatedAppPlanRoute: typeof AuthenticatedAppPlanRoute
   AuthenticatedAppZeitenRoute: typeof AuthenticatedAppZeitenRoute
@@ -480,6 +501,7 @@ interface AuthenticatedAppRouteChildren {
 const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppAbwesenheitenRoute: AuthenticatedAppAbwesenheitenRoute,
   AuthenticatedAppEinstellungenRoute: AuthenticatedAppEinstellungenRoute,
+  AuthenticatedAppKiAssistentRoute: AuthenticatedAppKiAssistentRoute,
   AuthenticatedAppMitarbeiterRoute: AuthenticatedAppMitarbeiterRoute,
   AuthenticatedAppPlanRoute: AuthenticatedAppPlanRoute,
   AuthenticatedAppZeitenRoute: AuthenticatedAppZeitenRoute,
@@ -517,3 +539,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 
 import { supabase } from "@/integrations/supabase/client";
+import type { Database } from "@/integrations/supabase/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -146,6 +147,7 @@ function Baustellen() {
 
 
 const ROW_COLORS = ["#10B981", "#005aab", "#F59E0B", "#EF4444", "#8B5CF6", "#0EA5E9", "#EC4899"];
+type Site = Database["public"]["Tables"]["sites"]["Row"];
 
 function BaustellenList({
   sites,
@@ -153,7 +155,7 @@ function BaustellenList({
   canCreate,
   onCreate,
 }: {
-  sites: any[];
+  sites: Site[];
   userId?: string;
   canCreate: boolean;
   onCreate: () => void;
@@ -171,7 +173,7 @@ function BaustellenList({
         .select("site_id")
         .eq("user_id", userId!)
         .eq("day", today);
-      return (data ?? []).map((a: any) => a.site_id).filter(Boolean) as string[];
+      return (data ?? []).map((assignment) => assignment.site_id).filter(Boolean) as string[];
     },
   });
 
@@ -185,12 +187,13 @@ function BaustellenList({
     { key: "archiviert" as const, label: "Archiviert" },
   ];
 
-  function matchesTab(s: any) {
+  function matchesTab(s: Site) {
     if (s.archived_at) return tab === "archiviert";
     if (tab === "archiviert") return false;
-    if (tab === "geplant") return ["anfrage", "angebot", "beauftragt", "geplant"].includes(s.status);
+    if (tab === "geplant")
+      return ["anfrage", "angebot", "beauftragt", "geplant"].includes(s.status ?? "");
     if (tab === "in_arbeit") return s.status === "in_arbeit";
-    if (tab === "fertig") return ["abgeschlossen", "abgerechnet"].includes(s.status);
+    if (tab === "fertig") return ["abgeschlossen", "abgerechnet"].includes(s.status ?? "");
     return true;
   }
 
@@ -202,9 +205,10 @@ function BaustellenList({
   } as Record<string, number>;
   for (const s of sites) {
     if (s.archived_at) counts.archiviert++;
-    else if (["anfrage", "angebot", "beauftragt", "geplant"].includes(s.status)) counts.geplant++;
+    else if (["anfrage", "angebot", "beauftragt", "geplant"].includes(s.status ?? ""))
+      counts.geplant++;
     else if (s.status === "in_arbeit") counts.in_arbeit++;
-    else if (["abgeschlossen", "abgerechnet"].includes(s.status)) counts.fertig++;
+    else if (["abgeschlossen", "abgerechnet"].includes(s.status ?? "")) counts.fertig++;
   }
 
   const filtered = sites.filter(matchesTab).filter((s) => {
@@ -286,7 +290,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   );
 }
 
-function SiteRow({ site, color }: { site: any; color: string }) {
+function SiteRow({ site, color }: { site: Site; color: string }) {
   const { line1, line2 } = splitAddress(site.adresse, site.name);
   const isArchived = !!site.archived_at;
   const [imgUrl, setImgUrl] = useState<string | null>(null);

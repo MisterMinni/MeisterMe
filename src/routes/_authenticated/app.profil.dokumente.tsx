@@ -57,8 +57,8 @@ function DokumentePage() {
       if (insErr) throw insErr;
       qc.invalidateQueries({ queryKey: ["employee-documents", userId] });
       toast.success("Dokument hochgeladen");
-    } catch (err: any) {
-      toast.error(err.message ?? "Upload fehlgeschlagen");
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Upload fehlgeschlagen");
     } finally {
       setUploading(false);
     }
