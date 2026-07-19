@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as FunktionenRouteImport } from './routes/funktionen'
+import { Route as HealthzRouteImport } from './routes/healthz'
 import { Route as KontaktRouteImport } from './routes/kontakt'
 import { Route as PreiseRouteImport } from './routes/preise'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
@@ -49,6 +50,11 @@ const AuthRoute = AuthRouteImport.update({
 const FunktionenRoute = FunktionenRouteImport.update({
   id: '/funktionen',
   path: '/funktionen',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HealthzRoute = HealthzRouteImport.update({
+  id: '/healthz',
+  path: '/healthz',
   getParentRoute: () => rootRouteImport,
 } as any)
 const KontaktRoute = KontaktRouteImport.update({
@@ -158,6 +164,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/funktionen': typeof FunktionenRoute
+  '/healthz': typeof HealthzRoute
   '/kontakt': typeof KontaktRoute
   '/preise': typeof PreiseRoute
   '/app': typeof AuthenticatedAppRouteWithChildren
@@ -181,6 +188,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/funktionen': typeof FunktionenRoute
+  '/healthz': typeof HealthzRoute
   '/kontakt': typeof KontaktRoute
   '/preise': typeof PreiseRoute
   '/app/abwesenheiten': typeof AuthenticatedAppAbwesenheitenRoute
@@ -204,6 +212,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/funktionen': typeof FunktionenRoute
+  '/healthz': typeof HealthzRoute
   '/kontakt': typeof KontaktRoute
   '/preise': typeof PreiseRoute
   '/_authenticated/app': typeof AuthenticatedAppRouteWithChildren
@@ -229,6 +238,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/funktionen'
+    | '/healthz'
     | '/kontakt'
     | '/preise'
     | '/app'
@@ -252,6 +262,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/funktionen'
+    | '/healthz'
     | '/kontakt'
     | '/preise'
     | '/app/abwesenheiten'
@@ -274,6 +285,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/funktionen'
+    | '/healthz'
     | '/kontakt'
     | '/preise'
     | '/_authenticated/app'
@@ -299,6 +311,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   FunktionenRoute: typeof FunktionenRoute
+  HealthzRoute: typeof HealthzRoute
   KontaktRoute: typeof KontaktRoute
   PreiseRoute: typeof PreiseRoute
 }
@@ -331,6 +344,13 @@ declare module '@tanstack/react-router' {
       path: '/funktionen'
       fullPath: '/funktionen'
       preLoaderRoute: typeof FunktionenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/healthz': {
+      id: '/healthz'
+      path: '/healthz'
+      fullPath: '/healthz'
+      preLoaderRoute: typeof HealthzRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/kontakt': {
@@ -533,6 +553,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   FunktionenRoute: FunktionenRoute,
+  HealthzRoute: HealthzRoute,
   KontaktRoute: KontaktRoute,
   PreiseRoute: PreiseRoute,
 }

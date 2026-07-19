@@ -77,6 +77,27 @@ Nach HTTPS-Deployment lässt sich MeisterMe in Chrome und Edge direkt als
 Desktop-App installieren. Manifest, Service Worker und Offline-Fallback liegen
 in `public/`.
 
+## Vercel Preview / Staging
+
+Der Branch eines Pull Requests wird als Vercel Preview bereitgestellt. Das
+Nitro-Build ist bereits für TanStack Start eingerichtet; `vercel.json` platziert
+die Serverfunktionen in Frankfurt (`fra1`) nahe am Supabase-Projekt.
+
+1. Das GitHub-Repository in Vercel importieren und `main` als Production Branch
+   wählen.
+2. Die Werte aus `.env.staging.example` als **Preview Environment Variables**
+   hinterlegen. Secret- und KI-Schlüssel niemals mit `VITE_` benennen.
+3. Den Preview-Build auslösen oder lokal `npm run deploy:preview` verwenden.
+4. Die erzeugte URL mit `npm run smoke:remote -- --url=<preview-url>` prüfen.
+
+Vercel setzt bei jedem Build automatisch `VERCEL=1`. Dadurch verwendet der
+Prebuild-Check das strenge Staging-Profil und stoppt das Deployment, solange
+`SUPABASE_SECRET_KEY`, `AI_API_KEY` oder `AI_MODEL` fehlen. Lokal genügt für den
+Build das Core-Profil aus `.env.local`.
+
+Die maschinenlesbare Health-Route liegt unter `/healthz` und gibt weder Schlüssel
+noch Konfigurationswerte aus.
+
 ## iOS und Android
 
 TanStack-Serverfunktionen verwenden absichtlich same-origin Requests. Deshalb
@@ -96,9 +117,12 @@ und die jeweilige Datenschutzdeklaration erforderlich.
 ## Qualität
 
 ```bash
+npm test
 npm run typecheck
 npm run lint
 npm run build
+npm run smoke
+npm run check
 ```
 
 ## Sicherheit
