@@ -7,11 +7,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
+import { hasPendingTeamInvitation } from "@/lib/invitations";
 
 export const Route = createFileRoute("/auth")({
   ssr: false,
   beforeLoad: async () => {
     const { data } = await supabase.auth.getSession();
+    if (data.session && (await hasPendingTeamInvitation(data.session.user.id))) {
+      throw redirect({ to: "/accept-invite" });
+    }
     if (data.session) throw redirect({ to: "/app" });
   },
   head: () => ({ meta: [{ title: "Anmelden – MeisterMe" }] }),

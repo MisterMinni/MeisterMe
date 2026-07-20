@@ -1,8 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useEffect, type ReactNode } from "react";
-import { useQueryClient } from "@tanstack/react-query";
-import { useProfile, useSession, useIsAdmin, formatDate } from "@/lib/handwerk";
-import { supabase } from "@/integrations/supabase/client";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { useProfile, useSession, useIsAdmin, useMyRole, formatDate } from "@/lib/handwerk";
+import { getMyEmployeeRecord, updateTeamMember } from "@/lib/team.functions";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -17,8 +18,16 @@ function DatenPage() {
   const { data: profile } = useProfile();
   const { data: session } = useSession();
   const isAdmin = useIsAdmin();
+  const role = useMyRole();
   const qc = useQueryClient();
   const canEdit = isAdmin;
+  const loadEmployee = useServerFn(getMyEmployeeRecord);
+  const updateEmployee = useServerFn(updateTeamMember);
+  const { data: employee } = useQuery({
+    queryKey: ["my-employee-record", profile?.id],
+    enabled: !!profile?.id,
+    queryFn: () => loadEmployee(),
+  });
 
   const [form, setForm] = useState({
     full_name: "",
@@ -35,46 +44,53 @@ function DatenPage() {
   });
 
   useEffect(() => {
-    if (!profile) return;
+    if (!profile || !employee) return;
     setForm({
-      full_name: profile.full_name ?? "",
-      phone: profile.phone ?? "",
-      address: profile.address ?? "",
-      employee_number: profile.employee_number ?? "",
-      entry_date: profile.entry_date ?? "",
-      exit_date: profile.exit_date ?? "",
-      weekly_hours: profile.weekly_hours != null ? String(profile.weekly_hours) : "",
-      work_time_model: profile.work_time_model ?? "",
+      full_name: employee.full_name ?? profile.full_name ?? "",
+      phone: employee.phone ?? profile.phone ?? "",
+      address: employee.address ?? "",
+      employee_number: employee.employee_number ?? "",
+      entry_date: employee.entry_date ?? "",
+      exit_date: employee.exit_date ?? "",
+      weekly_hours: employee.weekly_hours != null ? String(employee.weekly_hours) : "",
+      work_time_model: employee.work_time_model ?? "",
       vacation_days_per_year:
-        profile.vacation_days_per_year != null ? String(profile.vacation_days_per_year) : "",
-      cost_center: profile.cost_center ?? "",
-      subgroup: profile.subgroup ?? "",
+        employee.vacation_days_per_year != null ? String(employee.vacation_days_per_year) : "",
+      cost_center: employee.cost_center ?? "",
+      subgroup: employee.subgroup ?? "",
     });
-  }, [profile]);
+  }, [employee, profile]);
 
   async function save() {
-    if (!profile?.id) return;
-    const { error } = await supabase
-      .from("profiles")
-      .update({
-        full_name: form.full_name || null,
-        phone: form.phone || null,
-        address: form.address || null,
-        employee_number: form.employee_number || null,
-        entry_date: form.entry_date || null,
-        exit_date: form.exit_date || null,
-        weekly_hours: form.weekly_hours ? Number(form.weekly_hours) : null,
-        work_time_model: form.work_time_model || null,
-        vacation_days_per_year: form.vacation_days_per_year
-          ? Number(form.vacation_days_per_year)
-          : null,
-        cost_center: form.cost_center || null,
-        subgroup: form.subgroup || null,
-      })
-      .eq("id", profile.id);
-    if (error) return toast.error(error.message);
-    toast.success("Gespeichert");
-    qc.invalidateQueries({ queryKey: ["profile"] });
+    if (!employee?.id || !role) return;
+    try {
+      await updateEmployee({
+        data: {
+          employeeId: employee.id,
+          fullName: form.full_name,
+          email: employee.email,
+          phone: form.phone || null,
+          roleKey: role,
+          address: form.address || null,
+          employeeNumber: form.employee_number || null,
+          entryDate: form.entry_date || null,
+          exitDate: form.exit_date || null,
+          weeklyHours: form.weekly_hours ? Number(form.weekly_hours) : null,
+          workTimeModel: form.work_time_model || null,
+          vacationDaysPerYear: form.vacation_days_per_year
+            ? Number(form.vacation_days_per_year)
+            : null,
+          costCenter: form.cost_center || null,
+          subgroup: form.subgroup || null,
+        },
+      });
+      toast.success("Gespeichert");
+      qc.invalidateQueries({ queryKey: ["profile"] });
+      qc.invalidateQueries({ queryKey: ["my-employee-record"] });
+      qc.invalidateQueries({ queryKey: ["team-members"] });
+    } catch (cause) {
+      toast.error(cause instanceof Error ? cause.message : "Speichern fehlgeschlagen.");
+    }
   }
 
   return (

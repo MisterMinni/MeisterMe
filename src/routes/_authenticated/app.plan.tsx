@@ -1,7 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { useProfile, useHasPermission } from "@/lib/handwerk";
+import { listEmployeeDirectory } from "@/lib/team.functions";
 import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -45,7 +47,8 @@ const DAYS = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"];
 
 type CellAssignment = {
   id: string;
-  user_id: string;
+  user_id: string | null;
+  employee_id: string | null;
   day: string;
   note: string | null;
   site_id: string | null;
@@ -54,17 +57,28 @@ type CellAssignment = {
   sites: { name: string | null; color: string | null; adresse: string | null } | null;
 };
 
-type Member = { id: string; full_name: string | null; subgroup: string | null };
+type Member = {
+  id: string;
+  auth_user_id: string | null;
+  full_name: string;
+  subgroup: string | null;
+};
 
 function Plan() {
   const qc = useQueryClient();
   const { data: profile } = useProfile();
   const canWrite = useHasPermission("plan:write");
+  const loadEmployees = useServerFn(listEmployeeDirectory);
   const [anchor, setAnchor] = useState(startOfWeek(new Date()));
   const [view, setView] = useState<"week" | "day">("week");
   const [showWeekend, setShowWeekend] = useState(false);
   const [selectedIdx, setSelectedIdx] = useState<number>(() => (new Date().getDay() + 6) % 7);
-  const [editing, setEditing] = useState<{ userId: string; day: string; userName: string } | null>(null);
+  const [editing, setEditing] = useState<{
+    employeeId: string;
+    authUserId: string | null;
+    day: string;
+    userName: string;
+  } | null>(null);
   const [detail, setDetail] = useState<CellAssignment | null>(null);
   const [form, setForm] = useState({ site_id: "", start_time: "07:00", end_time: "16:30", note: "" });
 
@@ -78,15 +92,7 @@ function Plan() {
   const { data: members } = useQuery({
     queryKey: ["plan-members", profile?.tenant_id],
     enabled: !!profile?.tenant_id,
-    queryFn: async () => {
-      const { data } = await supabase
-        .from("profiles")
-        .select("id, full_name, subgroup")
-        .eq("tenant_id", profile!.tenant_id!)
-        .is("disabled_at", null)
-        .order("full_name");
-      return (data ?? []) as Member[];
-    },
+    queryFn: async () => (await loadEmployees()) as Member[],
   });
 
   const { data: sites } = useQuery({
@@ -107,7 +113,7 @@ function Plan() {
     queryFn: async () => {
       const { data } = await supabase
         .from("weekly_assignments")
-        .select("id, user_id, day, note, site_id, start_time, end_time, sites(name, color, adresse)")
+        .select("id, user_id, employee_id, day, note, site_id, start_time, end_time, sites(name, color, adresse)")
         .gte("day", isoDate(weekStart))
         .lte("day", isoDate(weekEnd));
       return (data ?? []) as unknown as CellAssignment[];
@@ -117,7 +123,7 @@ function Plan() {
   const byUserDay = useMemo(() => {
     const m = new Map<string, CellAssignment[]>();
     for (const a of assignments ?? []) {
-      const k = `${a.user_id}|${a.day}`;
+      const k = `${a.employee_id ?? a.user_id}|${a.day}`;
       const list = m.get(k) ?? [];
       list.push(a);
       m.set(k, list);
@@ -144,9 +150,9 @@ function Plan() {
     );
   }, [members]);
 
-  function openCell(userId: string, day: string, userName: string) {
+  function openCell(employeeId: string, authUserId: string | null, day: string, userName: string) {
     if (!canWrite) return;
-    setEditing({ userId, day, userName });
+    setEditing({ employeeId, authUserId, day, userName });
     setForm({ site_id: "", start_time: "07:00", end_time: "16:30", note: "" });
   }
 
@@ -155,7 +161,8 @@ function Plan() {
     if (!form.site_id) return toast.error("Baustelle auswählen");
     const { error } = await supabase.from("weekly_assignments").insert({
       tenant_id: profile.tenant_id,
-      user_id: editing.userId,
+      employee_id: editing.employeeId,
+      user_id: editing.authUserId,
       day: editing.day,
       site_id: form.site_id,
       start_time: form.start_time || null,
@@ -311,7 +318,7 @@ function Plan() {
                     </div>
                     {canWrite && (
                       <button
-                        onClick={() => openCell(m.id, selectedIso, m.full_name ?? "")}
+                        onClick={() => openCell(m.id, m.auth_user_id, selectedIso, m.full_name)}
                         className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-brand text-brand-foreground shadow-sm active:scale-95"
                         aria-label="Zuweisen"
                       >
@@ -467,7 +474,7 @@ function WeekMatrix({
   byUserDay: Map<string, CellAssignment[]>;
   todayIso: string;
   canWrite: boolean;
-  onCell: (userId: string, day: string, userName: string) => void;
+  onCell: (employeeId: string, authUserId: string | null, day: string, userName: string) => void;
   onOpenDetail: (a: CellAssignment) => void;
   initials: (n?: string | null) => string;
   tint: (hex: string | null | undefined) => { backgroundColor: string; borderColor: string; color: string };
@@ -552,7 +559,7 @@ function WeekMatrix({
                         {cell.length === 0 ? (
                           <button
                             disabled={!canWrite}
-                            onClick={() => onCell(m.id, iso, m.full_name ?? "")}
+                            onClick={() => onCell(m.id, m.auth_user_id, iso, m.full_name)}
                             className={`grid h-full w-full place-items-center rounded-lg border border-dashed ${canWrite ? "border-border/60 text-muted-foreground/60 hover:border-brand/50 hover:text-brand" : "border-transparent"}`}
                             aria-label="Zuweisen"
                           >
@@ -586,7 +593,7 @@ function WeekMatrix({
                             })}
                             {canWrite && (
                               <button
-                                onClick={() => onCell(m.id, iso, m.full_name ?? "")}
+                                onClick={() => onCell(m.id, m.auth_user_id, iso, m.full_name)}
                                 className="grid h-4 w-full place-items-center rounded text-muted-foreground/60 hover:text-brand"
                                 aria-label="Weiteren Einsatz hinzufügen"
                               >
