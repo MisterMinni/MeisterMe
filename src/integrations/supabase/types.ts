@@ -525,6 +525,79 @@ export type Database = {
           },
         ]
       }
+      employee_invitations: {
+        Row: {
+          accepted_at: string | null
+          auth_user_id: string | null
+          created_at: string
+          email: string
+          employee_id: string
+          error_message: string | null
+          expires_at: string
+          id: string
+          invited_by: string | null
+          role_id: string
+          sent_at: string | null
+          status: string
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          auth_user_id?: string | null
+          created_at?: string
+          email: string
+          employee_id: string
+          error_message?: string | null
+          expires_at?: string
+          id?: string
+          invited_by?: string | null
+          role_id: string
+          sent_at?: string | null
+          status?: string
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          accepted_at?: string | null
+          auth_user_id?: string | null
+          created_at?: string
+          email?: string
+          employee_id?: string
+          error_message?: string | null
+          expires_at?: string
+          id?: string
+          invited_by?: string | null
+          role_id?: string
+          sent_at?: string | null
+          status?: string
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employee_invitations_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "employee_invitations_role_id_fkey"
+            columns: ["role_id"]
+            isOneToOne: false
+            referencedRelation: "roles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "employee_invitations_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       employee_qualifications: {
         Row: {
           acquired_on: string | null
@@ -553,6 +626,96 @@ export type Database = {
             columns: ["qualification_id"]
             isOneToOne: false
             referencedRelation: "qualifications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      employees: {
+        Row: {
+          address: string | null
+          auth_user_id: string | null
+          cost_center: string | null
+          created_at: string
+          created_by: string | null
+          disabled_at: string | null
+          email: string | null
+          employee_number: string | null
+          entry_date: string | null
+          exit_date: string | null
+          full_name: string
+          id: string
+          phone: string | null
+          role_id: string | null
+          state_code: string | null
+          status: string
+          subgroup: string | null
+          tenant_id: string
+          updated_at: string
+          vacation_days_per_year: number | null
+          weekly_hours: number | null
+          work_time_model: string | null
+        }
+        Insert: {
+          address?: string | null
+          auth_user_id?: string | null
+          cost_center?: string | null
+          created_at?: string
+          created_by?: string | null
+          disabled_at?: string | null
+          email?: string | null
+          employee_number?: string | null
+          entry_date?: string | null
+          exit_date?: string | null
+          full_name: string
+          id?: string
+          phone?: string | null
+          role_id?: string | null
+          state_code?: string | null
+          status?: string
+          subgroup?: string | null
+          tenant_id: string
+          updated_at?: string
+          vacation_days_per_year?: number | null
+          weekly_hours?: number | null
+          work_time_model?: string | null
+        }
+        Update: {
+          address?: string | null
+          auth_user_id?: string | null
+          cost_center?: string | null
+          created_at?: string
+          created_by?: string | null
+          disabled_at?: string | null
+          email?: string | null
+          employee_number?: string | null
+          entry_date?: string | null
+          exit_date?: string | null
+          full_name?: string
+          id?: string
+          phone?: string | null
+          role_id?: string | null
+          state_code?: string | null
+          status?: string
+          subgroup?: string | null
+          tenant_id?: string
+          updated_at?: string
+          vacation_days_per_year?: number | null
+          weekly_hours?: number | null
+          work_time_model?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employees_role_id_fkey"
+            columns: ["role_id"]
+            isOneToOne: false
+            referencedRelation: "roles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "employees_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
             referencedColumns: ["id"]
           },
         ]
@@ -1563,6 +1726,38 @@ export type Database = {
           },
         ]
       }
+      tenant_memberships: {
+        Row: {
+          disabled_at: string | null
+          joined_at: string
+          status: string
+          tenant_id: string
+          user_id: string
+        }
+        Insert: {
+          disabled_at?: string | null
+          joined_at?: string
+          status?: string
+          tenant_id: string
+          user_id: string
+        }
+        Update: {
+          disabled_at?: string | null
+          joined_at?: string
+          status?: string
+          tenant_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tenant_memberships_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tenant_sso_domains: {
         Row: {
           created_at: string
@@ -1763,41 +1958,51 @@ export type Database = {
           created_at: string
           created_by: string
           day: string
+          employee_id: string | null
           end_time: string | null
           id: string
           note: string | null
           site_id: string | null
           start_time: string | null
           tenant_id: string
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           activity_type?: string | null
           created_at?: string
           created_by: string
           day: string
+          employee_id?: string | null
           end_time?: string | null
           id?: string
           note?: string | null
           site_id?: string | null
           start_time?: string | null
           tenant_id: string
-          user_id: string
+          user_id?: string | null
         }
         Update: {
           activity_type?: string | null
           created_at?: string
           created_by?: string
           day?: string
+          employee_id?: string | null
           end_time?: string | null
           id?: string
           note?: string | null
           site_id?: string | null
           start_time?: string | null
           tenant_id?: string
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "weekly_assignments_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "weekly_assignments_site_id_fkey"
             columns: ["site_id"]
@@ -1825,6 +2030,7 @@ export type Database = {
         Returns: boolean
       }
       is_tenant_member: { Args: { _tenant_id: string }; Returns: boolean }
+      revoke_user_sessions: { Args: { _user_id: string }; Returns: undefined }
       seed_default_roles: { Args: { _tenant_id: string }; Returns: undefined }
     }
     Enums: {

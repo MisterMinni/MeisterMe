@@ -1,12 +1,26 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useServerFn } from "@tanstack/react-start";
+import { useMemo, useState } from "react";
+import {
+  Mail,
+  MailCheck,
+  MailWarning,
+  Pencil,
+  RefreshCw,
+  Search,
+  ShieldCheck,
+  UserCheck,
+  UserPlus,
+  Users,
+  UserX,
+  X,
+} from "lucide-react";
+import { toast } from "sonner";
+
+import { FabAdd } from "@/components/fab-add";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -14,300 +28,281 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { FabAdd } from "@/components/fab-add";
-import { useServerFn } from "@tanstack/react-start";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { supabase } from "@/integrations/supabase/client";
+import { useHasPermission, useProfile } from "@/lib/handwerk";
 import {
   createTeamMember,
-  updateTeamMember,
   deactivateTeamMember,
-  reactivateTeamMember,
-  resetTeamMemberPassword,
   getTeamMemberDetail,
-  listTeamMemberEmails,
+  inviteTeamMember,
+  listTeamMembers,
+  reactivateTeamMember,
+  resendTeamMemberInvitation,
+  revokeTeamMemberInvitation,
+  updateTeamMember,
+  type TeamMemberAccessStatus,
 } from "@/lib/team.functions";
-import { useIsAdmin, useProfile } from "@/lib/handwerk";
-import { toast } from "sonner";
-import { KeyRound, Users, ShieldCheck, UserX, UserCheck, Pencil, Search, X } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/app/mitarbeiter")({
   head: () => ({ meta: [{ title: "Mitarbeiter – MeisterMe" }] }),
   component: MitarbeiterPage,
 });
 
+type EmployeeForm = {
+  fullName: string;
+  email: string;
+  phone: string;
+  roleKey: string;
+  address: string;
+  employeeNumber: string;
+  entryDate: string;
+  exitDate: string;
+  weeklyHours: string;
+  workTimeModel: string;
+  vacationDaysPerYear: string;
+  costCenter: string;
+  subgroup: string;
+};
+
+const emptyForm: EmployeeForm = {
+  fullName: "",
+  email: "",
+  phone: "",
+  roleKey: "mitarbeiter",
+  address: "",
+  employeeNumber: "",
+  entryDate: "",
+  exitDate: "",
+  weeklyHours: "",
+  workTimeModel: "",
+  vacationDaysPerYear: "24",
+  costCenter: "",
+  subgroup: "",
+};
+
 function MitarbeiterPage() {
-  const isAdmin = useIsAdmin();
   const { data: profile } = useProfile();
-  const qc = useQueryClient();
+  const canRead = useHasPermission("employees:read");
+  const canCreate = useHasPermission("employees:create");
+  const canUpdate = useHasPermission("employees:update");
+  const canDeactivate = useHasPermission("employees:deactivate");
+  const canManageRoles = useHasPermission("roles:manage");
+  const queryClient = useQueryClient();
+
+  const list = useServerFn(listTeamMembers);
   const create = useServerFn(createTeamMember);
-  const update = useServerFn(updateTeamMember);
-  const deact = useServerFn(deactivateTeamMember);
-  const react = useServerFn(reactivateTeamMember);
-  const resetPw = useServerFn(resetTeamMemberPassword);
   const loadDetail = useServerFn(getTeamMemberDetail);
-  const loadEmails = useServerFn(listTeamMemberEmails);
+  const update = useServerFn(updateTeamMember);
+  const invite = useServerFn(inviteTeamMember);
+  const resend = useServerFn(resendTeamMemberInvitation);
+  const revoke = useServerFn(revokeTeamMemberInvitation);
+  const deactivate = useServerFn(deactivateTeamMember);
+  const reactivate = useServerFn(reactivateTeamMember);
 
   const { data: roles } = useQuery({
     queryKey: ["tenant-roles", profile?.tenant_id],
-    enabled: !!profile?.tenant_id,
+    enabled: !!profile?.tenant_id && canRead,
     queryFn: async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("roles")
         .select("id, key, name")
-        .eq("tenant_id", profile!.tenant_id!);
+        .eq("tenant_id", profile!.tenant_id!)
+        .order("name");
+      if (error) throw error;
       return data ?? [];
     },
   });
 
-  const { data: emails } = useQuery({
-    queryKey: ["team-emails", profile?.tenant_id],
-    enabled: !!profile?.tenant_id && isAdmin,
-    queryFn: async () => (await loadEmails()) as Record<string, string>,
-  });
+  const availableRoles = useMemo(
+    () =>
+      (roles ?? []).filter(
+        (role) =>
+          canManageRoles || !["unternehmensinhaber", "administrator"].includes(role.key),
+      ),
+    [canManageRoles, roles],
+  );
 
-  const { data: members } = useQuery({
+  const {
+    data: members,
+    isLoading,
+    error: listError,
+  } = useQuery({
     queryKey: ["team-members", profile?.tenant_id],
-    enabled: !!profile?.tenant_id,
-    queryFn: async () => {
-      const { data: profs } = await supabase
-        .from("profiles")
-        .select("id, full_name, phone, employee_number, created_at, disabled_at")
-        .eq("tenant_id", profile!.tenant_id!);
-      const { data: assignments } = await supabase
-        .from("user_role_assignments")
-        .select("user_id, roles(id, key, name)")
-        .eq("tenant_id", profile!.tenant_id!);
-      return (profs ?? []).map((p) => ({
-        ...p,
-        roles: (assignments ?? [])
-          .filter((r) => r.user_id === p.id)
-          .map((r) => (r as unknown as { roles: { id: string; key: string; name: string } | null }).roles)
-          .filter((r): r is { id: string; key: string; name: string } => !!r),
-      }));
-    },
+    enabled: !!profile?.tenant_id && canRead,
+    queryFn: () => list(),
   });
 
   const [search, setSearch] = useState("");
-
-  const [open, setOpen] = useState(false);
-  const [form, setForm] = useState({
-    email: "",
-    password: "",
-    fullName: "",
-    phone: "",
-    roleKey: "mitarbeiter",
-  });
+  const [createOpen, setCreateOpen] = useState(false);
+  const [grantAccess, setGrantAccess] = useState(true);
+  const [createForm, setCreateForm] = useState<EmployeeForm>(emptyForm);
+  const [editEmployeeId, setEditEmployeeId] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState<EmployeeForm | null>(null);
   const [saving, setSaving] = useState(false);
+  const [busyEmployeeId, setBusyEmployeeId] = useState<string | null>(null);
 
-  type EditForm = {
-    id: string;
-    fullName: string;
-    email: string;
-    phone: string;
-    roleKey: string;
-    address: string;
-    employee_number: string;
-    entry_date: string;
-    exit_date: string;
-    weekly_hours: string;
-    vacation_days_per_year: string;
-    work_time_model: string;
-    cost_center: string;
-    subgroup: string;
-  };
-  const [editUser, setEditUser] = useState<EditForm | null>(null);
-  const [editLoading, setEditLoading] = useState(false);
-  const [savingEdit, setSavingEdit] = useState(false);
-
-  async function openEdit(userId: string) {
-    setEditLoading(true);
-    setEditUser({
-      id: userId, fullName: "", email: "", phone: "", roleKey: "",
-      address: "", employee_number: "", entry_date: "", exit_date: "",
-      weekly_hours: "", vacation_days_per_year: "", work_time_model: "",
-      cost_center: "", subgroup: "",
+  const filteredMembers = useMemo(() => {
+    const terms = search.trim().toLowerCase().split(/\s+/).filter(Boolean);
+    if (terms.length === 0) return members ?? [];
+    return (members ?? []).filter((member) => {
+      const haystack = [
+        member.fullName,
+        member.email,
+        member.phone,
+        member.employeeNumber,
+        member.subgroup,
+        member.role?.name,
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+      return terms.every((term) => haystack.includes(term));
     });
-    try {
-      const res = await loadDetail({ data: { userId } });
-      const p = res.profile as Record<string, unknown>;
-      const roleKey = (members ?? []).find((m) => m.id === userId)?.roles[0]?.key ?? "";
-      setEditUser({
-        id: userId,
-        fullName: (p.full_name as string) ?? "",
-        email: res.email ?? "",
-        phone: (p.phone as string) ?? "",
-        roleKey,
-        address: (p.address as string) ?? "",
-        employee_number: (p.employee_number as string) ?? "",
-        entry_date: (p.entry_date as string) ?? "",
-        exit_date: (p.exit_date as string) ?? "",
-        weekly_hours: p.weekly_hours != null ? String(p.weekly_hours) : "",
-        vacation_days_per_year:
-          p.vacation_days_per_year != null ? String(p.vacation_days_per_year) : "",
-        work_time_model: (p.work_time_model as string) ?? "",
-        cost_center: (p.cost_center as string) ?? "",
-        subgroup: (p.subgroup as string) ?? "",
-      });
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Fehler");
-      setEditUser(null);
-    } finally {
-      setEditLoading(false);
-    }
+  }, [members, search]);
+
+  async function refreshMembers() {
+    await queryClient.invalidateQueries({ queryKey: ["team-members"] });
+    await queryClient.invalidateQueries({ queryKey: ["plan-members"] });
   }
 
-  if (!isAdmin) {
-    return (
-      <div>
-        <div className="rounded-2xl border border-border bg-card p-8 text-center text-muted-foreground">
-          <ShieldCheck className="mx-auto mb-2 h-8 w-8 text-brand" />
-          Nur Betriebsinhaber und Administratoren dürfen Mitarbeiter verwalten.
-        </div>
-      </div>
-    );
-  }
-
-  async function submit() {
-    if (!form.email || !form.password || !form.fullName) {
-      toast.error("Bitte Name, E-Mail und Passwort ausfüllen.");
-      return;
+  async function submitCreate() {
+    if (!createForm.fullName.trim()) return toast.error("Bitte einen Namen eingeben.");
+    if (grantAccess && !createForm.email.trim()) {
+      return toast.error("Für den App-Zugang wird eine E-Mail-Adresse benötigt.");
     }
+
     setSaving(true);
     try {
-      await create({ data: form });
-      toast.success(`${form.fullName} angelegt`);
-      setOpen(false);
-      setForm({ email: "", password: "", fullName: "", phone: "", roleKey: "mitarbeiter" });
-      qc.invalidateQueries({ queryKey: ["team-members"] });
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Fehler");
+      const result = await create({
+        data: toServerForm(createForm, { grantAccess }),
+      });
+      if (result.invitationError) {
+        toast.warning(`Mitarbeiter angelegt, Einladung fehlgeschlagen: ${result.invitationError}`);
+      } else if (result.invitationSent) {
+        toast.success("Mitarbeiter angelegt und Einladung versendet.");
+      } else {
+        toast.success("Mitarbeiter ohne App-Zugang angelegt.");
+      }
+      setCreateOpen(false);
+      setCreateForm(emptyForm);
+      setGrantAccess(true);
+      await refreshMembers();
+    } catch (cause) {
+      toast.error(messageFrom(cause));
     } finally {
       setSaving(false);
     }
   }
 
-  async function saveEdit() {
-    if (!editUser) return;
-    if (!editUser.fullName.trim()) {
-      toast.error("Name darf nicht leer sein.");
-      return;
-    }
-    setSavingEdit(true);
+  async function openEdit(employeeId: string) {
+    setEditEmployeeId(employeeId);
+    setEditForm(null);
     try {
-      const s = (v: string) => (v.trim() ? v.trim() : null);
-      const n = (v: string) => (v.trim() ? Number(v) : null);
+      const employee = await loadDetail({ data: { employeeId } });
+      const roleKey = (members ?? []).find((member) => member.id === employeeId)?.role?.key ?? "mitarbeiter";
+      setEditForm({
+        fullName: employee.full_name,
+        email: employee.email ?? "",
+        phone: employee.phone ?? "",
+        roleKey,
+        address: employee.address ?? "",
+        employeeNumber: employee.employee_number ?? "",
+        entryDate: employee.entry_date ?? "",
+        exitDate: employee.exit_date ?? "",
+        weeklyHours: employee.weekly_hours == null ? "" : String(employee.weekly_hours),
+        workTimeModel: employee.work_time_model ?? "",
+        vacationDaysPerYear:
+          employee.vacation_days_per_year == null
+            ? ""
+            : String(employee.vacation_days_per_year),
+        costCenter: employee.cost_center ?? "",
+        subgroup: employee.subgroup ?? "",
+      });
+    } catch (cause) {
+      toast.error(messageFrom(cause));
+      setEditEmployeeId(null);
+    }
+  }
+
+  async function submitEdit() {
+    if (!editEmployeeId || !editForm) return;
+    setSaving(true);
+    try {
       await update({
         data: {
-          userId: editUser.id,
-          fullName: editUser.fullName.trim(),
-          email: editUser.email.trim() || undefined,
-          phone: s(editUser.phone),
-          roleKey: editUser.roleKey || undefined,
-          address: s(editUser.address),
-          employee_number: s(editUser.employee_number),
-          entry_date: s(editUser.entry_date),
-          exit_date: s(editUser.exit_date),
-          weekly_hours: n(editUser.weekly_hours),
-          vacation_days_per_year:
-            editUser.vacation_days_per_year.trim()
-              ? parseInt(editUser.vacation_days_per_year, 10)
-              : null,
-          work_time_model: s(editUser.work_time_model),
-          cost_center: s(editUser.cost_center),
-          subgroup: s(editUser.subgroup),
+          employeeId: editEmployeeId,
+          ...toServerForm(editForm),
         },
       });
-      toast.success("Mitarbeiter aktualisiert");
-      setEditUser(null);
-      qc.invalidateQueries({ queryKey: ["team-members"] });
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Fehler");
+      toast.success("Mitarbeiterdaten gespeichert.");
+      setEditEmployeeId(null);
+      setEditForm(null);
+      await refreshMembers();
+    } catch (cause) {
+      toast.error(messageFrom(cause));
     } finally {
-      setSavingEdit(false);
+      setSaving(false);
     }
   }
 
-  async function toggleActive(userId: string, disabled: boolean, name: string) {
+  async function runEmployeeAction(
+    employeeId: string,
+    action: () => Promise<unknown>,
+    successMessage: string,
+  ) {
+    setBusyEmployeeId(employeeId);
     try {
-      if (disabled) {
-        await react({ data: { userId } });
-        toast.success(`${name} reaktiviert`);
-      } else {
-        if (!confirm(`${name} deaktivieren? Zugang wird gesperrt, Daten bleiben erhalten.`)) return;
-        await deact({ data: { userId } });
-        toast.success(`${name} deaktiviert`);
-      }
-      qc.invalidateQueries({ queryKey: ["team-members"] });
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Fehler");
+      await action();
+      toast.success(successMessage);
+      await refreshMembers();
+    } catch (cause) {
+      toast.error(messageFrom(cause));
+    } finally {
+      setBusyEmployeeId(null);
     }
   }
 
-  async function doReset(userId: string) {
-    const pw = prompt("Neues Passwort (min. 8 Zeichen):");
-    if (!pw || pw.length < 8) return;
-    try {
-      await resetPw({ data: { userId, password: pw } });
-      toast.success("Passwort gesetzt");
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Fehler");
-    }
+  if (!canRead) {
+    return (
+      <div className="rounded-2xl border border-border bg-card p-8 text-center text-muted-foreground">
+        <ShieldCheck className="mx-auto mb-2 h-8 w-8 text-brand" />
+        Du hast keine Berechtigung, Mitarbeiterdaten anzuzeigen.
+      </div>
+    );
   }
 
   return (
-    <div>
-      <Dialog open={open} onOpenChange={setOpen}>
-        <FabAdd label="Mitarbeiter anlegen" onClick={() => setOpen(true)} />
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Neuen Mitarbeiter anlegen</DialogTitle>
-          </DialogHeader>
-          <div className="grid gap-3">
-            <div>
-              <Label>Name *</Label>
-              <Input value={form.fullName} onChange={(e) => setForm({ ...form, fullName: e.target.value })} />
-            </div>
-            <div>
-              <Label>E-Mail *</Label>
-              <Input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
-            </div>
-            <div>
-              <Label>Start-Passwort *</Label>
-              <Input value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} placeholder="min. 8 Zeichen" />
-              <p className="mt-1 text-xs text-muted-foreground">Passwort persönlich weitergeben. Mitarbeiter kann es später ändern.</p>
-            </div>
-            <div>
-              <Label>Telefon</Label>
-              <Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
-            </div>
-            <div>
-              <Label>Rolle *</Label>
-              <Select value={form.roleKey} onValueChange={(v) => setForm({ ...form, roleKey: v })}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {(roles ?? []).map((r) => (
-                    <SelectItem key={r.id} value={r.key}>{r.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+    <div className="space-y-4">
+      {canCreate && <FabAdd label="Mitarbeiter anlegen" onClick={() => setCreateOpen(true)} />}
+
+      <div className="rounded-2xl border border-border bg-card p-4 shadow-card">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <h1 className="text-lg font-semibold">Mitarbeiter</h1>
+            <p className="text-sm text-muted-foreground">
+              Personalstammsätze und persönliche App-Zugänge getrennt verwalten.
+            </p>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setOpen(false)}>Abbrechen</Button>
-            <Button onClick={submit} disabled={saving} className="bg-brand text-brand-foreground hover:bg-brand/90">
-              {saving ? "Lege an…" : "Anlegen"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          <Badge variant="secondary">{members?.length ?? 0}</Badge>
+        </div>
+      </div>
 
-
-
-      <div className="relative mb-3">
-        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <Input
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Suche nach Name, E-Mail, Personalnr. oder Telefon"
+          onChange={(event) => setSearch(event.target.value)}
+          placeholder="Name, E-Mail, Personalnummer …"
           className="pl-9 pr-9"
         />
         {search && (
@@ -322,214 +317,354 @@ function MitarbeiterPage() {
         )}
       </div>
 
-      {(() => {
-        const q = search.trim().toLowerCase();
-        const filtered = (members ?? []).filter((m) => {
-          if (!q) return true;
-          const email = emails?.[m.id] ?? "";
-          const hay = [
-            m.full_name ?? "",
-            email,
-            m.phone ?? "",
-            m.employee_number ?? "",
-          ]
-            .join(" ")
-            .toLowerCase();
-          return q.split(/\s+/).every((t) => hay.includes(t));
-        });
-        return (
+      {listError && (
+        <p role="alert" className="rounded-xl bg-destructive/10 px-4 py-3 text-sm text-destructive">
+          {messageFrom(listError)}
+        </p>
+      )}
+
       <div className="space-y-3 pb-24">
-        {filtered.map((m) => {
-          const currentRoleKey = m.roles[0]?.key ?? "";
-          const isMe = m.id === profile?.id;
-          const disabled = !!m.disabled_at;
-          const initials = (m.full_name ?? "?")
-            .split(" ")
-            .map((w) => w[0])
-            .filter(Boolean)
-            .slice(0, 2)
-            .join("")
-            .toUpperCase();
+        {isLoading && (
+          <div className="rounded-2xl border border-border bg-card p-8 text-center text-muted-foreground">
+            Mitarbeiter werden geladen …
+          </div>
+        )}
+        {filteredMembers.map((member) => {
+          const isBusy = busyEmployeeId === member.id;
+          const isSelf = member.authUserId === profile?.id;
           return (
-            <div
-              key={m.id}
-              className="rounded-2xl border border-border bg-card p-4 shadow-card"
-            >
-              <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3">
+            <div key={member.id} className="rounded-2xl border border-border bg-card p-4 shadow-card">
+              <div className="flex items-start gap-3">
                 <div className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-brand/10 text-sm font-semibold text-brand">
-                  {initials}
+                  {initials(member.fullName)}
                 </div>
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span className="truncate font-medium">{m.full_name ?? "—"}</span>
-                    {isMe && (
-                      <Badge variant="outline" className="shrink-0 text-[10px]">
-                        Du
-                      </Badge>
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="font-medium">{member.fullName}</span>
+                    {isSelf && <Badge variant="outline">Du</Badge>}
+                    <AccessBadge status={member.accessStatus} />
+                  </div>
+                  <p className="mt-0.5 truncate text-xs text-muted-foreground">
+                    {member.email ?? member.phone ?? "Keine Kontaktdaten"}
+                  </p>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    <Badge variant="outline">{member.role?.name ?? "Keine Rolle"}</Badge>
+                    {member.employeeNumber && (
+                      <Badge variant="secondary">Pers.-Nr. {member.employeeNumber}</Badge>
                     )}
-                  </div>
-                  <div className="truncate text-xs text-muted-foreground">
-                    {m.phone ?? "Keine Telefonnummer"}
+                    {member.subgroup && <Badge variant="secondary">{member.subgroup}</Badge>}
                   </div>
                 </div>
-                <div className="flex shrink-0 items-center gap-2">
-                  {disabled ? (
-                    <Badge variant="secondary" className="bg-destructive/10 text-destructive">
-                      Inaktiv
-                    </Badge>
-                  ) : (
-                    <Badge variant="secondary" className="bg-emerald-500/10 text-emerald-700">
-                      Aktiv
-                    </Badge>
-                  )}
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    aria-label="Bearbeiten"
-                    onClick={() => openEdit(m.id)}
-                    className="h-8 w-8 text-muted-foreground hover:text-foreground"
-                  >
+                {canUpdate && (
+                  <Button size="icon" variant="ghost" aria-label="Bearbeiten" onClick={() => openEdit(member.id)}>
                     <Pencil className="h-4 w-4" />
                   </Button>
-                </div>
+                )}
               </div>
 
-              <div className="mt-3 flex items-center justify-between gap-2">
-                <Badge variant="outline" className="max-w-[55%] truncate">
-                  {m.roles[0]?.name ?? "Keine Rolle"}
-                </Badge>
-                <div className="flex gap-2">
-                  <Button size="sm" variant="outline" onClick={() => doReset(m.id)}>
-                    <KeyRound className="mr-1 h-3.5 w-3.5" /> Passwort
-                  </Button>
+              <div className="mt-4 flex flex-wrap justify-end gap-2 border-t border-border/60 pt-3">
+                {canUpdate && member.status === "active" && member.accessStatus === "no_access" && (
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={() => toggleActive(m.id, disabled, m.full_name ?? "Nutzer")}
-                    disabled={isMe}
-                    aria-label={disabled ? "Aktivieren" : "Deaktivieren"}
+                    disabled={isBusy || !member.email}
+                    onClick={() =>
+                      runEmployeeAction(
+                        member.id,
+                        () => invite({ data: { employeeId: member.id } }),
+                        "Einladung versendet.",
+                      )
+                    }
                   >
-                    {disabled ? <UserCheck className="h-3.5 w-3.5" /> : <UserX className="h-3.5 w-3.5" />}
+                    <UserPlus className="mr-1 h-3.5 w-3.5" /> Zugang einrichten
                   </Button>
-                </div>
+                )}
+                {canUpdate && ["invited", "expired"].includes(member.accessStatus) && (
+                  <>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled={isBusy}
+                      onClick={() =>
+                        runEmployeeAction(
+                          member.id,
+                          () => resend({ data: { employeeId: member.id } }),
+                          "Neue Einladung versendet.",
+                        )
+                      }
+                    >
+                      <RefreshCw className="mr-1 h-3.5 w-3.5" /> Erneut senden
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      disabled={isBusy}
+                      onClick={() => {
+                        if (!window.confirm("Ausstehende Einladung wirklich widerrufen?")) return;
+                        void runEmployeeAction(
+                          member.id,
+                          () => revoke({ data: { employeeId: member.id } }),
+                          "Einladung widerrufen.",
+                        );
+                      }}
+                    >
+                      <X className="mr-1 h-3.5 w-3.5" /> Widerrufen
+                    </Button>
+                  </>
+                )}
+                {canDeactivate && member.status === "active" ? (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={isBusy || isSelf}
+                    onClick={() => {
+                      if (!window.confirm(`Zugang und Beschäftigungsstatus von ${member.fullName} deaktivieren?`)) return;
+                      void runEmployeeAction(
+                        member.id,
+                        () => deactivate({ data: { employeeId: member.id } }),
+                        "Mitarbeiter deaktiviert und Zugang gesperrt.",
+                      );
+                    }}
+                  >
+                    <UserX className="mr-1 h-3.5 w-3.5" /> Deaktivieren
+                  </Button>
+                ) : canDeactivate ? (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={isBusy}
+                    onClick={() =>
+                      runEmployeeAction(
+                        member.id,
+                        () => reactivate({ data: { employeeId: member.id } }),
+                        "Mitarbeiter reaktiviert.",
+                      )
+                    }
+                  >
+                    <UserCheck className="mr-1 h-3.5 w-3.5" /> Reaktivieren
+                  </Button>
+                ) : null}
               </div>
             </div>
           );
         })}
-        {filtered.length === 0 && (
-          <div className="rounded-2xl border border-border bg-card p-10 text-center text-muted-foreground shadow-card">
-            <Users className="mx-auto mb-2 h-6 w-6" />
-            {search.trim()
-              ? "Keine Treffer für deine Suche."
-              : "Noch keine Mitarbeiter angelegt."}
+
+        {!isLoading && filteredMembers.length === 0 && (
+          <div className="rounded-2xl border-2 border-dashed border-border p-10 text-center text-muted-foreground">
+            <Users className="mx-auto mb-2 h-7 w-7" />
+            {search ? "Keine passenden Mitarbeiter gefunden." : "Noch keine Mitarbeiter angelegt."}
           </div>
         )}
       </div>
-        );
-      })()}
 
-      <Dialog open={!!editUser} onOpenChange={(o) => !o && setEditUser(null)}>
+      <Dialog open={createOpen} onOpenChange={setCreateOpen}>
+        <DialogContent className="max-h-[90vh] max-w-lg overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Neuen Mitarbeiter anlegen</DialogTitle>
+          </DialogHeader>
+          <EmployeeFormFields
+            form={createForm}
+            onChange={setCreateForm}
+            roles={availableRoles}
+            appAccess={{ enabled: grantAccess, onChange: setGrantAccess }}
+          />
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCreateOpen(false)}>Abbrechen</Button>
+            <Button disabled={saving} onClick={submitCreate} className="bg-brand text-brand-foreground hover:bg-brand/90">
+              {saving ? "Speichere …" : grantAccess ? "Anlegen und einladen" : "Mitarbeiter anlegen"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={!!editEmployeeId}
+        onOpenChange={(open) => {
+          if (!open) {
+            setEditEmployeeId(null);
+            setEditForm(null);
+          }
+        }}
+      >
         <DialogContent className="max-h-[90vh] max-w-lg overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Mitarbeiter bearbeiten</DialogTitle>
           </DialogHeader>
-          {editUser && (
-            <div className="space-y-5">
-              {editLoading && (
-                <p className="text-xs text-muted-foreground">Lade Daten…</p>
-              )}
-
-              <section className="space-y-3">
-                <h4 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Kontakt</h4>
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <div className="sm:col-span-2">
-                    <Label>Name *</Label>
-                    <Input value={editUser.fullName} onChange={(e) => setEditUser({ ...editUser, fullName: e.target.value })} />
-                  </div>
-                  <div className="sm:col-span-2">
-                    <Label>E-Mail</Label>
-                    <Input type="email" value={editUser.email} onChange={(e) => setEditUser({ ...editUser, email: e.target.value })} />
-                  </div>
-                  <div>
-                    <Label>Telefon</Label>
-                    <Input value={editUser.phone} onChange={(e) => setEditUser({ ...editUser, phone: e.target.value })} />
-                  </div>
-                  <div>
-                    <Label>Adresse</Label>
-                    <Input value={editUser.address} onChange={(e) => setEditUser({ ...editUser, address: e.target.value })} />
-                  </div>
-                </div>
-              </section>
-
-              <section className="space-y-3">
-                <h4 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Beschäftigung</h4>
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <div>
-                    <Label>Rolle</Label>
-                    <Select
-                      value={editUser.roleKey}
-                      onValueChange={(v) => setEditUser({ ...editUser, roleKey: v })}
-                      disabled={editUser.id === profile?.id}
-                    >
-                      <SelectTrigger><SelectValue placeholder="Rolle wählen" /></SelectTrigger>
-                      <SelectContent>
-                        {(roles ?? []).map((r) => (
-                          <SelectItem key={r.id} value={r.key}>{r.name}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label>Personalnummer</Label>
-                    <Input value={editUser.employee_number} onChange={(e) => setEditUser({ ...editUser, employee_number: e.target.value })} />
-                  </div>
-                  <div>
-                    <Label>Eintritt</Label>
-                    <Input type="date" value={editUser.entry_date} onChange={(e) => setEditUser({ ...editUser, entry_date: e.target.value })} />
-                  </div>
-                  <div>
-                    <Label>Austritt</Label>
-                    <Input type="date" value={editUser.exit_date} onChange={(e) => setEditUser({ ...editUser, exit_date: e.target.value })} />
-                  </div>
-                  <div>
-                    <Label>Wochenstunden</Label>
-                    <Input type="number" step="0.5" value={editUser.weekly_hours} onChange={(e) => setEditUser({ ...editUser, weekly_hours: e.target.value })} />
-                  </div>
-                  <div>
-                    <Label>Urlaubstage / Jahr</Label>
-                    <Input type="number" value={editUser.vacation_days_per_year} onChange={(e) => setEditUser({ ...editUser, vacation_days_per_year: e.target.value })} />
-                  </div>
-                  <div>
-                    <Label>Arbeitszeitmodell</Label>
-                    <Input value={editUser.work_time_model} onChange={(e) => setEditUser({ ...editUser, work_time_model: e.target.value })} />
-                  </div>
-                  <div>
-                    <Label>Kostenstelle</Label>
-                    <Input value={editUser.cost_center} onChange={(e) => setEditUser({ ...editUser, cost_center: e.target.value })} />
-                  </div>
-                  <div className="sm:col-span-2">
-                    <Label>Untergruppe</Label>
-                    <Input value={editUser.subgroup} onChange={(e) => setEditUser({ ...editUser, subgroup: e.target.value })} />
-                  </div>
-                </div>
-                {editUser.id === profile?.id && (
-                  <p className="text-xs text-muted-foreground">Eigene Rolle kann nicht geändert werden.</p>
-                )}
-              </section>
-            </div>
+          {editForm ? (
+            <EmployeeFormFields
+              form={editForm}
+              onChange={setEditForm}
+              roles={availableRoles}
+              loginEmailLocked={(members ?? []).find((member) => member.id === editEmployeeId)?.accessStatus === "active"}
+            />
+          ) : (
+            <p className="py-8 text-center text-sm text-muted-foreground">Mitarbeiterdaten werden geladen …</p>
           )}
           <DialogFooter>
-            <Button variant="outline" onClick={() => setEditUser(null)}>Abbrechen</Button>
-            <Button
-              onClick={saveEdit}
-              disabled={savingEdit || editLoading}
-              className="bg-brand text-brand-foreground hover:bg-brand/90"
-            >
-              {savingEdit ? "Speichere…" : "Speichern"}
+            <Button variant="outline" onClick={() => setEditEmployeeId(null)}>Abbrechen</Button>
+            <Button disabled={saving || !editForm} onClick={submitEdit} className="bg-brand text-brand-foreground hover:bg-brand/90">
+              {saving ? "Speichere …" : "Speichern"}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
   );
+}
+
+function EmployeeFormFields({
+  form,
+  onChange,
+  roles,
+  appAccess,
+  loginEmailLocked = false,
+}: {
+  form: EmployeeForm;
+  onChange: (form: EmployeeForm) => void;
+  roles: { id: string; key: string; name: string }[];
+  appAccess?: { enabled: boolean; onChange: (enabled: boolean) => void };
+  loginEmailLocked?: boolean;
+}) {
+  return (
+    <div className="space-y-5">
+      <section className="space-y-3">
+        <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Kontakt</h3>
+        <Field label="Name *" wide>
+          <Input value={form.fullName} onChange={(event) => onChange({ ...form, fullName: event.target.value })} />
+        </Field>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <Field label="E-Mail" wide>
+            <Input
+              type="email"
+              value={form.email}
+              onChange={(event) => onChange({ ...form, email: event.target.value })}
+            />
+            {loginEmailLocked && (
+              <p className="mt-1 text-xs text-muted-foreground">
+                Dies ändert die Kontaktadresse, nicht automatisch die bestätigte Anmeldeadresse.
+              </p>
+            )}
+          </Field>
+          <Field label="Telefon">
+            <Input value={form.phone} onChange={(event) => onChange({ ...form, phone: event.target.value })} />
+          </Field>
+          <Field label="Adresse">
+            <Input value={form.address} onChange={(event) => onChange({ ...form, address: event.target.value })} />
+          </Field>
+        </div>
+      </section>
+
+      {appAccess && (
+        <section className="rounded-xl border border-border bg-muted/30 p-4">
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <Label htmlFor="grant-app-access" className="font-medium">App-Zugang einrichten</Label>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Der Mitarbeiter erhält eine E-Mail und legt sein Passwort selbst fest.
+              </p>
+            </div>
+            <Switch id="grant-app-access" checked={appAccess.enabled} onCheckedChange={appAccess.onChange} />
+          </div>
+        </section>
+      )}
+
+      <section className="space-y-3">
+        <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Beschäftigung</h3>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <Field label="Rolle">
+            <Select value={form.roleKey} onValueChange={(roleKey) => onChange({ ...form, roleKey })}>
+              <SelectTrigger><SelectValue placeholder="Rolle wählen" /></SelectTrigger>
+              <SelectContent>
+                {roles.map((role) => <SelectItem key={role.id} value={role.key}>{role.name}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </Field>
+          <Field label="Personalnummer">
+            <Input value={form.employeeNumber} onChange={(event) => onChange({ ...form, employeeNumber: event.target.value })} />
+          </Field>
+          <Field label="Eintritt">
+            <Input type="date" value={form.entryDate} onChange={(event) => onChange({ ...form, entryDate: event.target.value })} />
+          </Field>
+          <Field label="Austritt">
+            <Input type="date" value={form.exitDate} onChange={(event) => onChange({ ...form, exitDate: event.target.value })} />
+          </Field>
+          <Field label="Wochenstunden">
+            <Input type="number" min="0" step="0.5" value={form.weeklyHours} onChange={(event) => onChange({ ...form, weeklyHours: event.target.value })} />
+          </Field>
+          <Field label="Urlaubstage / Jahr">
+            <Input type="number" min="0" value={form.vacationDaysPerYear} onChange={(event) => onChange({ ...form, vacationDaysPerYear: event.target.value })} />
+          </Field>
+          <Field label="Arbeitszeitmodell">
+            <Input value={form.workTimeModel} onChange={(event) => onChange({ ...form, workTimeModel: event.target.value })} />
+          </Field>
+          <Field label="Kostenstelle">
+            <Input value={form.costCenter} onChange={(event) => onChange({ ...form, costCenter: event.target.value })} />
+          </Field>
+          <Field label="Untergruppe" wide>
+            <Input value={form.subgroup} onChange={(event) => onChange({ ...form, subgroup: event.target.value })} />
+          </Field>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function Field({ label, children, wide = false }: { label: string; children: React.ReactNode; wide?: boolean }) {
+  return (
+    <div className={wide ? "sm:col-span-2" : undefined}>
+      <Label className="mb-1 block">{label}</Label>
+      {children}
+    </div>
+  );
+}
+
+function AccessBadge({ status }: { status: TeamMemberAccessStatus }) {
+  const config = {
+    no_access: { label: "Ohne Zugang", icon: UserX, className: "bg-slate-100 text-slate-700" },
+    invited: { label: "Eingeladen", icon: Mail, className: "bg-blue-100 text-blue-700" },
+    expired: { label: "Einladung abgelaufen", icon: MailWarning, className: "bg-amber-100 text-amber-800" },
+    active: { label: "Zugang aktiv", icon: MailCheck, className: "bg-emerald-100 text-emerald-700" },
+    disabled: { label: "Deaktiviert", icon: UserX, className: "bg-red-100 text-red-700" },
+  }[status];
+  const Icon = config.icon;
+  return (
+    <Badge variant="secondary" className={config.className}>
+      <Icon className="mr-1 h-3 w-3" /> {config.label}
+    </Badge>
+  );
+}
+
+function toServerForm(form: EmployeeForm, extra?: { grantAccess: boolean }) {
+  const nullable = (value: string) => (value.trim() ? value.trim() : null);
+  const number = (value: string) => (value.trim() ? Number(value) : null);
+  return {
+    fullName: form.fullName.trim(),
+    email: nullable(form.email),
+    phone: nullable(form.phone),
+    roleKey: form.roleKey,
+    address: nullable(form.address),
+    employeeNumber: nullable(form.employeeNumber),
+    entryDate: nullable(form.entryDate),
+    exitDate: nullable(form.exitDate),
+    weeklyHours: number(form.weeklyHours),
+    workTimeModel: nullable(form.workTimeModel),
+    vacationDaysPerYear: number(form.vacationDaysPerYear),
+    costCenter: nullable(form.costCenter),
+    subgroup: nullable(form.subgroup),
+    ...extra,
+  };
+}
+
+function initials(name: string) {
+  return name
+    .split(/\s+/)
+    .map((part) => part[0])
+    .filter(Boolean)
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
+}
+
+function messageFrom(cause: unknown) {
+  return cause instanceof Error ? cause.message : "Die Aktion ist fehlgeschlagen.";
 }

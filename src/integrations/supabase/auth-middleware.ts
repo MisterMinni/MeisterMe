@@ -98,10 +98,36 @@ export const requireSupabaseAuth = createMiddleware({ type: 'function' }).server
       throw new Error('Unauthorized: No user ID found in token');
     }
 
+    const userId = data.claims.sub;
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('tenant_id, disabled_at')
+      .eq('id', userId)
+      .maybeSingle();
+
+    if (profileError || !profile?.tenant_id || profile.disabled_at) {
+      throw new Error('Unauthorized: User access is disabled');
+    }
+
+    const { data: membership, error: membershipError } = await supabase
+      .from('tenant_memberships')
+      .select('status, disabled_at')
+      .eq('tenant_id', profile.tenant_id)
+      .eq('user_id', userId)
+      .maybeSingle();
+
+    if (
+      membershipError ||
+      membership?.status !== 'active' ||
+      membership.disabled_at
+    ) {
+      throw new Error('Unauthorized: Tenant membership is disabled');
+    }
+
     return next({
       context: {
         supabase,
-        userId: data.claims.sub,
+        userId,
         claims: data.claims,
       },
     });
