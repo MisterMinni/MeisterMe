@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title">
+  <title id="title">MeisterMe</title>
+  <rect width="512" height="512" rx="112" fill="#005aab"/>
+  <path fill="#fff" d="M124 280h264v58c0 23-19 42-42 42H166c-23 0-42-19-42-42v-58Z"/>
+  <path fill="#fff" d="M166 260c0-76 31-125 90-125s90 49 90 125h35c12 0 21 9 21 21s-9 21-21 21H131c-12 0-21-9-21-21s9-21 21-21h35Z"/>
+  <path fill="#63b3ff" d="M231 132h50v128h-50z"/>
+  <path fill="#063a70" d="M198 380h116v26c0 13-11 24-24 24h-68c-13 0-24-11-24-24v-26Z"/>
+</svg>

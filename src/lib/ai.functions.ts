@@ -1,32 +1,63 @@
 import { createServerFn } from "@tanstack/react-start";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import type { Database } from "@/integrations/supabase/types";
 import { z } from "zod";
 
-const MODEL = "google/gemini-2.5-flash";
+type AiContext = { supabase: SupabaseClient<Database>; userId: string };
+
+async function requireAiPermission(context: AiContext) {
+  const { data: allowed, error } = await context.supabase.rpc("has_permission", {
+    _user_id: context.userId,
+    _permission: "ai:use",
+  });
+  if (error) throw new Error(`KI-Berechtigung konnte nicht geprüft werden: ${error.message}`);
+  if (!allowed) throw new Error("Keine Berechtigung zur Nutzung der KI-Werkzeuge.");
+}
 
 async function callAi(system: string, user: string) {
-  const key = process.env.LOVABLE_API_KEY;
-  if (!key) throw new Error("LOVABLE_API_KEY fehlt");
+  const key = process.env.AI_API_KEY;
+  const model = process.env.AI_MODEL;
+  const baseUrl = (process.env.AI_BASE_URL ?? "https://api.openai.com/v1").replace(/\/$/, "");
+  if (!key || !model) {
+    throw new Error("KI ist noch nicht konfiguriert. Setze AI_API_KEY und AI_MODEL in der Server-Umgebung.");
+  }
 
-  const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Lovable-API-Key": key,
-    },
-    body: JSON.stringify({
-      model: MODEL,
-      messages: [
-        { role: "system", content: system },
-        { role: "user", content: user },
-      ],
-    }),
-  });
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 45_000);
+
+  let res: Response;
+  try {
+    res = await fetch(`${baseUrl}/chat/completions`, {
+      method: "POST",
+      signal: controller.signal,
+      headers: {
+        Authorization: `Bearer ${key}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model,
+        temperature: 0.2,
+        messages: [
+          { role: "system", content: system },
+          { role: "user", content: user },
+        ],
+      }),
+    });
+  } catch (error) {
+    if (error instanceof DOMException && error.name === "AbortError") {
+      throw new Error("Der KI-Dienst hat nicht rechtzeitig geantwortet.");
+    }
+    throw error;
+  } finally {
+    clearTimeout(timeout);
+  }
 
   if (!res.ok) {
     const t = await res.text();
     if (res.status === 429) throw new Error("KI-Limit erreicht – bitte kurz warten.");
-    if (res.status === 402) throw new Error("KI-Credits aufgebraucht.");
+    if (res.status === 401 || res.status === 403) throw new Error("KI-Zugang wurde abgelehnt. Bitte API-Schlüssel prüfen.");
+    if (res.status === 402) throw new Error("KI-Guthaben aufgebraucht.");
     throw new Error(`KI-Fehler (${res.status}): ${t.slice(0, 200)}`);
   }
   const json = (await res.json()) as { choices?: Array<{ message?: { content?: string } }> };
@@ -71,10 +102,11 @@ const VoiceReportSchema = z.object({
 
 export const parseVoiceReport = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z.object({ text: z.string().min(3), projectName: z.string().optional() }).parse(input)
   )
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    await requireAiPermission(context);
     return callAiJson(
       "Du bist Assistent für einen deutschen Handwerksbetrieb. Extrahiere aus dem Sprachbericht des Monteurs strukturierte Baustelleninformationen. Denke in Fachbegriffen (Wandfläche, Spachtelmasse, Grundierung, m², lfm). Formuliere den internen Bericht sachlich in ganzen Sätzen. Die Kundenzusammenfassung ist freundlich, kurz, ohne interne Details.",
       `Projekt: ${data.projectName ?? "unbekannt"}\n\nSprachnotiz:\n${data.text}`,
@@ -85,7 +117,7 @@ export const parseVoiceReport = createServerFn({ method: "POST" })
 /* ------- 2. Professioneller Bericht ------- */
 export const generateReport = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
         taetigkeit: z.string().default(""),
@@ -97,7 +129,8 @@ export const generateReport = createServerFn({ method: "POST" })
       })
       .parse(input)
   )
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    await requireAiPermission(context);
     const text = await callAi(
       "Du erstellst professionelle deutsche Baustellenberichte. Stil: sachlich, kurz, kundentauglich. Struktur: 1) Ausgeführte Arbeiten 2) Verwendetes Material 3) Zeitaufwand 4) Offene Punkte 5) Nächster Schritt. Keine Floskeln.",
       `Kunde: ${data.kunde}\nProjekt: ${data.projekt}\nTätigkeit: ${data.taetigkeit}\nMaterial: ${data.material}\nArbeitszeit: ${data.arbeitszeit}\nOffene Punkte: ${data.offenePunkte}`
@@ -110,7 +143,7 @@ const EmailSchema = z.object({ betreff: z.string(), body: z.string() });
 
 export const generateCustomerEmail = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
         kunde: z.string(),
@@ -120,7 +153,8 @@ export const generateCustomerEmail = createServerFn({ method: "POST" })
       })
       .parse(input)
   )
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    await requireAiPermission(context);
     return callAiJson(
       "Du schreibst freundliche, professionelle deutsche Kundenmails für einen Handwerksbetrieb. Kurz, klar, mit Anrede und Grußformel. Duzen nur wenn der Kontext klar informell ist – sonst Sie.",
       `Kunde: ${data.kunde}\nProjekt: ${data.projekt}\nAnlass: ${data.anlass}\nInhalt:\n${data.inhalt}`,
@@ -144,10 +178,11 @@ const OfferSchema = z.object({
 
 export const prepareOfferFromRequest = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z.object({ anfrage: z.string().min(5), gewerk: z.string().default("Ausbau") }).parse(input)
   )
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    await requireAiPermission(context);
     return callAiJson(
       "Du bist Kalkulator für einen deutschen Handwerksbetrieb. Erstelle aus der Kundenanfrage einen Angebotsentwurf mit realistischen Positionen (Material + Arbeitsleistung) und marktüblichen Einheitspreisen in EUR für Deutschland. Gib immer sinnvolle Standardwerte, keine Nullen.",
       `Gewerk: ${data.gewerk}\nKundenanfrage:\n${data.anfrage}`,
@@ -169,7 +204,7 @@ const MaterialEstSchema = z.object({
 
 export const estimateMaterialFromMeasurement = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
         gewerk: z.string(),
@@ -181,7 +216,8 @@ export const estimateMaterialFromMeasurement = createServerFn({ method: "POST" }
       })
       .parse(input)
   )
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    await requireAiPermission(context);
     return callAiJson(
       "Du berechnest realistische Materialbedarfe für einen deutschen Handwerksbetrieb. Berücksichtige übliche Verbrauchswerte (z.B. Spachtelmasse ~1,2 kg/m², Rollputz ~1,4 kg/m², Wandfarbe ~0,15 l/m² je Anstrich, Anputzleisten in lfm, Fugenband). Gib nur relevante Positionen für das genannte Gewerk aus.",
       `Gewerk: ${data.gewerk}\nBereich: ${data.bereich}\nWandfläche: ${data.wandflaeche} m²\nDeckenfläche: ${data.deckenflaeche} m²\nBodenfläche: ${data.bodenflaeche} m²\nUmfang: ${data.umfang} m`,

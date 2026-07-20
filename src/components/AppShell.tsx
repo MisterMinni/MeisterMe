@@ -10,6 +10,7 @@ import {
   UserX,
   Search,
   Users,
+  Sparkles,
   ArrowLeft,
 } from "lucide-react";
 
@@ -25,6 +26,7 @@ const modules: NavItem[] = [
   { to: "/app/baustellen", label: "Baustellen", icon: Briefcase },
   { to: "/app/plan", label: "Wochenplanung", icon: Calendar },
   { to: "/app/zeiten", label: "Zeiterfassung", icon: Clock },
+  { to: "/app/ki-assistent", label: "KI-Assistent", icon: Sparkles },
   { to: "/app/abwesenheiten", label: "Abwesenheiten", icon: UserX },
   { to: "/app/mitarbeiter", label: "Mitarbeiter", icon: Users, adminOnly: true },
   { to: "/app/einstellungen", label: "Einstellungen", icon: Settings, adminOnly: true },
@@ -149,6 +151,7 @@ const SEARCH_ALIASES: Record<string, string[]> = {
   "/app/baustellen": ["baustelle", "projekt", "auftrag", "job", "chat"],
   "/app/plan": ["plan", "wochenplanung", "einsatz", "kalender"],
   "/app/zeiten": ["zeit", "stunden", "stempel", "arbeitszeit"],
+  "/app/ki-assistent": ["ki", "assistent", "angebot", "aufmaß", "bericht", "kundenmail", "material"],
   "/app/abwesenheiten": ["urlaub", "krank", "abwesenheit", "antrag"],
   "/app/mitarbeiter": ["mitarbeiter", "personal", "stammdaten", "team", "rollen", "zugang", "berechtigungen"],
   "/app/einstellungen": ["einstellung", "settings", "betrieb"],

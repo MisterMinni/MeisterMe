@@ -18,15 +18,10 @@
 --   • Storage-Buckets (avatars, chat-images, handwerk-files) inkl. Policies
 --   • Seed der Permission-Katalogs
 --
--- Anwendung:
---   1. Neues Supabase-Projekt anlegen.
---   2. Im SQL-Editor dieses Skript komplett ausführen.
---   3. Im Frontend `VITE_SUPABASE_URL` und `VITE_SUPABASE_PUBLISHABLE_KEY`
---      auf das neue Projekt umstellen.
---
--- Hinweis: Das Skript ist idempotent-freundlich (IF NOT EXISTS wo möglich),
--- kann aber bei nachträglichen Änderungen an existierenden Objekten Fehler
--- werfen. Für saubere Erstinstallation auf leerer DB gedacht.
+-- WICHTIG: Diese Datei bleibt als lesbare Referenz des historischen Kerns
+-- erhalten. Deployments laufen ausschließlich über `supabase/migrations`,
+-- weil dort auch alle aktuellen Sicherheitskorrekturen und Geschäftsmodule
+-- enthalten sind. Diese Datei nicht direkt in Produktion ausführen.
 -- =============================================================================
 
 -- -----------------------------------------------------------------------------

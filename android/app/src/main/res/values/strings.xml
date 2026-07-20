@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">MeisterMe</string>
+    <string name="title_activity_main">MeisterMe</string>
+    <string name="package_name">de.meisterme.app</string>
+    <string name="custom_url_scheme">de.meisterme.app</string>
+</resources>

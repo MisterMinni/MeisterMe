@@ -1,0 +1,33 @@
+{
+  "id": "/app",
+  "name": "MeisterMe – Handwerk im Griff",
+  "short_name": "MeisterMe",
+  "description": "Baustellen, Personal, Zeiten, Angebote und KI-Werkzeuge für Handwerksbetriebe.",
+  "lang": "de-DE",
+  "start_url": "/app",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone"],
+  "orientation": "any",
+  "background_color": "#f4f7fb",
+  "theme_color": "#005aab",
+  "icons": [
+    {
+      "src": "/app-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/favicon.ico",
+      "sizes": "any",
+      "type": "image/x-icon",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    { "name": "Zeiterfassung", "short_name": "Zeit", "url": "/app/zeiten" },
+    { "name": "Baustellen", "short_name": "Baustellen", "url": "/app/baustellen" },
+    { "name": "KI-Assistent", "short_name": "KI", "url": "/app/ki-assistent" }
+  ]
+}

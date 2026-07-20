@@ -1,10 +1,12 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 
-// TEMP: Landing-Page & Login sind deaktiviert. Alle Aufrufe von "/" gehen
-// direkt in die App; Auto-Login übernimmt src/routes/__root.tsx.
+import { supabase } from "@/integrations/supabase/client";
+
 export const Route = createFileRoute("/")({
-  beforeLoad: () => {
-    throw redirect({ to: "/app" });
+  ssr: false,
+  beforeLoad: async () => {
+    const { data } = await supabase.auth.getSession();
+    throw redirect({ to: data.session ? "/app" : "/auth" });
   },
   component: () => null,
 });

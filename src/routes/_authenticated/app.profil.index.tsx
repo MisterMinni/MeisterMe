@@ -84,8 +84,8 @@ function Profil() {
       qc.invalidateQueries({ queryKey: ["profile"] });
       qc.invalidateQueries({ queryKey: ["avatar-url"] });
       toast.success("Profilbild aktualisiert");
-    } catch (err: any) {
-      toast.error(err.message ?? "Upload fehlgeschlagen");
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Upload fehlgeschlagen");
     } finally {
       setUploading(false);
     }

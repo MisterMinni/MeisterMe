@@ -1,16 +1,17 @@
 import { createServerFn } from "@tanstack/react-start";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import type { Database } from "@/integrations/supabase/types";
 import { z } from "zod";
 
-async function requireAdmin(ctx: { supabase: any; userId: string }) {
-  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const { data: prof } = await supabaseAdmin
+async function requireAdmin(ctx: { supabase: SupabaseClient<Database>; userId: string }) {
+  const { data: prof } = await ctx.supabase
     .from("profiles")
     .select("tenant_id")
     .eq("id", ctx.userId)
     .maybeSingle();
   if (!prof?.tenant_id) throw new Error("Kein Betrieb gefunden.");
-  const { data: ok } = await supabaseAdmin.rpc("has_permission", {
+  const { data: ok } = await ctx.supabase.rpc("has_permission", {
     _user_id: ctx.userId,
     _permission: "employees:create",
   });
@@ -18,7 +19,7 @@ async function requireAdmin(ctx: { supabase: any; userId: string }) {
   return prof.tenant_id as string;
 }
 
-async function roleIdFor(admin: any, tenantId: string, roleKey: string) {
+async function roleIdFor(admin: SupabaseClient<Database>, tenantId: string, roleKey: string) {
   const { data } = await admin
     .from("roles")
     .select("id")
@@ -31,7 +32,7 @@ async function roleIdFor(admin: any, tenantId: string, roleKey: string) {
 
 export const createTeamMember = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) =>
+  .validator((d) =>
     z
       .object({
         email: z.string().email(),
@@ -101,7 +102,7 @@ export const listTeamMemberEmails = createServerFn({ method: "GET" })
 
 export const getTeamMemberDetail = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => z.object({ userId: z.string().uuid() }).parse(d))
+  .validator((d) => z.object({ userId: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     const tenantId = await requireAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -117,7 +118,7 @@ export const getTeamMemberDetail = createServerFn({ method: "POST" })
 
 export const updateTeamMember = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) =>
+  .validator((d) =>
     z
       .object({
         userId: z.string().uuid(),
@@ -195,7 +196,7 @@ export const updateTeamMember = createServerFn({ method: "POST" })
 
 export const resetTeamMemberPassword = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) =>
+  .validator((d) =>
     z.object({ userId: z.string().uuid(), password: z.string().min(8) }).parse(d),
   )
   .handler(async ({ data, context }) => {
@@ -216,7 +217,7 @@ export const resetTeamMemberPassword = createServerFn({ method: "POST" })
 
 export const deactivateTeamMember = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => z.object({ userId: z.string().uuid() }).parse(d))
+  .validator((d) => z.object({ userId: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     const tenantId = await requireAdmin(context);
     if (data.userId === context.userId) throw new Error("Du kannst dich nicht selbst deaktivieren.");
@@ -236,7 +237,7 @@ export const deactivateTeamMember = createServerFn({ method: "POST" })
 
 export const reactivateTeamMember = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => z.object({ userId: z.string().uuid() }).parse(d))
+  .validator((d) => z.object({ userId: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     const tenantId = await requireAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
