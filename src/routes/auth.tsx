@@ -48,6 +48,7 @@ function AuthPage() {
           password,
           options: {
             data: { full_name: fullName.trim(), betrieb: company.trim() },
+            emailRedirectTo: new URL("/auth", window.location.origin).toString(),
           },
         });
         if (signUpError) throw signUpError;
