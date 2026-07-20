@@ -1,8 +1,16 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title description">
   <title id="title">MeisterMe</title>
+  <desc id="description">Ein konstruiertes M mit Bauhelm auf blauem Grund</desc>
   <rect width="512" height="512" rx="112" fill="#005aab"/>
-  <path fill="#fff" d="M124 280h264v58c0 23-19 42-42 42H166c-23 0-42-19-42-42v-58Z"/>
-  <path fill="#fff" d="M166 260c0-76 31-125 90-125s90 49 90 125h35c12 0 21 9 21 21s-9 21-21 21H131c-12 0-21-9-21-21s9-21 21-21h35Z"/>
-  <path fill="#63b3ff" d="M231 132h50v128h-50z"/>
-  <path fill="#063a70" d="M198 380h116v26c0 13-11 24-24 24h-68c-13 0-24-11-24-24v-26Z"/>
+
+  <!-- Bauhelm -->
+  <path fill="#fff" d="M126 226c0-65 44-120 104-137v137h52V89c60 17 104 72 104 137H126Z"/>
+  <rect x="98" y="220" width="316" height="38" rx="19" fill="#fff"/>
+  <rect x="232" y="68" width="48" height="176" rx="20" fill="#fff"/>
+
+  <!-- Konstruiertes M -->
+  <path fill="#fff" d="M116 286h65l75 72 75-72h65v158h-52V350l-88 84-88-84v94h-52V286Z"/>
+
+  <!-- Digitaler Verbindungspunkt -->
+  <path fill="#63b3ff" d="m256 250 28 28-28 28-28-28 28-28Z"/>
 </svg>

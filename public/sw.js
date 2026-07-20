@@ -1,5 +1,14 @@
-const CACHE = "meisterme-shell-v1";
-const SHELL = ["/offline.html", "/manifest.webmanifest", "/app-icon.svg", "/favicon.ico"];
+const CACHE = "meisterme-shell-v2";
+const SHELL = [
+  "/offline.html",
+  "/manifest.webmanifest",
+  "/app-icon.svg",
+  "/icon-192.png",
+  "/icon-512.png",
+  "/apple-touch-icon.png",
+  "/favicon-32x32.png",
+  "/favicon.ico",
+];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(SHELL)));
