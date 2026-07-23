@@ -22,7 +22,6 @@ import { Route as PreiseRouteImport } from './routes/preise'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app.index'
 import { Route as AuthenticatedAppAbwesenheitenRouteImport } from './routes/_authenticated/app.abwesenheiten'
-import { Route as AuthenticatedAppBueroRouteImport } from './routes/_authenticated/app.buero'
 import { Route as AuthenticatedAppEinstellungenRouteImport } from './routes/_authenticated/app.einstellungen'
 import { Route as AuthenticatedAppGeraeteRouteImport } from './routes/_authenticated/app.geraete'
 import { Route as AuthenticatedAppKiAssistentRouteImport } from './routes/_authenticated/app.ki-assistent'
@@ -32,6 +31,10 @@ import { Route as AuthenticatedAppZeitenRouteImport } from './routes/_authentica
 import { Route as ApiWebhooksResendRouteImport } from './routes/api.webhooks.resend'
 import { Route as AuthenticatedAppBaustellenIndexRouteImport } from './routes/_authenticated/app.baustellen.index'
 import { Route as AuthenticatedAppBaustellenIdRouteImport } from './routes/_authenticated/app.baustellen.$id'
+import { Route as AuthenticatedAppBueroIndexRouteImport } from './routes/_authenticated/app.buero.index'
+import { Route as AuthenticatedAppBueroBelegeRouteImport } from './routes/_authenticated/app.buero.belege'
+import { Route as AuthenticatedAppBueroKundenRouteImport } from './routes/_authenticated/app.buero.kunden'
+import { Route as AuthenticatedAppBueroStammdatenRouteImport } from './routes/_authenticated/app.buero.stammdaten'
 import { Route as AuthenticatedAppKundenCustomerIdRouteImport } from './routes/_authenticated/app.kunden.$customerId'
 import { Route as AuthenticatedAppProfilIndexRouteImport } from './routes/_authenticated/app.profil.index'
 import { Route as AuthenticatedAppProfilDatenRouteImport } from './routes/_authenticated/app.profil.daten'
@@ -40,6 +43,7 @@ import { Route as AuthenticatedAppBaustellenIdIndexRouteImport } from './routes/
 import { Route as AuthenticatedAppBaustellenIdAufgabenRouteImport } from './routes/_authenticated/app.baustellen.$id.aufgaben'
 import { Route as AuthenticatedAppBaustellenIdInfoRouteImport } from './routes/_authenticated/app.baustellen.$id.info'
 import { Route as AuthenticatedAppBaustellenIdMedienRouteImport } from './routes/_authenticated/app.baustellen.$id.medien'
+import { Route as AuthenticatedAppBueroAuftragSiteIdRouteImport } from './routes/_authenticated/app.buero.auftrag.$siteId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -106,11 +110,6 @@ const AuthenticatedAppAbwesenheitenRoute =
     path: '/abwesenheiten',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
-const AuthenticatedAppBueroRoute = AuthenticatedAppBueroRouteImport.update({
-  id: '/buero',
-  path: '/buero',
-  getParentRoute: () => AuthenticatedAppRoute,
-} as any)
 const AuthenticatedAppEinstellungenRoute =
   AuthenticatedAppEinstellungenRouteImport.update({
     id: '/einstellungen',
@@ -161,6 +160,30 @@ const AuthenticatedAppBaustellenIdRoute =
     path: '/baustellen/$id',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
+const AuthenticatedAppBueroIndexRoute =
+  AuthenticatedAppBueroIndexRouteImport.update({
+    id: '/buero/',
+    path: '/buero/',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppBueroBelegeRoute =
+  AuthenticatedAppBueroBelegeRouteImport.update({
+    id: '/buero/belege',
+    path: '/buero/belege',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppBueroKundenRoute =
+  AuthenticatedAppBueroKundenRouteImport.update({
+    id: '/buero/kunden',
+    path: '/buero/kunden',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppBueroStammdatenRoute =
+  AuthenticatedAppBueroStammdatenRouteImport.update({
+    id: '/buero/stammdaten',
+    path: '/buero/stammdaten',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
 const AuthenticatedAppKundenCustomerIdRoute =
   AuthenticatedAppKundenCustomerIdRouteImport.update({
     id: '/kunden/$customerId',
@@ -209,6 +232,12 @@ const AuthenticatedAppBaustellenIdMedienRoute =
     path: '/medien',
     getParentRoute: () => AuthenticatedAppBaustellenIdRoute,
   } as any)
+const AuthenticatedAppBueroAuftragSiteIdRoute =
+  AuthenticatedAppBueroAuftragSiteIdRouteImport.update({
+    id: '/buero/auftrag/$siteId',
+    path: '/buero/auftrag/$siteId',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -222,7 +251,6 @@ export interface FileRoutesByFullPath {
   '/preise': typeof PreiseRoute
   '/app': typeof AuthenticatedAppRouteWithChildren
   '/app/abwesenheiten': typeof AuthenticatedAppAbwesenheitenRoute
-  '/app/buero': typeof AuthenticatedAppBueroRoute
   '/app/einstellungen': typeof AuthenticatedAppEinstellungenRoute
   '/app/geraete': typeof AuthenticatedAppGeraeteRoute
   '/app/ki-assistent': typeof AuthenticatedAppKiAssistentRoute
@@ -232,14 +260,19 @@ export interface FileRoutesByFullPath {
   '/api/webhooks/resend': typeof ApiWebhooksResendRoute
   '/app/': typeof AuthenticatedAppIndexRoute
   '/app/baustellen/$id': typeof AuthenticatedAppBaustellenIdRouteWithChildren
+  '/app/buero/belege': typeof AuthenticatedAppBueroBelegeRoute
+  '/app/buero/kunden': typeof AuthenticatedAppBueroKundenRoute
+  '/app/buero/stammdaten': typeof AuthenticatedAppBueroStammdatenRoute
   '/app/kunden/$customerId': typeof AuthenticatedAppKundenCustomerIdRoute
   '/app/profil/daten': typeof AuthenticatedAppProfilDatenRoute
   '/app/profil/dokumente': typeof AuthenticatedAppProfilDokumenteRoute
   '/app/baustellen/': typeof AuthenticatedAppBaustellenIndexRoute
+  '/app/buero/': typeof AuthenticatedAppBueroIndexRoute
   '/app/profil/': typeof AuthenticatedAppProfilIndexRoute
   '/app/baustellen/$id/aufgaben': typeof AuthenticatedAppBaustellenIdAufgabenRoute
   '/app/baustellen/$id/info': typeof AuthenticatedAppBaustellenIdInfoRoute
   '/app/baustellen/$id/medien': typeof AuthenticatedAppBaustellenIdMedienRoute
+  '/app/buero/auftrag/$siteId': typeof AuthenticatedAppBueroAuftragSiteIdRoute
   '/app/baustellen/$id/': typeof AuthenticatedAppBaustellenIdIndexRoute
 }
 export interface FileRoutesByTo {
@@ -253,7 +286,6 @@ export interface FileRoutesByTo {
   '/kontakt': typeof KontaktRoute
   '/preise': typeof PreiseRoute
   '/app/abwesenheiten': typeof AuthenticatedAppAbwesenheitenRoute
-  '/app/buero': typeof AuthenticatedAppBueroRoute
   '/app/einstellungen': typeof AuthenticatedAppEinstellungenRoute
   '/app/geraete': typeof AuthenticatedAppGeraeteRoute
   '/app/ki-assistent': typeof AuthenticatedAppKiAssistentRoute
@@ -262,14 +294,19 @@ export interface FileRoutesByTo {
   '/app/zeiten': typeof AuthenticatedAppZeitenRoute
   '/api/webhooks/resend': typeof ApiWebhooksResendRoute
   '/app': typeof AuthenticatedAppIndexRoute
+  '/app/buero/belege': typeof AuthenticatedAppBueroBelegeRoute
+  '/app/buero/kunden': typeof AuthenticatedAppBueroKundenRoute
+  '/app/buero/stammdaten': typeof AuthenticatedAppBueroStammdatenRoute
   '/app/kunden/$customerId': typeof AuthenticatedAppKundenCustomerIdRoute
   '/app/profil/daten': typeof AuthenticatedAppProfilDatenRoute
   '/app/profil/dokumente': typeof AuthenticatedAppProfilDokumenteRoute
   '/app/baustellen': typeof AuthenticatedAppBaustellenIndexRoute
+  '/app/buero': typeof AuthenticatedAppBueroIndexRoute
   '/app/profil': typeof AuthenticatedAppProfilIndexRoute
   '/app/baustellen/$id/aufgaben': typeof AuthenticatedAppBaustellenIdAufgabenRoute
   '/app/baustellen/$id/info': typeof AuthenticatedAppBaustellenIdInfoRoute
   '/app/baustellen/$id/medien': typeof AuthenticatedAppBaustellenIdMedienRoute
+  '/app/buero/auftrag/$siteId': typeof AuthenticatedAppBueroAuftragSiteIdRoute
   '/app/baustellen/$id': typeof AuthenticatedAppBaustellenIdIndexRoute
 }
 export interface FileRoutesById {
@@ -286,7 +323,6 @@ export interface FileRoutesById {
   '/preise': typeof PreiseRoute
   '/_authenticated/app': typeof AuthenticatedAppRouteWithChildren
   '/_authenticated/app/abwesenheiten': typeof AuthenticatedAppAbwesenheitenRoute
-  '/_authenticated/app/buero': typeof AuthenticatedAppBueroRoute
   '/_authenticated/app/einstellungen': typeof AuthenticatedAppEinstellungenRoute
   '/_authenticated/app/geraete': typeof AuthenticatedAppGeraeteRoute
   '/_authenticated/app/ki-assistent': typeof AuthenticatedAppKiAssistentRoute
@@ -296,14 +332,19 @@ export interface FileRoutesById {
   '/api/webhooks/resend': typeof ApiWebhooksResendRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
   '/_authenticated/app/baustellen/$id': typeof AuthenticatedAppBaustellenIdRouteWithChildren
+  '/_authenticated/app/buero/belege': typeof AuthenticatedAppBueroBelegeRoute
+  '/_authenticated/app/buero/kunden': typeof AuthenticatedAppBueroKundenRoute
+  '/_authenticated/app/buero/stammdaten': typeof AuthenticatedAppBueroStammdatenRoute
   '/_authenticated/app/kunden/$customerId': typeof AuthenticatedAppKundenCustomerIdRoute
   '/_authenticated/app/profil/daten': typeof AuthenticatedAppProfilDatenRoute
   '/_authenticated/app/profil/dokumente': typeof AuthenticatedAppProfilDokumenteRoute
   '/_authenticated/app/baustellen/': typeof AuthenticatedAppBaustellenIndexRoute
+  '/_authenticated/app/buero/': typeof AuthenticatedAppBueroIndexRoute
   '/_authenticated/app/profil/': typeof AuthenticatedAppProfilIndexRoute
   '/_authenticated/app/baustellen/$id/aufgaben': typeof AuthenticatedAppBaustellenIdAufgabenRoute
   '/_authenticated/app/baustellen/$id/info': typeof AuthenticatedAppBaustellenIdInfoRoute
   '/_authenticated/app/baustellen/$id/medien': typeof AuthenticatedAppBaustellenIdMedienRoute
+  '/_authenticated/app/buero/auftrag/$siteId': typeof AuthenticatedAppBueroAuftragSiteIdRoute
   '/_authenticated/app/baustellen/$id/': typeof AuthenticatedAppBaustellenIdIndexRoute
 }
 export interface FileRouteTypes {
@@ -320,7 +361,6 @@ export interface FileRouteTypes {
     | '/preise'
     | '/app'
     | '/app/abwesenheiten'
-    | '/app/buero'
     | '/app/einstellungen'
     | '/app/geraete'
     | '/app/ki-assistent'
@@ -330,14 +370,19 @@ export interface FileRouteTypes {
     | '/api/webhooks/resend'
     | '/app/'
     | '/app/baustellen/$id'
+    | '/app/buero/belege'
+    | '/app/buero/kunden'
+    | '/app/buero/stammdaten'
     | '/app/kunden/$customerId'
     | '/app/profil/daten'
     | '/app/profil/dokumente'
     | '/app/baustellen/'
+    | '/app/buero/'
     | '/app/profil/'
     | '/app/baustellen/$id/aufgaben'
     | '/app/baustellen/$id/info'
     | '/app/baustellen/$id/medien'
+    | '/app/buero/auftrag/$siteId'
     | '/app/baustellen/$id/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -351,7 +396,6 @@ export interface FileRouteTypes {
     | '/kontakt'
     | '/preise'
     | '/app/abwesenheiten'
-    | '/app/buero'
     | '/app/einstellungen'
     | '/app/geraete'
     | '/app/ki-assistent'
@@ -360,14 +404,19 @@ export interface FileRouteTypes {
     | '/app/zeiten'
     | '/api/webhooks/resend'
     | '/app'
+    | '/app/buero/belege'
+    | '/app/buero/kunden'
+    | '/app/buero/stammdaten'
     | '/app/kunden/$customerId'
     | '/app/profil/daten'
     | '/app/profil/dokumente'
     | '/app/baustellen'
+    | '/app/buero'
     | '/app/profil'
     | '/app/baustellen/$id/aufgaben'
     | '/app/baustellen/$id/info'
     | '/app/baustellen/$id/medien'
+    | '/app/buero/auftrag/$siteId'
     | '/app/baustellen/$id'
   id:
     | '__root__'
@@ -383,7 +432,6 @@ export interface FileRouteTypes {
     | '/preise'
     | '/_authenticated/app'
     | '/_authenticated/app/abwesenheiten'
-    | '/_authenticated/app/buero'
     | '/_authenticated/app/einstellungen'
     | '/_authenticated/app/geraete'
     | '/_authenticated/app/ki-assistent'
@@ -393,14 +441,19 @@ export interface FileRouteTypes {
     | '/api/webhooks/resend'
     | '/_authenticated/app/'
     | '/_authenticated/app/baustellen/$id'
+    | '/_authenticated/app/buero/belege'
+    | '/_authenticated/app/buero/kunden'
+    | '/_authenticated/app/buero/stammdaten'
     | '/_authenticated/app/kunden/$customerId'
     | '/_authenticated/app/profil/daten'
     | '/_authenticated/app/profil/dokumente'
     | '/_authenticated/app/baustellen/'
+    | '/_authenticated/app/buero/'
     | '/_authenticated/app/profil/'
     | '/_authenticated/app/baustellen/$id/aufgaben'
     | '/_authenticated/app/baustellen/$id/info'
     | '/_authenticated/app/baustellen/$id/medien'
+    | '/_authenticated/app/buero/auftrag/$siteId'
     | '/_authenticated/app/baustellen/$id/'
   fileRoutesById: FileRoutesById
 }
@@ -511,13 +564,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppAbwesenheitenRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
-    '/_authenticated/app/buero': {
-      id: '/_authenticated/app/buero'
-      path: '/buero'
-      fullPath: '/app/buero'
-      preLoaderRoute: typeof AuthenticatedAppBueroRouteImport
-      parentRoute: typeof AuthenticatedAppRoute
-    }
     '/_authenticated/app/einstellungen': {
       id: '/_authenticated/app/einstellungen'
       path: '/einstellungen'
@@ -581,6 +627,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppBaustellenIdRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/buero/': {
+      id: '/_authenticated/app/buero/'
+      path: '/buero'
+      fullPath: '/app/buero/'
+      preLoaderRoute: typeof AuthenticatedAppBueroIndexRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/buero/belege': {
+      id: '/_authenticated/app/buero/belege'
+      path: '/buero/belege'
+      fullPath: '/app/buero/belege'
+      preLoaderRoute: typeof AuthenticatedAppBueroBelegeRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/buero/kunden': {
+      id: '/_authenticated/app/buero/kunden'
+      path: '/buero/kunden'
+      fullPath: '/app/buero/kunden'
+      preLoaderRoute: typeof AuthenticatedAppBueroKundenRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/buero/stammdaten': {
+      id: '/_authenticated/app/buero/stammdaten'
+      path: '/buero/stammdaten'
+      fullPath: '/app/buero/stammdaten'
+      preLoaderRoute: typeof AuthenticatedAppBueroStammdatenRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
     '/_authenticated/app/kunden/$customerId': {
       id: '/_authenticated/app/kunden/$customerId'
       path: '/kunden/$customerId'
@@ -637,6 +711,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppBaustellenIdMedienRouteImport
       parentRoute: typeof AuthenticatedAppBaustellenIdRoute
     }
+    '/_authenticated/app/buero/auftrag/$siteId': {
+      id: '/_authenticated/app/buero/auftrag/$siteId'
+      path: '/buero/auftrag/$siteId'
+      fullPath: '/app/buero/auftrag/$siteId'
+      preLoaderRoute: typeof AuthenticatedAppBueroAuftragSiteIdRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
   }
 }
 
@@ -666,7 +747,6 @@ const AuthenticatedAppBaustellenIdRouteWithChildren =
 
 interface AuthenticatedAppRouteChildren {
   AuthenticatedAppAbwesenheitenRoute: typeof AuthenticatedAppAbwesenheitenRoute
-  AuthenticatedAppBueroRoute: typeof AuthenticatedAppBueroRoute
   AuthenticatedAppEinstellungenRoute: typeof AuthenticatedAppEinstellungenRoute
   AuthenticatedAppGeraeteRoute: typeof AuthenticatedAppGeraeteRoute
   AuthenticatedAppKiAssistentRoute: typeof AuthenticatedAppKiAssistentRoute
@@ -675,16 +755,20 @@ interface AuthenticatedAppRouteChildren {
   AuthenticatedAppZeitenRoute: typeof AuthenticatedAppZeitenRoute
   AuthenticatedAppIndexRoute: typeof AuthenticatedAppIndexRoute
   AuthenticatedAppBaustellenIdRoute: typeof AuthenticatedAppBaustellenIdRouteWithChildren
+  AuthenticatedAppBueroBelegeRoute: typeof AuthenticatedAppBueroBelegeRoute
+  AuthenticatedAppBueroKundenRoute: typeof AuthenticatedAppBueroKundenRoute
+  AuthenticatedAppBueroStammdatenRoute: typeof AuthenticatedAppBueroStammdatenRoute
   AuthenticatedAppKundenCustomerIdRoute: typeof AuthenticatedAppKundenCustomerIdRoute
   AuthenticatedAppProfilDatenRoute: typeof AuthenticatedAppProfilDatenRoute
   AuthenticatedAppProfilDokumenteRoute: typeof AuthenticatedAppProfilDokumenteRoute
   AuthenticatedAppBaustellenIndexRoute: typeof AuthenticatedAppBaustellenIndexRoute
+  AuthenticatedAppBueroIndexRoute: typeof AuthenticatedAppBueroIndexRoute
   AuthenticatedAppProfilIndexRoute: typeof AuthenticatedAppProfilIndexRoute
+  AuthenticatedAppBueroAuftragSiteIdRoute: typeof AuthenticatedAppBueroAuftragSiteIdRoute
 }
 
 const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppAbwesenheitenRoute: AuthenticatedAppAbwesenheitenRoute,
-  AuthenticatedAppBueroRoute: AuthenticatedAppBueroRoute,
   AuthenticatedAppEinstellungenRoute: AuthenticatedAppEinstellungenRoute,
   AuthenticatedAppGeraeteRoute: AuthenticatedAppGeraeteRoute,
   AuthenticatedAppKiAssistentRoute: AuthenticatedAppKiAssistentRoute,
@@ -694,11 +778,17 @@ const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppIndexRoute: AuthenticatedAppIndexRoute,
   AuthenticatedAppBaustellenIdRoute:
     AuthenticatedAppBaustellenIdRouteWithChildren,
+  AuthenticatedAppBueroBelegeRoute: AuthenticatedAppBueroBelegeRoute,
+  AuthenticatedAppBueroKundenRoute: AuthenticatedAppBueroKundenRoute,
+  AuthenticatedAppBueroStammdatenRoute: AuthenticatedAppBueroStammdatenRoute,
   AuthenticatedAppKundenCustomerIdRoute: AuthenticatedAppKundenCustomerIdRoute,
   AuthenticatedAppProfilDatenRoute: AuthenticatedAppProfilDatenRoute,
   AuthenticatedAppProfilDokumenteRoute: AuthenticatedAppProfilDokumenteRoute,
   AuthenticatedAppBaustellenIndexRoute: AuthenticatedAppBaustellenIndexRoute,
+  AuthenticatedAppBueroIndexRoute: AuthenticatedAppBueroIndexRoute,
   AuthenticatedAppProfilIndexRoute: AuthenticatedAppProfilIndexRoute,
+  AuthenticatedAppBueroAuftragSiteIdRoute:
+    AuthenticatedAppBueroAuftragSiteIdRoute,
 }
 
 const AuthenticatedAppRouteWithChildren =

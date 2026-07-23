@@ -5,7 +5,6 @@ import {
   Briefcase,
   Clock,
   Calendar,
-  
   Settings,
   UserX,
   Search,
@@ -42,18 +41,30 @@ const modules: NavItem[] = [
   { to: "/app/abwesenheiten", label: "Abwesenheiten", icon: UserX },
   { to: "/app/mitarbeiter", label: "Mitarbeiter", icon: Users, adminOnly: true, desktopOnly: true },
   { to: "/app/geraete", label: "Geräte", icon: Drill },
-  { to: "/app/einstellungen", label: "Einstellungen", icon: Settings, adminOnly: true, desktopOnly: true },
+  {
+    to: "/app/einstellungen",
+    label: "Einstellungen",
+    icon: Settings,
+    adminOnly: true,
+    desktopOnly: true,
+  },
 ];
 
 const EXTRA_TITLES: Record<string, string> = {
   "/app/profil": "Profil",
   "/app/profil/daten": "Persönliche Daten",
   "/app/profil/dokumente": "Dokumente",
+  "/app/buero/kunden": "Kunden",
+  "/app/buero/belege": "Angebote & Rechnungen",
+  "/app/buero/stammdaten": "Material & Leistungen",
 };
 
 const EXTRA_BACK: Record<string, string> = {
   "/app/profil/daten": "/app/profil",
   "/app/profil/dokumente": "/app/profil",
+  "/app/buero/kunden": "/app/buero",
+  "/app/buero/belege": "/app/buero",
+  "/app/buero/stammdaten": "/app/buero",
 };
 
 export function AppShell({ children }: { children?: ReactNode }) {
@@ -78,10 +89,15 @@ function AppShellInner({ children }: { children?: ReactNode }) {
   const displayName = profile?.full_name?.trim() || email || "Konto";
   const initials =
     (profile?.full_name?.trim()
-      ? profile.full_name.trim().split(/\s+/).map((s) => s[0]).slice(0, 2).join("")
+      ? profile.full_name
+          .trim()
+          .split(/\s+/)
+          .map((s) => s[0])
+          .slice(0, 2)
+          .join("")
       : email.slice(0, 2)
     ).toUpperCase() || "?";
-  const roleLabel = role ? ROLE_LABELS[role] ?? role : "Kein Zugriff";
+  const roleLabel = role ? (ROLE_LABELS[role] ?? role) : "Kein Zugriff";
 
   const visibleModules = modules.filter(
     (module) => (!module.adminOnly || isAdmin) && (surface === "desktop" || !module.desktopOnly),
@@ -95,9 +111,7 @@ function AppShellInner({ children }: { children?: ReactNode }) {
 
   const isModuleRoot = currentModule ? pathname === currentModule.to : false;
   const defaultTitle =
-    override.title ??
-    EXTRA_TITLES[pathname] ??
-    (currentModule ? currentModule.label : "");
+    override.title ?? EXTRA_TITLES[pathname] ?? (currentModule ? currentModule.label : "");
   const defaultBackTo =
     override.backTo ??
     EXTRA_BACK[pathname] ??
@@ -108,7 +122,10 @@ function AppShellInner({ children }: { children?: ReactNode }) {
       <header className="sticky top-0 z-30 border-b border-border bg-sidebar text-sidebar-foreground shadow-sm">
         {isHome ? (
           <div className="mx-auto flex h-16 max-w-[1600px] items-center gap-3 px-4 lg:px-6">
-            <GlobalSearch modules={visibleModules} onNavigate={(to) => navigate({ to: to as never })} />
+            <GlobalSearch
+              modules={visibleModules}
+              onNavigate={(to) => navigate({ to: to as never })}
+            />
 
             <div className="flex-1" />
 
@@ -124,7 +141,8 @@ function AppShellInner({ children }: { children?: ReactNode }) {
               <span className="hidden min-w-0 flex-col leading-tight md:flex">
                 <span className="truncate text-sm font-semibold text-white">{displayName}</span>
                 <span className="truncate text-[11px] text-white/70">
-                  {roleLabel}{profile?.tenants?.name ? ` · ${profile.tenants.name}` : ""}
+                  {roleLabel}
+                  {profile?.tenants?.name ? ` · ${profile.tenants.name}` : ""}
                 </span>
               </span>
             </Link>
@@ -147,7 +165,10 @@ function AppShellInner({ children }: { children?: ReactNode }) {
                 {defaultTitle}
               </button>
             ) : (
-              <h1 key={defaultTitle} className="flex-1 truncate text-center text-base font-semibold text-white animate-fade-in">
+              <h1
+                key={defaultTitle}
+                className="flex-1 truncate text-center text-base font-semibold text-white animate-fade-in"
+              >
                 {defaultTitle}
               </h1>
             )}
@@ -156,7 +177,9 @@ function AppShellInner({ children }: { children?: ReactNode }) {
         )}
       </header>
 
-      <main key={pathname} className="mx-auto max-w-[1600px] p-4 pb-8 lg:p-8 animate-fade-in">{children ?? <Outlet />}</main>
+      <main key={pathname} className="mx-auto max-w-[1600px] p-4 pb-8 lg:p-8 animate-fade-in">
+        {children ?? <Outlet />}
+      </main>
       <PublicFooter compact />
     </div>
   );
@@ -164,13 +187,40 @@ function AppShellInner({ children }: { children?: ReactNode }) {
 
 const SEARCH_ALIASES: Record<string, string[]> = {
   "/app": ["start", "home", "übersicht"],
-  "/app/buero": ["büro", "kunde", "crm", "aufmaß", "angebot", "rechnung", "material", "zahlung", "finanzen", "kommunikation"],
+  "/app/buero": [
+    "büro",
+    "kunde",
+    "crm",
+    "aufmaß",
+    "angebot",
+    "rechnung",
+    "material",
+    "zahlung",
+    "finanzen",
+    "kommunikation",
+  ],
   "/app/baustellen": ["baustelle", "projekt", "auftrag", "job", "chat"],
   "/app/plan": ["plan", "wochenplanung", "einsatz", "kalender"],
   "/app/zeiten": ["zeit", "stunden", "stempel", "arbeitszeit"],
-  "/app/ki-assistent": ["ki", "assistent", "angebot", "aufmaß", "bericht", "kundenmail", "material"],
+  "/app/ki-assistent": [
+    "ki",
+    "assistent",
+    "angebot",
+    "aufmaß",
+    "bericht",
+    "kundenmail",
+    "material",
+  ],
   "/app/abwesenheiten": ["urlaub", "krank", "abwesenheit", "antrag"],
-  "/app/mitarbeiter": ["mitarbeiter", "personal", "stammdaten", "team", "rollen", "zugang", "berechtigungen"],
+  "/app/mitarbeiter": [
+    "mitarbeiter",
+    "personal",
+    "stammdaten",
+    "team",
+    "rollen",
+    "zugang",
+    "berechtigungen",
+  ],
   "/app/geraete": ["gerät", "geräte", "werkzeug", "inventar", "ausgabe", "rückgabe"],
   "/app/einstellungen": ["einstellung", "settings", "betrieb"],
 };
@@ -270,7 +320,9 @@ function GlobalSearch({
                 >
                   <m.icon className="h-4 w-4 text-brand" />
                   <span className="flex-1 truncate">{m.label}</span>
-                  <span className="text-[11px] text-muted-foreground">{m.to.replace("/app/", "")}</span>
+                  <span className="text-[11px] text-muted-foreground">
+                    {m.to.replace("/app/", "")}
+                  </span>
                 </button>
               </li>
             ))}

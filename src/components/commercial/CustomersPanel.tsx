@@ -5,10 +5,22 @@ import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import type { CommercialData } from "@/lib/commercial";
@@ -35,7 +47,13 @@ const initialForm = {
   notes: "",
 };
 
-export function CustomersPanel({ data, tenantId, userId, canWrite, onChanged }: CustomersPanelProps) {
+export function CustomersPanel({
+  data,
+  tenantId,
+  userId,
+  canWrite,
+  onChanged,
+}: CustomersPanelProps) {
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [search, setSearch] = useState("");
@@ -89,15 +107,30 @@ export function CustomersPanel({ data, tenantId, userId, canWrite, onChanged }: 
       <header className="flex flex-wrap items-center justify-between gap-3 border-b border-border p-4 sm:p-5">
         <div>
           <h2 className="font-display text-lg font-bold">Kunden & Kontakte</h2>
-          <p className="text-sm text-muted-foreground">Zentrale Adressen für Baustellen, Angebote und Rechnungen.</p>
+          <p className="text-sm text-muted-foreground">
+            Zentrale Adressen für Baustellen, Angebote und Rechnungen.
+          </p>
         </div>
-        {canWrite && <Button type="button" onClick={() => setOpen(true)} className="bg-brand text-white hover:bg-brand/90"><Plus className="h-4 w-4" /> Kunde</Button>}
+        {canWrite && (
+          <Button
+            type="button"
+            onClick={() => setOpen(true)}
+            className="bg-brand text-white hover:bg-brand/90"
+          >
+            <Plus className="h-4 w-4" /> Kunde
+          </Button>
+        )}
       </header>
 
       <div className="p-4 sm:p-5">
         <div className="relative mb-4 max-w-md">
           <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Name, Nummer, E-Mail …" className="pl-9" />
+          <Input
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder="Name, Nummer, E-Mail …"
+            className="pl-9"
+          />
         </div>
 
         {filtered.length ? (
@@ -109,21 +142,39 @@ export function CustomersPanel({ data, tenantId, userId, canWrite, onChanged }: 
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
                       <h3 className="truncate font-semibold">{customerName(customer)}</h3>
-                      <p className="text-xs text-muted-foreground">{customer.customer_number ?? "Ohne Kundennummer"}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {customer.customer_number ?? "Ohne Kundennummer"}
+                      </p>
                     </div>
-                    <Badge variant="secondary">{customer.kind === "business" ? "Betrieb" : customer.kind === "public" ? "Öffentlich" : "Privat"}</Badge>
+                    <Badge variant="secondary">
+                      {customer.kind === "business"
+                        ? "Betrieb"
+                        : customer.kind === "public"
+                          ? "Öffentlich"
+                          : "Privat"}
+                    </Badge>
                   </div>
                   <div className="mt-4 space-y-1 text-sm text-slate-600">
                     {customer.email && <p className="truncate">{customer.email}</p>}
                     {customer.phone && <p>{customer.phone}</p>}
-                    {(address.street || address.city) && <p>{[address.street, [address.postalCode, address.city].filter(Boolean).join(" ")].filter(Boolean).join(", ")}</p>}
+                    {(address.street || address.city) && (
+                      <p>
+                        {[
+                          address.street,
+                          [address.postalCode, address.city].filter(Boolean).join(" "),
+                        ]
+                          .filter(Boolean)
+                          .join(", ")}
+                      </p>
+                    )}
                   </div>
                   <Link
                     to="/app/kunden/$customerId"
                     params={{ customerId: customer.id }}
                     className="mt-4 flex items-center gap-2 border-t border-border pt-3 text-sm font-semibold text-brand hover:underline"
                   >
-                    <BrainCircuit className="h-4 w-4" /> Work-Segment öffnen <ArrowRight className="ml-auto h-4 w-4" />
+                    <BrainCircuit className="h-4 w-4" /> Work-Segment öffnen{" "}
+                    <ArrowRight className="ml-auto h-4 w-4" />
                   </Link>
                 </article>
               );
@@ -131,7 +182,13 @@ export function CustomersPanel({ data, tenantId, userId, canWrite, onChanged }: 
           </div>
         ) : (
           <div className="grid min-h-56 place-items-center rounded-xl border border-dashed border-border text-center">
-            <div><UsersRound className="mx-auto h-8 w-8 text-slate-300" /><p className="mt-3 font-medium">Noch keine passenden Kunden</p><p className="text-sm text-muted-foreground">Lege den ersten Kunden als Grundlage für den Auftrag an.</p></div>
+            <div>
+              <UsersRound className="mx-auto h-8 w-8 text-slate-300" />
+              <p className="mt-3 font-medium">Noch keine passenden Kunden</p>
+              <p className="text-sm text-muted-foreground">
+                Lege den ersten Kunden als Grundlage für den Auftrag an.
+              </p>
+            </div>
           </div>
         )}
       </div>
@@ -139,20 +196,113 @@ export function CustomersPanel({ data, tenantId, userId, canWrite, onChanged }: 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
           <form onSubmit={saveCustomer}>
-            <DialogHeader><DialogTitle>Neuen Kunden anlegen</DialogTitle></DialogHeader>
+            <DialogHeader>
+              <DialogTitle>Neuen Kunden anlegen</DialogTitle>
+            </DialogHeader>
             <div className="grid gap-4 py-5 sm:grid-cols-2">
-              <div className="sm:col-span-2"><Label>Kundentyp</Label><Select value={form.kind} onValueChange={(kind) => setForm({ ...form, kind })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="business">Geschäftskunde</SelectItem><SelectItem value="private">Privatkunde</SelectItem><SelectItem value="public">Öffentlicher Auftraggeber</SelectItem></SelectContent></Select></div>
-              <div className="sm:col-span-2"><Label htmlFor="customer-company">Firma</Label><Input id="customer-company" value={form.companyName} onChange={(event) => setForm({ ...form, companyName: event.target.value })} required={form.kind !== "private"} /></div>
-              <div><Label htmlFor="customer-first-name">Vorname</Label><Input id="customer-first-name" value={form.firstName} onChange={(event) => setForm({ ...form, firstName: event.target.value })} /></div>
-              <div><Label htmlFor="customer-last-name">Nachname</Label><Input id="customer-last-name" value={form.lastName} onChange={(event) => setForm({ ...form, lastName: event.target.value })} required={form.kind === "private"} /></div>
-              <div><Label htmlFor="customer-email">E-Mail</Label><Input id="customer-email" type="email" value={form.email} onChange={(event) => setForm({ ...form, email: event.target.value })} /></div>
-              <div><Label htmlFor="customer-phone">Telefon</Label><Input id="customer-phone" type="tel" value={form.phone} onChange={(event) => setForm({ ...form, phone: event.target.value })} /></div>
-              <div className="sm:col-span-2"><Label htmlFor="customer-street">Straße und Hausnummer</Label><Input id="customer-street" value={form.street} onChange={(event) => setForm({ ...form, street: event.target.value })} /></div>
-              <div><Label htmlFor="customer-postal">PLZ</Label><Input id="customer-postal" inputMode="numeric" value={form.postalCode} onChange={(event) => setForm({ ...form, postalCode: event.target.value })} /></div>
-              <div><Label htmlFor="customer-city">Ort</Label><Input id="customer-city" value={form.city} onChange={(event) => setForm({ ...form, city: event.target.value })} /></div>
-              <div className="sm:col-span-2"><Label htmlFor="customer-notes">Notizen</Label><Textarea id="customer-notes" value={form.notes} onChange={(event) => setForm({ ...form, notes: event.target.value })} /></div>
+              <div className="sm:col-span-2">
+                <Label>Kundentyp</Label>
+                <Select value={form.kind} onValueChange={(kind) => setForm({ ...form, kind })}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="business">Geschäftskunde</SelectItem>
+                    <SelectItem value="private">Privatkunde</SelectItem>
+                    <SelectItem value="public">Öffentlicher Auftraggeber</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="sm:col-span-2">
+                <Label htmlFor="customer-company">Firma</Label>
+                <Input
+                  id="customer-company"
+                  value={form.companyName}
+                  onChange={(event) => setForm({ ...form, companyName: event.target.value })}
+                  required={form.kind !== "private"}
+                />
+              </div>
+              <div>
+                <Label htmlFor="customer-first-name">Vorname</Label>
+                <Input
+                  id="customer-first-name"
+                  value={form.firstName}
+                  onChange={(event) => setForm({ ...form, firstName: event.target.value })}
+                />
+              </div>
+              <div>
+                <Label htmlFor="customer-last-name">Nachname</Label>
+                <Input
+                  id="customer-last-name"
+                  value={form.lastName}
+                  onChange={(event) => setForm({ ...form, lastName: event.target.value })}
+                  required={form.kind === "private"}
+                />
+              </div>
+              <div>
+                <Label htmlFor="customer-email">E-Mail</Label>
+                <Input
+                  id="customer-email"
+                  type="email"
+                  value={form.email}
+                  onChange={(event) => setForm({ ...form, email: event.target.value })}
+                />
+              </div>
+              <div>
+                <Label htmlFor="customer-phone">Telefon</Label>
+                <Input
+                  id="customer-phone"
+                  type="tel"
+                  value={form.phone}
+                  onChange={(event) => setForm({ ...form, phone: event.target.value })}
+                />
+              </div>
+              <div className="sm:col-span-2">
+                <Label htmlFor="customer-street">Straße und Hausnummer</Label>
+                <Input
+                  id="customer-street"
+                  value={form.street}
+                  onChange={(event) => setForm({ ...form, street: event.target.value })}
+                />
+              </div>
+              <div>
+                <Label htmlFor="customer-postal">PLZ</Label>
+                <Input
+                  id="customer-postal"
+                  inputMode="numeric"
+                  value={form.postalCode}
+                  onChange={(event) => setForm({ ...form, postalCode: event.target.value })}
+                />
+              </div>
+              <div>
+                <Label htmlFor="customer-city">Ort</Label>
+                <Input
+                  id="customer-city"
+                  value={form.city}
+                  onChange={(event) => setForm({ ...form, city: event.target.value })}
+                />
+              </div>
+              <div className="sm:col-span-2">
+                <Label htmlFor="customer-notes">Notizen</Label>
+                <Textarea
+                  id="customer-notes"
+                  value={form.notes}
+                  onChange={(event) => setForm({ ...form, notes: event.target.value })}
+                />
+              </div>
             </div>
-            <DialogFooter><Button type="button" variant="outline" onClick={() => setOpen(false)}>Abbrechen</Button><Button type="submit" disabled={saving} className="bg-brand text-white hover:bg-brand/90">{saving ? "Speichert …" : "Kunde anlegen"}</Button></DialogFooter>
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+                Abbrechen
+              </Button>
+              <Button
+                type="submit"
+                disabled={saving}
+                className="bg-brand text-white hover:bg-brand/90"
+              >
+                {saving ? "Speichert …" : "Kunde anlegen"}
+              </Button>
+            </DialogFooter>
           </form>
         </DialogContent>
       </Dialog>

@@ -99,3 +99,13 @@ export const MEASUREMENT_STATUS: Record<string, string> = {
   approved: "Freigegeben",
   archived: "Archiviert",
 };
+
+export const SITE_STATUS_LABELS: Record<string, string> = {
+  anfrage: "Anfrage",
+  angebot: "Angebot",
+  beauftragt: "Beauftragt",
+  geplant: "Geplant",
+  in_arbeit: "In Arbeit",
+  abgeschlossen: "Abgeschlossen",
+  abgerechnet: "Abgerechnet",
+};

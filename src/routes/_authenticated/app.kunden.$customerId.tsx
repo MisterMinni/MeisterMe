@@ -10,6 +10,6 @@ export const Route = createFileRoute("/_authenticated/app/kunden/$customerId")({
 
 function CustomerWorkspaceRoute() {
   const { customerId } = Route.useParams();
-  useSetPageHeader({ title: "Kunden-Work-Segment", backTo: "/app/buero" });
+  useSetPageHeader({ title: "Kunden-Work-Segment", backTo: "/app/buero/kunden" });
   return <CustomerWorkspace customerId={customerId} />;
 }
