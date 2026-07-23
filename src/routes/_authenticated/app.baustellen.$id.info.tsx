@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { SITE_STATUS, useHasPermission, useProfile } from "@/lib/handwerk";
 import { toast } from "sonner";
 import { useSetPageHeader } from "@/components/page-header-context";
-import { MapPin, CalendarDays, Activity, FileText, Check, Loader2, Camera, Images } from "lucide-react";
+import { MapPin, CalendarDays, Activity, FileText, Check, Loader2, Camera, Images, ListTodo } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/app/baustellen/$id/info")({
   head: () => ({ meta: [{ title: "Baustelleninformationen – MeisterMe" }] }),
@@ -113,7 +113,10 @@ function SiteInfo({ site, canEdit, siteId }: { site: Site; canEdit: boolean; sit
       </div>
 
       <SiteAvatar site={site} />
-      <MediaLink siteId={siteId} />
+      <div className="grid gap-3 sm:grid-cols-2">
+        <MediaLink siteId={siteId} />
+        <TasksLink siteId={siteId} />
+      </div>
 
       <Section icon={<MapPin className="h-4 w-4" />} title="Adresse">
         <div className="grid grid-cols-[1fr_90px] gap-3">
@@ -243,6 +246,20 @@ function MediaLink({ siteId }: { siteId: string }) {
         <Images className="h-4 w-4" />
       </span>
       <span className="flex-1 text-sm font-semibold text-brand">Medien, Links, Doks</span>
+      <span className="text-muted-foreground">›</span>
+    </Link>
+  );
+}
+
+function TasksLink({ siteId }: { siteId: string }) {
+  return (
+    <Link
+      to="/app/baustellen/$id/aufgaben"
+      params={{ id: siteId }}
+      className="flex w-full items-center gap-3 rounded-2xl border border-border bg-background p-4 text-left shadow-sm hover:bg-secondary/40"
+    >
+      <span className="flex h-9 w-9 items-center justify-center rounded-full bg-brand/10 text-brand"><ListTodo className="h-4 w-4" /></span>
+      <span className="flex-1 text-sm font-semibold text-brand">Aufgaben & Mängel</span>
       <span className="text-muted-foreground">›</span>
     </Link>
   );

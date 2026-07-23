@@ -3,6 +3,7 @@ import { useState, type FormEvent } from "react";
 import { ArrowRight, BrainCircuit, Building2, CheckCircle2, ShieldCheck } from "lucide-react";
 
 import { Logo } from "@/components/Logo";
+import { PublicFooter } from "@/components/PublicFooter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -162,6 +163,12 @@ function AuthPage() {
               {mode === "login" ? "Betrieb anlegen" : "Jetzt anmelden"}
             </button>
           </p>
+          {mode === "register" && (
+            <p className="mt-4 text-center text-xs leading-relaxed text-slate-500">
+              Mit der Registrierung nimmst du unsere <a href="/datenschutz" className="font-medium text-brand hover:underline">Datenschutzerklärung</a> zur Kenntnis. Anbieterangaben findest du im <a href="/impressum" className="font-medium text-brand hover:underline">Impressum</a>.
+            </p>
+          )}
+          <PublicFooter compact />
         </div>
       </section>
     </main>

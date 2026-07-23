@@ -12,10 +12,13 @@ import {
   Users,
   Sparkles,
   ArrowLeft,
+  Landmark,
+  Drill,
 } from "lucide-react";
 
 import { useProfile, useMyRole, useSession, useIsAdmin, ROLE_LABELS } from "@/lib/handwerk";
 import { PageHeaderProvider, usePageHeader } from "@/components/page-header-context";
+import { PublicFooter } from "@/components/PublicFooter";
 
 import type { LucideIcon } from "lucide-react";
 
@@ -23,12 +26,14 @@ type NavItem = { to: string; label: string; icon: LucideIcon; exact?: boolean; a
 
 const modules: NavItem[] = [
   { to: "/app", label: "Dashboard", icon: LayoutDashboard, exact: true },
+  { to: "/app/buero", label: "Büro & Finanzen", icon: Landmark },
   { to: "/app/baustellen", label: "Baustellen", icon: Briefcase },
   { to: "/app/plan", label: "Wochenplanung", icon: Calendar },
   { to: "/app/zeiten", label: "Zeiterfassung", icon: Clock },
   { to: "/app/ki-assistent", label: "KI-Assistent", icon: Sparkles },
   { to: "/app/abwesenheiten", label: "Abwesenheiten", icon: UserX },
   { to: "/app/mitarbeiter", label: "Mitarbeiter", icon: Users, adminOnly: true },
+  { to: "/app/geraete", label: "Geräte", icon: Drill },
   { to: "/app/einstellungen", label: "Einstellungen", icon: Settings, adminOnly: true },
 ];
 
@@ -141,19 +146,21 @@ function AppShellInner({ children }: { children?: ReactNode }) {
       </header>
 
       <main key={pathname} className="mx-auto max-w-[1600px] p-4 pb-8 lg:p-8 animate-fade-in">{children ?? <Outlet />}</main>
-
+      <PublicFooter compact />
     </div>
   );
 }
 
 const SEARCH_ALIASES: Record<string, string[]> = {
   "/app": ["start", "home", "übersicht"],
+  "/app/buero": ["büro", "kunde", "crm", "aufmaß", "angebot", "rechnung", "material", "zahlung", "finanzen", "kommunikation"],
   "/app/baustellen": ["baustelle", "projekt", "auftrag", "job", "chat"],
   "/app/plan": ["plan", "wochenplanung", "einsatz", "kalender"],
   "/app/zeiten": ["zeit", "stunden", "stempel", "arbeitszeit"],
   "/app/ki-assistent": ["ki", "assistent", "angebot", "aufmaß", "bericht", "kundenmail", "material"],
   "/app/abwesenheiten": ["urlaub", "krank", "abwesenheit", "antrag"],
   "/app/mitarbeiter": ["mitarbeiter", "personal", "stammdaten", "team", "rollen", "zugang", "berechtigungen"],
+  "/app/geraete": ["gerät", "geräte", "werkzeug", "inventar", "ausgabe", "rückgabe"],
   "/app/einstellungen": ["einstellung", "settings", "betrieb"],
 };
 

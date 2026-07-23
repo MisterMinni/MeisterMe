@@ -11,6 +11,9 @@ import {
   Settings,
   Sparkles,
   ChevronRight,
+  Landmark,
+  FileCheck2,
+  Drill,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -105,11 +108,14 @@ function Dashboard() {
   const { data: stats } = useQuery({
     queryKey: ["dashboard-stats"],
     queryFn: async () => {
-      const [sites, absences, assignments, messages] = await Promise.all([
+      const [sites, absences, assignments, messages, customers, offers, invoices] = await Promise.all([
         supabase.from("sites").select("id, archived_at"),
         supabase.from("absences").select("id, status"),
         supabase.from("weekly_assignments").select("id, day"),
         supabase.from("project_messages").select("id", { count: "exact", head: true }),
+        supabase.from("customers").select("id", { count: "exact", head: true }),
+        supabase.from("offers").select("id, status"),
+        supabase.from("invoices").select("id, status, due_date"),
       ]);
       const today = new Date().toISOString().slice(0, 10);
       return {
@@ -117,12 +123,24 @@ function Dashboard() {
         openAbsences: (absences.data ?? []).filter((a) => a.status === "eingereicht").length,
         planToday: (assignments.data ?? []).filter((a) => a.day === today).length,
         messages: messages.count ?? 0,
+        customers: customers.count ?? 0,
+        openOffers: (offers.data ?? []).filter((offer) => !["accepted", "rejected", "expired"].includes(offer.status)).length,
+        overdueInvoices: (invoices.data ?? []).filter((invoice) => invoice.due_date && invoice.due_date < today && !["paid", "cancelled"].includes(invoice.status)).length,
       };
     },
   });
 
 
   const groups: Group[] = [
+    {
+      title: "Büro & Finanzen",
+      tone: "slate",
+      tiles: [
+        { to: "/app/buero", label: "Auftragsbüro", icon: Landmark, desc: "Aufmaß bis Zahlung", badge: stats?.overdueInvoices, badgeTone: "warn", highlight: true },
+        { to: "/app/buero", label: "Kunden", icon: UsersRound, desc: `${stats?.customers ?? 0} Kunden im Stamm` },
+        { to: "/app/buero", label: "Angebote & Rechnungen", icon: FileCheck2, desc: `${stats?.openOffers ?? 0} offene Angebote` },
+      ],
+    },
     {
       title: "Baustelle",
       tone: "blue",
@@ -145,6 +163,7 @@ function Dashboard() {
       tone: "slate",
       tiles: [
         { to: "/app/mitarbeiter", label: "Mitarbeiter", icon: UsersRound, desc: "Stammdaten, Rollen & Zugänge" },
+        { to: "/app/geraete", label: "Geräte & Werkzeuge", icon: Drill, desc: "Inventar, Ausgabe, Rückgabe" },
         { to: "/app/einstellungen", label: "Einstellungen", icon: Settings, desc: "Betrieb & Profil" },
       ],
     },

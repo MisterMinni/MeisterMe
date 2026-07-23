@@ -13,14 +13,18 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AcceptInviteRouteImport } from './routes/accept-invite'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as DatenschutzRouteImport } from './routes/datenschutz'
 import { Route as FunktionenRouteImport } from './routes/funktionen'
 import { Route as HealthzRouteImport } from './routes/healthz'
+import { Route as ImpressumRouteImport } from './routes/impressum'
 import { Route as KontaktRouteImport } from './routes/kontakt'
 import { Route as PreiseRouteImport } from './routes/preise'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app.index'
 import { Route as AuthenticatedAppAbwesenheitenRouteImport } from './routes/_authenticated/app.abwesenheiten'
+import { Route as AuthenticatedAppBueroRouteImport } from './routes/_authenticated/app.buero'
 import { Route as AuthenticatedAppEinstellungenRouteImport } from './routes/_authenticated/app.einstellungen'
+import { Route as AuthenticatedAppGeraeteRouteImport } from './routes/_authenticated/app.geraete'
 import { Route as AuthenticatedAppKiAssistentRouteImport } from './routes/_authenticated/app.ki-assistent'
 import { Route as AuthenticatedAppMitarbeiterRouteImport } from './routes/_authenticated/app.mitarbeiter'
 import { Route as AuthenticatedAppPlanRouteImport } from './routes/_authenticated/app.plan'
@@ -31,6 +35,7 @@ import { Route as AuthenticatedAppProfilIndexRouteImport } from './routes/_authe
 import { Route as AuthenticatedAppProfilDatenRouteImport } from './routes/_authenticated/app.profil.daten'
 import { Route as AuthenticatedAppProfilDokumenteRouteImport } from './routes/_authenticated/app.profil.dokumente'
 import { Route as AuthenticatedAppBaustellenIdIndexRouteImport } from './routes/_authenticated/app.baustellen.$id.index'
+import { Route as AuthenticatedAppBaustellenIdAufgabenRouteImport } from './routes/_authenticated/app.baustellen.$id.aufgaben'
 import { Route as AuthenticatedAppBaustellenIdInfoRouteImport } from './routes/_authenticated/app.baustellen.$id.info'
 import { Route as AuthenticatedAppBaustellenIdMedienRouteImport } from './routes/_authenticated/app.baustellen.$id.medien'
 
@@ -53,6 +58,11 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DatenschutzRoute = DatenschutzRouteImport.update({
+  id: '/datenschutz',
+  path: '/datenschutz',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const FunktionenRoute = FunktionenRouteImport.update({
   id: '/funktionen',
   path: '/funktionen',
@@ -61,6 +71,11 @@ const FunktionenRoute = FunktionenRouteImport.update({
 const HealthzRoute = HealthzRouteImport.update({
   id: '/healthz',
   path: '/healthz',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ImpressumRoute = ImpressumRouteImport.update({
+  id: '/impressum',
+  path: '/impressum',
   getParentRoute: () => rootRouteImport,
 } as any)
 const KontaktRoute = KontaktRouteImport.update({
@@ -89,12 +104,22 @@ const AuthenticatedAppAbwesenheitenRoute =
     path: '/abwesenheiten',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
+const AuthenticatedAppBueroRoute = AuthenticatedAppBueroRouteImport.update({
+  id: '/buero',
+  path: '/buero',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
 const AuthenticatedAppEinstellungenRoute =
   AuthenticatedAppEinstellungenRouteImport.update({
     id: '/einstellungen',
     path: '/einstellungen',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
+const AuthenticatedAppGeraeteRoute = AuthenticatedAppGeraeteRouteImport.update({
+  id: '/geraete',
+  path: '/geraete',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
 const AuthenticatedAppKiAssistentRoute =
   AuthenticatedAppKiAssistentRouteImport.update({
     id: '/ki-assistent',
@@ -153,6 +178,12 @@ const AuthenticatedAppBaustellenIdIndexRoute =
     path: '/',
     getParentRoute: () => AuthenticatedAppBaustellenIdRoute,
   } as any)
+const AuthenticatedAppBaustellenIdAufgabenRoute =
+  AuthenticatedAppBaustellenIdAufgabenRouteImport.update({
+    id: '/aufgaben',
+    path: '/aufgaben',
+    getParentRoute: () => AuthenticatedAppBaustellenIdRoute,
+  } as any)
 const AuthenticatedAppBaustellenIdInfoRoute =
   AuthenticatedAppBaustellenIdInfoRouteImport.update({
     id: '/info',
@@ -170,13 +201,17 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/accept-invite': typeof AcceptInviteRoute
   '/auth': typeof AuthRoute
+  '/datenschutz': typeof DatenschutzRoute
   '/funktionen': typeof FunktionenRoute
   '/healthz': typeof HealthzRoute
+  '/impressum': typeof ImpressumRoute
   '/kontakt': typeof KontaktRoute
   '/preise': typeof PreiseRoute
   '/app': typeof AuthenticatedAppRouteWithChildren
   '/app/abwesenheiten': typeof AuthenticatedAppAbwesenheitenRoute
+  '/app/buero': typeof AuthenticatedAppBueroRoute
   '/app/einstellungen': typeof AuthenticatedAppEinstellungenRoute
+  '/app/geraete': typeof AuthenticatedAppGeraeteRoute
   '/app/ki-assistent': typeof AuthenticatedAppKiAssistentRoute
   '/app/mitarbeiter': typeof AuthenticatedAppMitarbeiterRoute
   '/app/plan': typeof AuthenticatedAppPlanRoute
@@ -187,6 +222,7 @@ export interface FileRoutesByFullPath {
   '/app/profil/dokumente': typeof AuthenticatedAppProfilDokumenteRoute
   '/app/baustellen/': typeof AuthenticatedAppBaustellenIndexRoute
   '/app/profil/': typeof AuthenticatedAppProfilIndexRoute
+  '/app/baustellen/$id/aufgaben': typeof AuthenticatedAppBaustellenIdAufgabenRoute
   '/app/baustellen/$id/info': typeof AuthenticatedAppBaustellenIdInfoRoute
   '/app/baustellen/$id/medien': typeof AuthenticatedAppBaustellenIdMedienRoute
   '/app/baustellen/$id/': typeof AuthenticatedAppBaustellenIdIndexRoute
@@ -195,12 +231,16 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/accept-invite': typeof AcceptInviteRoute
   '/auth': typeof AuthRoute
+  '/datenschutz': typeof DatenschutzRoute
   '/funktionen': typeof FunktionenRoute
   '/healthz': typeof HealthzRoute
+  '/impressum': typeof ImpressumRoute
   '/kontakt': typeof KontaktRoute
   '/preise': typeof PreiseRoute
   '/app/abwesenheiten': typeof AuthenticatedAppAbwesenheitenRoute
+  '/app/buero': typeof AuthenticatedAppBueroRoute
   '/app/einstellungen': typeof AuthenticatedAppEinstellungenRoute
+  '/app/geraete': typeof AuthenticatedAppGeraeteRoute
   '/app/ki-assistent': typeof AuthenticatedAppKiAssistentRoute
   '/app/mitarbeiter': typeof AuthenticatedAppMitarbeiterRoute
   '/app/plan': typeof AuthenticatedAppPlanRoute
@@ -210,6 +250,7 @@ export interface FileRoutesByTo {
   '/app/profil/dokumente': typeof AuthenticatedAppProfilDokumenteRoute
   '/app/baustellen': typeof AuthenticatedAppBaustellenIndexRoute
   '/app/profil': typeof AuthenticatedAppProfilIndexRoute
+  '/app/baustellen/$id/aufgaben': typeof AuthenticatedAppBaustellenIdAufgabenRoute
   '/app/baustellen/$id/info': typeof AuthenticatedAppBaustellenIdInfoRoute
   '/app/baustellen/$id/medien': typeof AuthenticatedAppBaustellenIdMedienRoute
   '/app/baustellen/$id': typeof AuthenticatedAppBaustellenIdIndexRoute
@@ -220,13 +261,17 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/accept-invite': typeof AcceptInviteRoute
   '/auth': typeof AuthRoute
+  '/datenschutz': typeof DatenschutzRoute
   '/funktionen': typeof FunktionenRoute
   '/healthz': typeof HealthzRoute
+  '/impressum': typeof ImpressumRoute
   '/kontakt': typeof KontaktRoute
   '/preise': typeof PreiseRoute
   '/_authenticated/app': typeof AuthenticatedAppRouteWithChildren
   '/_authenticated/app/abwesenheiten': typeof AuthenticatedAppAbwesenheitenRoute
+  '/_authenticated/app/buero': typeof AuthenticatedAppBueroRoute
   '/_authenticated/app/einstellungen': typeof AuthenticatedAppEinstellungenRoute
+  '/_authenticated/app/geraete': typeof AuthenticatedAppGeraeteRoute
   '/_authenticated/app/ki-assistent': typeof AuthenticatedAppKiAssistentRoute
   '/_authenticated/app/mitarbeiter': typeof AuthenticatedAppMitarbeiterRoute
   '/_authenticated/app/plan': typeof AuthenticatedAppPlanRoute
@@ -237,6 +282,7 @@ export interface FileRoutesById {
   '/_authenticated/app/profil/dokumente': typeof AuthenticatedAppProfilDokumenteRoute
   '/_authenticated/app/baustellen/': typeof AuthenticatedAppBaustellenIndexRoute
   '/_authenticated/app/profil/': typeof AuthenticatedAppProfilIndexRoute
+  '/_authenticated/app/baustellen/$id/aufgaben': typeof AuthenticatedAppBaustellenIdAufgabenRoute
   '/_authenticated/app/baustellen/$id/info': typeof AuthenticatedAppBaustellenIdInfoRoute
   '/_authenticated/app/baustellen/$id/medien': typeof AuthenticatedAppBaustellenIdMedienRoute
   '/_authenticated/app/baustellen/$id/': typeof AuthenticatedAppBaustellenIdIndexRoute
@@ -247,13 +293,17 @@ export interface FileRouteTypes {
     | '/'
     | '/accept-invite'
     | '/auth'
+    | '/datenschutz'
     | '/funktionen'
     | '/healthz'
+    | '/impressum'
     | '/kontakt'
     | '/preise'
     | '/app'
     | '/app/abwesenheiten'
+    | '/app/buero'
     | '/app/einstellungen'
+    | '/app/geraete'
     | '/app/ki-assistent'
     | '/app/mitarbeiter'
     | '/app/plan'
@@ -264,6 +314,7 @@ export interface FileRouteTypes {
     | '/app/profil/dokumente'
     | '/app/baustellen/'
     | '/app/profil/'
+    | '/app/baustellen/$id/aufgaben'
     | '/app/baustellen/$id/info'
     | '/app/baustellen/$id/medien'
     | '/app/baustellen/$id/'
@@ -272,12 +323,16 @@ export interface FileRouteTypes {
     | '/'
     | '/accept-invite'
     | '/auth'
+    | '/datenschutz'
     | '/funktionen'
     | '/healthz'
+    | '/impressum'
     | '/kontakt'
     | '/preise'
     | '/app/abwesenheiten'
+    | '/app/buero'
     | '/app/einstellungen'
+    | '/app/geraete'
     | '/app/ki-assistent'
     | '/app/mitarbeiter'
     | '/app/plan'
@@ -287,6 +342,7 @@ export interface FileRouteTypes {
     | '/app/profil/dokumente'
     | '/app/baustellen'
     | '/app/profil'
+    | '/app/baustellen/$id/aufgaben'
     | '/app/baustellen/$id/info'
     | '/app/baustellen/$id/medien'
     | '/app/baustellen/$id'
@@ -296,13 +352,17 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/accept-invite'
     | '/auth'
+    | '/datenschutz'
     | '/funktionen'
     | '/healthz'
+    | '/impressum'
     | '/kontakt'
     | '/preise'
     | '/_authenticated/app'
     | '/_authenticated/app/abwesenheiten'
+    | '/_authenticated/app/buero'
     | '/_authenticated/app/einstellungen'
+    | '/_authenticated/app/geraete'
     | '/_authenticated/app/ki-assistent'
     | '/_authenticated/app/mitarbeiter'
     | '/_authenticated/app/plan'
@@ -313,6 +373,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/profil/dokumente'
     | '/_authenticated/app/baustellen/'
     | '/_authenticated/app/profil/'
+    | '/_authenticated/app/baustellen/$id/aufgaben'
     | '/_authenticated/app/baustellen/$id/info'
     | '/_authenticated/app/baustellen/$id/medien'
     | '/_authenticated/app/baustellen/$id/'
@@ -323,8 +384,10 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AcceptInviteRoute: typeof AcceptInviteRoute
   AuthRoute: typeof AuthRoute
+  DatenschutzRoute: typeof DatenschutzRoute
   FunktionenRoute: typeof FunktionenRoute
   HealthzRoute: typeof HealthzRoute
+  ImpressumRoute: typeof ImpressumRoute
   KontaktRoute: typeof KontaktRoute
   PreiseRoute: typeof PreiseRoute
 }
@@ -359,6 +422,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/datenschutz': {
+      id: '/datenschutz'
+      path: '/datenschutz'
+      fullPath: '/datenschutz'
+      preLoaderRoute: typeof DatenschutzRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/funktionen': {
       id: '/funktionen'
       path: '/funktionen'
@@ -371,6 +441,13 @@ declare module '@tanstack/react-router' {
       path: '/healthz'
       fullPath: '/healthz'
       preLoaderRoute: typeof HealthzRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/impressum': {
+      id: '/impressum'
+      path: '/impressum'
+      fullPath: '/impressum'
+      preLoaderRoute: typeof ImpressumRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/kontakt': {
@@ -408,11 +485,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppAbwesenheitenRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/buero': {
+      id: '/_authenticated/app/buero'
+      path: '/buero'
+      fullPath: '/app/buero'
+      preLoaderRoute: typeof AuthenticatedAppBueroRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
     '/_authenticated/app/einstellungen': {
       id: '/_authenticated/app/einstellungen'
       path: '/einstellungen'
       fullPath: '/app/einstellungen'
       preLoaderRoute: typeof AuthenticatedAppEinstellungenRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/geraete': {
+      id: '/_authenticated/app/geraete'
+      path: '/geraete'
+      fullPath: '/app/geraete'
+      preLoaderRoute: typeof AuthenticatedAppGeraeteRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
     '/_authenticated/app/ki-assistent': {
@@ -485,6 +576,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppBaustellenIdIndexRouteImport
       parentRoute: typeof AuthenticatedAppBaustellenIdRoute
     }
+    '/_authenticated/app/baustellen/$id/aufgaben': {
+      id: '/_authenticated/app/baustellen/$id/aufgaben'
+      path: '/aufgaben'
+      fullPath: '/app/baustellen/$id/aufgaben'
+      preLoaderRoute: typeof AuthenticatedAppBaustellenIdAufgabenRouteImport
+      parentRoute: typeof AuthenticatedAppBaustellenIdRoute
+    }
     '/_authenticated/app/baustellen/$id/info': {
       id: '/_authenticated/app/baustellen/$id/info'
       path: '/info'
@@ -503,6 +601,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedAppBaustellenIdRouteChildren {
+  AuthenticatedAppBaustellenIdAufgabenRoute: typeof AuthenticatedAppBaustellenIdAufgabenRoute
   AuthenticatedAppBaustellenIdInfoRoute: typeof AuthenticatedAppBaustellenIdInfoRoute
   AuthenticatedAppBaustellenIdMedienRoute: typeof AuthenticatedAppBaustellenIdMedienRoute
   AuthenticatedAppBaustellenIdIndexRoute: typeof AuthenticatedAppBaustellenIdIndexRoute
@@ -510,6 +609,8 @@ interface AuthenticatedAppBaustellenIdRouteChildren {
 
 const AuthenticatedAppBaustellenIdRouteChildren: AuthenticatedAppBaustellenIdRouteChildren =
   {
+    AuthenticatedAppBaustellenIdAufgabenRoute:
+      AuthenticatedAppBaustellenIdAufgabenRoute,
     AuthenticatedAppBaustellenIdInfoRoute:
       AuthenticatedAppBaustellenIdInfoRoute,
     AuthenticatedAppBaustellenIdMedienRoute:
@@ -525,7 +626,9 @@ const AuthenticatedAppBaustellenIdRouteWithChildren =
 
 interface AuthenticatedAppRouteChildren {
   AuthenticatedAppAbwesenheitenRoute: typeof AuthenticatedAppAbwesenheitenRoute
+  AuthenticatedAppBueroRoute: typeof AuthenticatedAppBueroRoute
   AuthenticatedAppEinstellungenRoute: typeof AuthenticatedAppEinstellungenRoute
+  AuthenticatedAppGeraeteRoute: typeof AuthenticatedAppGeraeteRoute
   AuthenticatedAppKiAssistentRoute: typeof AuthenticatedAppKiAssistentRoute
   AuthenticatedAppMitarbeiterRoute: typeof AuthenticatedAppMitarbeiterRoute
   AuthenticatedAppPlanRoute: typeof AuthenticatedAppPlanRoute
@@ -540,7 +643,9 @@ interface AuthenticatedAppRouteChildren {
 
 const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppAbwesenheitenRoute: AuthenticatedAppAbwesenheitenRoute,
+  AuthenticatedAppBueroRoute: AuthenticatedAppBueroRoute,
   AuthenticatedAppEinstellungenRoute: AuthenticatedAppEinstellungenRoute,
+  AuthenticatedAppGeraeteRoute: AuthenticatedAppGeraeteRoute,
   AuthenticatedAppKiAssistentRoute: AuthenticatedAppKiAssistentRoute,
   AuthenticatedAppMitarbeiterRoute: AuthenticatedAppMitarbeiterRoute,
   AuthenticatedAppPlanRoute: AuthenticatedAppPlanRoute,
@@ -573,8 +678,10 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AcceptInviteRoute: AcceptInviteRoute,
   AuthRoute: AuthRoute,
+  DatenschutzRoute: DatenschutzRoute,
   FunktionenRoute: FunktionenRoute,
   HealthzRoute: HealthzRoute,
+  ImpressumRoute: ImpressumRoute,
   KontaktRoute: KontaktRoute,
   PreiseRoute: PreiseRoute,
 }

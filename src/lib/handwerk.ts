@@ -52,7 +52,7 @@ export function useProfile() {
       if (!u.user) return null;
       const { data } = await supabase
         .from("profiles")
-        .select("*, tenants(name, gewerk_default)")
+        .select("*, tenants(name, gewerk_default, adresse, plz, ort, telefon, email, ustid, logo_url)")
         .eq("id", u.user.id)
         .maybeSingle();
       return data;
