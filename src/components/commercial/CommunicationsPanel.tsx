@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react";
-import { ExternalLink, Mail, Phone, Plus } from "lucide-react";
+import { AlertCircle, ExternalLink, Mail, Phone, Plus } from "lucide-react";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
@@ -27,9 +27,31 @@ const initialForm = { customerId: "", subject: "", body: "" };
 export function CommunicationsPanel({ data, tenantId, userId, canWrite, onChanged }: CommunicationsPanelProps) {
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [assigningId, setAssigningId] = useState<string | null>(null);
+  const [customerAssignments, setCustomerAssignments] = useState<Record<string, string>>({});
   const [form, setForm] = useState(initialForm);
   const customersById = new Map(data.customers.map((customer) => [customer.id, customer]));
   const selectedCustomer = customersById.get(form.customerId);
+  const unmatchedEmails = data.inboundEmails.filter((email) => email.status === "unmatched");
+
+  async function assignInboundEmail(inboundEmailId: string) {
+    const customerId = customerAssignments[inboundEmailId];
+    if (!customerId) return;
+    setAssigningId(inboundEmailId);
+    const { error } = await supabase.rpc("link_inbound_email_to_customer", {
+      _inbound_email_id: inboundEmailId,
+      _customer_id: customerId,
+    });
+    setAssigningId(null);
+    if (error) return toast.error(error.message);
+    toast.success("E-Mail wurde dem Kundenverlauf zugeordnet");
+    setCustomerAssignments((current) => {
+      const next = { ...current };
+      delete next[inboundEmailId];
+      return next;
+    });
+    await onChanged();
+  }
 
   async function saveDraft(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -61,6 +83,49 @@ export function CommunicationsPanel({ data, tenantId, userId, canWrite, onChange
         {canWrite && <Button type="button" onClick={() => setOpen(true)} disabled={!data.customers.length} className="bg-brand text-white hover:bg-brand/90"><Plus className="h-4 w-4" /> E-Mail-Entwurf</Button>}
       </header>
       <div className="p-4 sm:p-5">
+        {unmatchedEmails.length > 0 && (
+          <div className="mb-5 rounded-xl border border-amber-200 bg-amber-50/70 p-4">
+            <div className="mb-3 flex items-start gap-2">
+              <AlertCircle className="mt-0.5 h-4 w-4 text-amber-700" />
+              <div>
+                <h3 className="font-semibold text-amber-950">Nicht zugeordnete E-Mails</h3>
+                <p className="text-xs text-amber-800">Diese Absender sind noch keinem Kunden zugeordnet.</p>
+              </div>
+            </div>
+            <div className="space-y-3">
+              {unmatchedEmails.map((email) => (
+                <article key={email.id} className="rounded-lg border border-amber-200 bg-white p-3">
+                  <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate font-medium">{email.subject || "Ohne Betreff"}</p>
+                      <p className="truncate text-xs text-muted-foreground">Von {email.sender} · {formatDate(email.received_at)}</p>
+                      {email.body_text && <p className="mt-1 line-clamp-2 text-sm text-slate-600">{email.body_text}</p>}
+                    </div>
+                    {canWrite && (
+                      <div className="flex min-w-0 flex-col gap-2 sm:flex-row lg:w-[28rem]">
+                        <Select
+                          value={customerAssignments[email.id] ?? ""}
+                          onValueChange={(customerId) => setCustomerAssignments((current) => ({ ...current, [email.id]: customerId }))}
+                        >
+                          <SelectTrigger className="min-w-0 flex-1"><SelectValue placeholder="Kunde auswählen" /></SelectTrigger>
+                          <SelectContent>{data.customers.map((customer) => <SelectItem key={customer.id} value={customer.id}>{customerName(customer)}</SelectItem>)}</SelectContent>
+                        </Select>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          disabled={!customerAssignments[email.id] || assigningId === email.id}
+                          onClick={() => assignInboundEmail(email.id)}
+                        >
+                          {assigningId === email.id ? "Ordnet zu …" : "Zuordnen"}
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </article>
+              ))}
+            </div>
+          </div>
+        )}
         {data.communications.length ? (
           <div className="space-y-3">
             {data.communications.map((communication) => {

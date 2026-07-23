@@ -7,6 +7,7 @@ export type Material = Database["public"]["Tables"]["materials"]["Row"];
 export type Offer = Database["public"]["Tables"]["offers"]["Row"];
 export type Invoice = Database["public"]["Tables"]["invoices"]["Row"];
 export type Communication = Database["public"]["Tables"]["communications"]["Row"];
+export type InboundEmail = Database["public"]["Tables"]["inbound_emails"]["Row"];
 export type Site = Database["public"]["Tables"]["sites"]["Row"];
 export type TimeEntry = Database["public"]["Tables"]["time_entries"]["Row"];
 
@@ -17,6 +18,7 @@ export type CommercialData = {
   offers: Offer[];
   invoices: Invoice[];
   communications: Communication[];
+  inboundEmails: InboundEmail[];
   sites: Site[];
   timeEntries: TimeEntry[];
 };

@@ -29,6 +29,7 @@ import { Route as AuthenticatedAppKiAssistentRouteImport } from './routes/_authe
 import { Route as AuthenticatedAppMitarbeiterRouteImport } from './routes/_authenticated/app.mitarbeiter'
 import { Route as AuthenticatedAppPlanRouteImport } from './routes/_authenticated/app.plan'
 import { Route as AuthenticatedAppZeitenRouteImport } from './routes/_authenticated/app.zeiten'
+import { Route as ApiWebhooksResendRouteImport } from './routes/api.webhooks.resend'
 import { Route as AuthenticatedAppBaustellenIndexRouteImport } from './routes/_authenticated/app.baustellen.index'
 import { Route as AuthenticatedAppBaustellenIdRouteImport } from './routes/_authenticated/app.baustellen.$id'
 import { Route as AuthenticatedAppKundenCustomerIdRouteImport } from './routes/_authenticated/app.kunden.$customerId'
@@ -143,6 +144,11 @@ const AuthenticatedAppZeitenRoute = AuthenticatedAppZeitenRouteImport.update({
   path: '/zeiten',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
+const ApiWebhooksResendRoute = ApiWebhooksResendRouteImport.update({
+  id: '/api/webhooks/resend',
+  path: '/api/webhooks/resend',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedAppBaustellenIndexRoute =
   AuthenticatedAppBaustellenIndexRouteImport.update({
     id: '/baustellen/',
@@ -223,6 +229,7 @@ export interface FileRoutesByFullPath {
   '/app/mitarbeiter': typeof AuthenticatedAppMitarbeiterRoute
   '/app/plan': typeof AuthenticatedAppPlanRoute
   '/app/zeiten': typeof AuthenticatedAppZeitenRoute
+  '/api/webhooks/resend': typeof ApiWebhooksResendRoute
   '/app/': typeof AuthenticatedAppIndexRoute
   '/app/baustellen/$id': typeof AuthenticatedAppBaustellenIdRouteWithChildren
   '/app/kunden/$customerId': typeof AuthenticatedAppKundenCustomerIdRoute
@@ -253,6 +260,7 @@ export interface FileRoutesByTo {
   '/app/mitarbeiter': typeof AuthenticatedAppMitarbeiterRoute
   '/app/plan': typeof AuthenticatedAppPlanRoute
   '/app/zeiten': typeof AuthenticatedAppZeitenRoute
+  '/api/webhooks/resend': typeof ApiWebhooksResendRoute
   '/app': typeof AuthenticatedAppIndexRoute
   '/app/kunden/$customerId': typeof AuthenticatedAppKundenCustomerIdRoute
   '/app/profil/daten': typeof AuthenticatedAppProfilDatenRoute
@@ -285,6 +293,7 @@ export interface FileRoutesById {
   '/_authenticated/app/mitarbeiter': typeof AuthenticatedAppMitarbeiterRoute
   '/_authenticated/app/plan': typeof AuthenticatedAppPlanRoute
   '/_authenticated/app/zeiten': typeof AuthenticatedAppZeitenRoute
+  '/api/webhooks/resend': typeof ApiWebhooksResendRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
   '/_authenticated/app/baustellen/$id': typeof AuthenticatedAppBaustellenIdRouteWithChildren
   '/_authenticated/app/kunden/$customerId': typeof AuthenticatedAppKundenCustomerIdRoute
@@ -318,6 +327,7 @@ export interface FileRouteTypes {
     | '/app/mitarbeiter'
     | '/app/plan'
     | '/app/zeiten'
+    | '/api/webhooks/resend'
     | '/app/'
     | '/app/baustellen/$id'
     | '/app/kunden/$customerId'
@@ -348,6 +358,7 @@ export interface FileRouteTypes {
     | '/app/mitarbeiter'
     | '/app/plan'
     | '/app/zeiten'
+    | '/api/webhooks/resend'
     | '/app'
     | '/app/kunden/$customerId'
     | '/app/profil/daten'
@@ -379,6 +390,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/mitarbeiter'
     | '/_authenticated/app/plan'
     | '/_authenticated/app/zeiten'
+    | '/api/webhooks/resend'
     | '/_authenticated/app/'
     | '/_authenticated/app/baustellen/$id'
     | '/_authenticated/app/kunden/$customerId'
@@ -403,6 +415,7 @@ export interface RootRouteChildren {
   ImpressumRoute: typeof ImpressumRoute
   KontaktRoute: typeof KontaktRoute
   PreiseRoute: typeof PreiseRoute
+  ApiWebhooksResendRoute: typeof ApiWebhooksResendRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -546,6 +559,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/app/zeiten'
       preLoaderRoute: typeof AuthenticatedAppZeitenRouteImport
       parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/api/webhooks/resend': {
+      id: '/api/webhooks/resend'
+      path: '/api/webhooks/resend'
+      fullPath: '/api/webhooks/resend'
+      preLoaderRoute: typeof ApiWebhooksResendRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/app/baustellen/': {
       id: '/_authenticated/app/baustellen/'
@@ -706,6 +726,7 @@ const rootRouteChildren: RootRouteChildren = {
   ImpressumRoute: ImpressumRoute,
   KontaktRoute: KontaktRoute,
   PreiseRoute: PreiseRoute,
+  ApiWebhooksResendRoute: ApiWebhooksResendRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

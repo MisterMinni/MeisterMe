@@ -88,7 +88,7 @@ export function validateEnvironment(environment, profile = "core") {
   }
 
   for (const name of Object.keys(environment)) {
-    if (name.startsWith("VITE_") && /(SECRET|SERVICE_ROLE|AI_API_KEY)/i.test(name)) {
+    if (name.startsWith("VITE_") && /(SECRET|SERVICE_ROLE|AI_API_KEY|RESEND_API_KEY|WEBHOOK)/i.test(name)) {
       errors.push(`${name} würde ein Geheimnis in den Browser-Build übernehmen.`);
     }
   }

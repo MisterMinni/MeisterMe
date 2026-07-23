@@ -243,6 +243,7 @@ export type Database = {
           provider_message_id: string | null
           recipients: Json
           scheduled_at: string | null
+          sender: string | null
           sent_at: string | null
           site_id: string | null
           status: string
@@ -263,6 +264,7 @@ export type Database = {
           provider_message_id?: string | null
           recipients?: Json
           scheduled_at?: string | null
+          sender?: string | null
           sent_at?: string | null
           site_id?: string | null
           status?: string
@@ -283,6 +285,7 @@ export type Database = {
           provider_message_id?: string | null
           recipients?: Json
           scheduled_at?: string | null
+          sender?: string | null
           sent_at?: string | null
           site_id?: string | null
           status?: string
@@ -549,6 +552,56 @@ export type Database = {
           },
           {
             foreignKeyName: "documents_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      email_webhook_events: {
+        Row: {
+          attempts: number
+          event_type: string
+          last_error: string | null
+          processed_at: string | null
+          provider: string
+          provider_message_id: string | null
+          received_at: string
+          status: string
+          svix_id: string
+          tenant_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          attempts?: number
+          event_type: string
+          last_error?: string | null
+          processed_at?: string | null
+          provider?: string
+          provider_message_id?: string | null
+          received_at?: string
+          status?: string
+          svix_id: string
+          tenant_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          attempts?: number
+          event_type?: string
+          last_error?: string | null
+          processed_at?: string | null
+          provider?: string
+          provider_message_id?: string | null
+          received_at?: string
+          status?: string
+          svix_id?: string
+          tenant_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_webhook_events_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"
@@ -829,6 +882,103 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "equipment_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inbound_emails: {
+        Row: {
+          attachments: Json
+          bcc: Json
+          body_html: string | null
+          body_text: string | null
+          cc: Json
+          communication_id: string | null
+          created_at: string
+          customer_id: string | null
+          email_headers: Json
+          error_message: string | null
+          id: string
+          message_id: string | null
+          provider: string
+          provider_message_id: string
+          received_at: string
+          recipients: Json
+          sender: string
+          sender_email: string
+          status: string
+          subject: string | null
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          attachments?: Json
+          bcc?: Json
+          body_html?: string | null
+          body_text?: string | null
+          cc?: Json
+          communication_id?: string | null
+          created_at?: string
+          customer_id?: string | null
+          email_headers?: Json
+          error_message?: string | null
+          id?: string
+          message_id?: string | null
+          provider?: string
+          provider_message_id: string
+          received_at: string
+          recipients?: Json
+          sender: string
+          sender_email: string
+          status?: string
+          subject?: string | null
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          attachments?: Json
+          bcc?: Json
+          body_html?: string | null
+          body_text?: string | null
+          cc?: Json
+          communication_id?: string | null
+          created_at?: string
+          customer_id?: string | null
+          email_headers?: Json
+          error_message?: string | null
+          id?: string
+          message_id?: string | null
+          provider?: string
+          provider_message_id?: string
+          received_at?: string
+          recipients?: Json
+          sender?: string
+          sender_email?: string
+          status?: string
+          subject?: string | null
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inbound_emails_communication_tenant_fkey"
+            columns: ["communication_id", "tenant_id"]
+            isOneToOne: false
+            referencedRelation: "communications"
+            referencedColumns: ["id", "tenant_id"]
+          },
+          {
+            foreignKeyName: "inbound_emails_customer_tenant_fkey"
+            columns: ["customer_id", "tenant_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id", "tenant_id"]
+          },
+          {
+            foreignKeyName: "inbound_emails_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"
@@ -1798,6 +1948,44 @@ export type Database = {
           },
         ]
       }
+      tenant_mailboxes: {
+        Row: {
+          active: boolean
+          created_at: string
+          email_address: string
+          id: string
+          provider: string
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          email_address: string
+          id?: string
+          provider?: string
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          email_address?: string
+          id?: string
+          provider?: string
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tenant_mailboxes_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tenant_memberships: {
         Row: {
           disabled_at: string | null
@@ -2102,6 +2290,16 @@ export type Database = {
         Returns: boolean
       }
       is_tenant_member: { Args: { _tenant_id: string }; Returns: boolean }
+      link_inbound_email_to_customer: {
+        Args: { _customer_id: string; _inbound_email_id: string }
+        Returns: string
+      }
+      resolve_inbound_customer: {
+        Args: { _email: string; _tenant_id: string }
+        Returns: {
+          customer_id: string
+        }[]
+      }
       revoke_user_sessions: { Args: { _user_id: string }; Returns: undefined }
       seed_default_roles: { Args: { _tenant_id: string }; Returns: undefined }
     }
