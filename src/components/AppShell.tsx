@@ -1,4 +1,5 @@
 import { Link, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
+import { useIsFetching } from "@tanstack/react-query";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import {
   LayoutDashboard,
@@ -19,6 +20,7 @@ import { useProfile, useMyRole, useSession, useIsAdmin, ROLE_LABELS } from "@/li
 import { PageHeaderProvider, usePageHeader } from "@/components/page-header-context";
 import { PublicFooter } from "@/components/PublicFooter";
 import { useAppSurface } from "@/lib/use-app-surface";
+import { AppPageSkeleton } from "@/components/AppPageSkeleton";
 
 import type { LucideIcon } from "lucide-react";
 
@@ -77,6 +79,9 @@ export function AppShell({ children }: { children?: ReactNode }) {
 
 function AppShellInner({ children }: { children?: ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const isRouterLoading = useRouterState({ select: (s) => s.isLoading });
+  const activeFetches = useIsFetching();
+  const [settledPathname, setSettledPathname] = useState("");
   const { data: profile } = useProfile();
   const { data: session } = useSession();
   const role = useMyRole();
@@ -116,6 +121,15 @@ function AppShellInner({ children }: { children?: ReactNode }) {
     override.backTo ??
     EXTRA_BACK[pathname] ??
     (currentModule && !isModuleRoot ? currentModule.to : "/app");
+
+  useEffect(() => {
+    if (isRouterLoading || activeFetches > 0) return;
+
+    const timer = window.setTimeout(() => setSettledPathname(pathname), 100);
+    return () => window.clearTimeout(timer);
+  }, [activeFetches, isRouterLoading, pathname]);
+
+  const showPageSkeleton = isRouterLoading || settledPathname !== pathname;
 
   return (
     <div className="min-h-screen bg-secondary/40">
@@ -178,7 +192,10 @@ function AppShellInner({ children }: { children?: ReactNode }) {
       </header>
 
       <main key={pathname} className="mx-auto max-w-[1600px] p-4 pb-8 lg:p-8 animate-fade-in">
-        {children ?? <Outlet />}
+        {showPageSkeleton && <AppPageSkeleton pathname={pathname} />}
+        <div className={showPageSkeleton ? "hidden" : "contents"} aria-hidden={showPageSkeleton}>
+          {children ?? <Outlet />}
+        </div>
       </main>
       <PublicFooter compact />
     </div>
