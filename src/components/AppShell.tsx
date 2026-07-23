@@ -19,22 +19,30 @@ import {
 import { useProfile, useMyRole, useSession, useIsAdmin, ROLE_LABELS } from "@/lib/handwerk";
 import { PageHeaderProvider, usePageHeader } from "@/components/page-header-context";
 import { PublicFooter } from "@/components/PublicFooter";
+import { useAppSurface } from "@/lib/use-app-surface";
 
 import type { LucideIcon } from "lucide-react";
 
-type NavItem = { to: string; label: string; icon: LucideIcon; exact?: boolean; adminOnly?: boolean };
+type NavItem = {
+  to: string;
+  label: string;
+  icon: LucideIcon;
+  exact?: boolean;
+  adminOnly?: boolean;
+  desktopOnly?: boolean;
+};
 
 const modules: NavItem[] = [
   { to: "/app", label: "Dashboard", icon: LayoutDashboard, exact: true },
-  { to: "/app/buero", label: "Büro & Finanzen", icon: Landmark },
+  { to: "/app/buero", label: "Büro & Finanzen", icon: Landmark, desktopOnly: true },
   { to: "/app/baustellen", label: "Baustellen", icon: Briefcase },
   { to: "/app/plan", label: "Wochenplanung", icon: Calendar },
   { to: "/app/zeiten", label: "Zeiterfassung", icon: Clock },
   { to: "/app/ki-assistent", label: "KI-Assistent", icon: Sparkles },
   { to: "/app/abwesenheiten", label: "Abwesenheiten", icon: UserX },
-  { to: "/app/mitarbeiter", label: "Mitarbeiter", icon: Users, adminOnly: true },
+  { to: "/app/mitarbeiter", label: "Mitarbeiter", icon: Users, adminOnly: true, desktopOnly: true },
   { to: "/app/geraete", label: "Geräte", icon: Drill },
-  { to: "/app/einstellungen", label: "Einstellungen", icon: Settings, adminOnly: true },
+  { to: "/app/einstellungen", label: "Einstellungen", icon: Settings, adminOnly: true, desktopOnly: true },
 ];
 
 const EXTRA_TITLES: Record<string, string> = {
@@ -62,6 +70,7 @@ function AppShellInner({ children }: { children?: ReactNode }) {
   const { data: session } = useSession();
   const role = useMyRole();
   const isAdmin = useIsAdmin();
+  const surface = useAppSurface();
   const navigate = useNavigate();
   const override = usePageHeader();
 
@@ -74,7 +83,9 @@ function AppShellInner({ children }: { children?: ReactNode }) {
     ).toUpperCase() || "?";
   const roleLabel = role ? ROLE_LABELS[role] ?? role : "Kein Zugriff";
 
-  const visibleModules = modules.filter((n) => !n.adminOnly || isAdmin);
+  const visibleModules = modules.filter(
+    (module) => (!module.adminOnly || isAdmin) && (surface === "desktop" || !module.desktopOnly),
+  );
   const isHome = pathname === "/app" || pathname === "/app/";
 
   const currentModule = visibleModules

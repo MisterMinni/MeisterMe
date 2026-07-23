@@ -1,6 +1,7 @@
 import type { Database, Json } from "@/integrations/supabase/types";
 
 export type Customer = Database["public"]["Tables"]["customers"]["Row"];
+export type CustomerWorkspace = Database["public"]["Tables"]["customer_workspaces"]["Row"];
 export type Measurement = Database["public"]["Tables"]["measurements"]["Row"];
 export type Material = Database["public"]["Tables"]["materials"]["Row"];
 export type Offer = Database["public"]["Tables"]["offers"]["Row"];

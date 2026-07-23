@@ -368,6 +368,78 @@ export type Database = {
           },
         ]
       }
+      customer_workspaces: {
+        Row: {
+          ai_summary: string | null
+          analyzed_at: string | null
+          analyzed_by: string | null
+          behavior_patterns: Json
+          cost_profile: Json
+          created_at: string
+          customer_id: string
+          manual_notes: string | null
+          needs: Json
+          opportunities: Json
+          preferences: Json
+          recommended_actions: Json
+          risks: Json
+          source_stats: Json
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          ai_summary?: string | null
+          analyzed_at?: string | null
+          analyzed_by?: string | null
+          behavior_patterns?: Json
+          cost_profile?: Json
+          created_at?: string
+          customer_id: string
+          manual_notes?: string | null
+          needs?: Json
+          opportunities?: Json
+          preferences?: Json
+          recommended_actions?: Json
+          risks?: Json
+          source_stats?: Json
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          ai_summary?: string | null
+          analyzed_at?: string | null
+          analyzed_by?: string | null
+          behavior_patterns?: Json
+          cost_profile?: Json
+          created_at?: string
+          customer_id?: string
+          manual_notes?: string | null
+          needs?: Json
+          opportunities?: Json
+          preferences?: Json
+          recommended_actions?: Json
+          risks?: Json
+          source_stats?: Json
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customer_workspaces_customer_tenant_fkey"
+            columns: ["customer_id", "tenant_id"]
+            isOneToOne: true
+            referencedRelation: "customers"
+            referencedColumns: ["id", "tenant_id"]
+          },
+          {
+            foreignKeyName: "customer_workspaces_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       customers: {
         Row: {
           billing_address: Json

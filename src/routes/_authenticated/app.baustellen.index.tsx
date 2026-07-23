@@ -14,6 +14,7 @@ import { FabAdd } from "@/components/fab-add";
 import { useProfile, SITE_STATUS, useHasPermission } from "@/lib/handwerk";
 import { toast } from "sonner";
 import { Briefcase, ArrowRight, Home } from "lucide-react";
+import { customerName } from "@/lib/commercial";
 
 
 export const Route = createFileRoute("/_authenticated/app/baustellen/")({
@@ -25,6 +26,7 @@ function Baustellen() {
   const qc = useQueryClient();
   const { data: profile } = useProfile();
   const canCreate = useHasPermission("sites:create");
+  const canReadCustomers = useHasPermission("customers:read");
   
   const [openNew, setOpenNew] = useState(false);
   const emptyForm = {
@@ -35,6 +37,7 @@ function Baustellen() {
     status: "geplant",
     start_date: "",
     end_date: "",
+    customer_id: "none",
   };
   const [form, setForm] = useState(emptyForm);
 
@@ -45,6 +48,20 @@ function Baustellen() {
         .from("sites")
         .select("*")
         .order("updated_at", { ascending: false });
+      return data ?? [];
+    },
+  });
+
+  const { data: customers } = useQuery({
+    queryKey: ["customers", "site-form"],
+    enabled: canReadCustomers,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("customers")
+        .select("*")
+        .order("company_name", { ascending: true, nullsFirst: false })
+        .order("last_name", { ascending: true, nullsFirst: false });
+      if (error) throw error;
       return data ?? [];
     },
   });
@@ -65,6 +82,7 @@ function Baustellen() {
       start_date: form.start_date || null,
       end_date: form.end_date || null,
       gewerk: "ausbau" as never,
+      customer_id: form.customer_id === "none" ? null : form.customer_id,
     });
     if (error) return toast.error(error.message);
     toast.success("Baustelle angelegt");
@@ -103,6 +121,25 @@ function Baustellen() {
                 <Label>Beschreibung</Label>
                 <Textarea value={form.beschreibung} onChange={(e) => setForm({ ...form, beschreibung: e.target.value })} />
               </div>
+              {canReadCustomers && (
+                <div>
+                  <Label>Kunde (optional)</Label>
+                  <Select value={form.customer_id} onValueChange={(customer_id) => setForm({ ...form, customer_id })}>
+                    <SelectTrigger><SelectValue placeholder="Kunde auswählen" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">Ohne Kundenzuordnung</SelectItem>
+                      {(customers ?? []).map((customer) => (
+                        <SelectItem key={customer.id} value={customer.id}>
+                          {customer.customer_number} · {customerName(customer)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Zugeordnete Baustellendaten fließen in das Work-Segment des Kunden ein.
+                  </p>
+                </div>
+              )}
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <Label>Start</Label>

@@ -16,6 +16,8 @@ import {
   Drill,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { useIsAdmin } from "@/lib/handwerk";
+import { useAppSurface } from "@/lib/use-app-surface";
 
 
 export const Route = createFileRoute("/_authenticated/app/")({
@@ -103,11 +105,29 @@ function ModuleTile({ tile, tone }: { tile: Tile; tone: Tone }) {
 
 
 function Dashboard() {
-
-
+  const surface = useAppSurface();
+  const isAdmin = useIsAdmin();
   const { data: stats } = useQuery({
-    queryKey: ["dashboard-stats"],
+    queryKey: ["dashboard-stats", surface],
     queryFn: async () => {
+      if (surface === "mobile") {
+        const [sites, absences, assignments] = await Promise.all([
+          supabase.from("sites").select("id, archived_at"),
+          supabase.from("absences").select("id, status"),
+          supabase.from("weekly_assignments").select("id, day"),
+        ]);
+        const today = new Date().toISOString().slice(0, 10);
+        return {
+          activeSites: (sites.data ?? []).filter((site) => !site.archived_at).length,
+          openAbsences: (absences.data ?? []).filter((absence) => absence.status === "eingereicht").length,
+          planToday: (assignments.data ?? []).filter((assignment) => assignment.day === today).length,
+          messages: 0,
+          customers: 0,
+          openOffers: 0,
+          overdueInvoices: 0,
+        };
+      }
+
       const [sites, absences, assignments, messages, customers, offers, invoices] = await Promise.all([
         supabase.from("sites").select("id, archived_at"),
         supabase.from("absences").select("id, status"),
@@ -131,7 +151,7 @@ function Dashboard() {
   });
 
 
-  const groups: Group[] = [
+  const desktopGroups: Group[] = [
     {
       title: "Büro & Finanzen",
       tone: "slate",
@@ -162,12 +182,39 @@ function Dashboard() {
       title: "Betrieb",
       tone: "slate",
       tiles: [
-        { to: "/app/mitarbeiter", label: "Mitarbeiter", icon: UsersRound, desc: "Stammdaten, Rollen & Zugänge" },
+        ...(isAdmin
+          ? [{ to: "/app/mitarbeiter", label: "Mitarbeiter", icon: UsersRound, desc: "Stammdaten, Rollen & Zugänge" }]
+          : []),
         { to: "/app/geraete", label: "Geräte & Werkzeuge", icon: Drill, desc: "Inventar, Ausgabe, Rückgabe" },
-        { to: "/app/einstellungen", label: "Einstellungen", icon: Settings, desc: "Betrieb & Profil" },
+        ...(isAdmin
+          ? [{ to: "/app/einstellungen", label: "Einstellungen", icon: Settings, desc: "Betrieb & Profil" }]
+          : []),
       ],
     },
   ];
+
+  const mobileGroups: Group[] = [
+    {
+      title: "Baustelle",
+      tone: "blue",
+      tiles: [
+        { to: "/app/baustellen", label: "Baustellen", icon: Briefcase, desc: "Projekte, Aufgaben & Chat" },
+        { to: "/app/plan", label: "Wochenplanung", icon: Calendar, desc: "Meine heutigen Einsätze", badge: stats?.planToday },
+        { to: "/app/ki-assistent", label: "KI-Assistent", icon: Sparkles, desc: "Berichte & Hilfe vor Ort" },
+      ],
+    },
+    {
+      title: "Arbeitsalltag",
+      tone: "green",
+      tiles: [
+        { to: "/app/zeiten", label: "Zeiterfassung", icon: Clock, desc: "Stempeln, Pausen, Bericht" },
+        { to: "/app/geraete", label: "Geräte & Werkzeuge", icon: Drill, desc: "Inventar, Ausgabe, Rückgabe" },
+        { to: "/app/abwesenheiten", label: "Abwesenheiten", icon: UserX, desc: "Urlaub, Krank, Anträge", badge: stats?.openAbsences, badgeTone: "warn" },
+      ],
+    },
+  ];
+
+  const groups = surface === "mobile" ? mobileGroups : desktopGroups;
 
   return (
     <div className="space-y-8">
@@ -179,7 +226,7 @@ function Dashboard() {
           </div>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
             {group.tiles.map((t) => (
-              <ModuleTile key={t.to} tile={t} tone={group.tone} />
+              <ModuleTile key={`${t.to}-${t.label}`} tile={t} tone={group.tone} />
             ))}
           </div>
         </section>

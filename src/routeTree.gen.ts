@@ -31,6 +31,7 @@ import { Route as AuthenticatedAppPlanRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedAppZeitenRouteImport } from './routes/_authenticated/app.zeiten'
 import { Route as AuthenticatedAppBaustellenIndexRouteImport } from './routes/_authenticated/app.baustellen.index'
 import { Route as AuthenticatedAppBaustellenIdRouteImport } from './routes/_authenticated/app.baustellen.$id'
+import { Route as AuthenticatedAppKundenCustomerIdRouteImport } from './routes/_authenticated/app.kunden.$customerId'
 import { Route as AuthenticatedAppProfilIndexRouteImport } from './routes/_authenticated/app.profil.index'
 import { Route as AuthenticatedAppProfilDatenRouteImport } from './routes/_authenticated/app.profil.daten'
 import { Route as AuthenticatedAppProfilDokumenteRouteImport } from './routes/_authenticated/app.profil.dokumente'
@@ -154,6 +155,12 @@ const AuthenticatedAppBaustellenIdRoute =
     path: '/baustellen/$id',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
+const AuthenticatedAppKundenCustomerIdRoute =
+  AuthenticatedAppKundenCustomerIdRouteImport.update({
+    id: '/kunden/$customerId',
+    path: '/kunden/$customerId',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
 const AuthenticatedAppProfilIndexRoute =
   AuthenticatedAppProfilIndexRouteImport.update({
     id: '/profil/',
@@ -218,6 +225,7 @@ export interface FileRoutesByFullPath {
   '/app/zeiten': typeof AuthenticatedAppZeitenRoute
   '/app/': typeof AuthenticatedAppIndexRoute
   '/app/baustellen/$id': typeof AuthenticatedAppBaustellenIdRouteWithChildren
+  '/app/kunden/$customerId': typeof AuthenticatedAppKundenCustomerIdRoute
   '/app/profil/daten': typeof AuthenticatedAppProfilDatenRoute
   '/app/profil/dokumente': typeof AuthenticatedAppProfilDokumenteRoute
   '/app/baustellen/': typeof AuthenticatedAppBaustellenIndexRoute
@@ -246,6 +254,7 @@ export interface FileRoutesByTo {
   '/app/plan': typeof AuthenticatedAppPlanRoute
   '/app/zeiten': typeof AuthenticatedAppZeitenRoute
   '/app': typeof AuthenticatedAppIndexRoute
+  '/app/kunden/$customerId': typeof AuthenticatedAppKundenCustomerIdRoute
   '/app/profil/daten': typeof AuthenticatedAppProfilDatenRoute
   '/app/profil/dokumente': typeof AuthenticatedAppProfilDokumenteRoute
   '/app/baustellen': typeof AuthenticatedAppBaustellenIndexRoute
@@ -278,6 +287,7 @@ export interface FileRoutesById {
   '/_authenticated/app/zeiten': typeof AuthenticatedAppZeitenRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
   '/_authenticated/app/baustellen/$id': typeof AuthenticatedAppBaustellenIdRouteWithChildren
+  '/_authenticated/app/kunden/$customerId': typeof AuthenticatedAppKundenCustomerIdRoute
   '/_authenticated/app/profil/daten': typeof AuthenticatedAppProfilDatenRoute
   '/_authenticated/app/profil/dokumente': typeof AuthenticatedAppProfilDokumenteRoute
   '/_authenticated/app/baustellen/': typeof AuthenticatedAppBaustellenIndexRoute
@@ -310,6 +320,7 @@ export interface FileRouteTypes {
     | '/app/zeiten'
     | '/app/'
     | '/app/baustellen/$id'
+    | '/app/kunden/$customerId'
     | '/app/profil/daten'
     | '/app/profil/dokumente'
     | '/app/baustellen/'
@@ -338,6 +349,7 @@ export interface FileRouteTypes {
     | '/app/plan'
     | '/app/zeiten'
     | '/app'
+    | '/app/kunden/$customerId'
     | '/app/profil/daten'
     | '/app/profil/dokumente'
     | '/app/baustellen'
@@ -369,6 +381,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/zeiten'
     | '/_authenticated/app/'
     | '/_authenticated/app/baustellen/$id'
+    | '/_authenticated/app/kunden/$customerId'
     | '/_authenticated/app/profil/daten'
     | '/_authenticated/app/profil/dokumente'
     | '/_authenticated/app/baustellen/'
@@ -548,6 +561,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppBaustellenIdRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/kunden/$customerId': {
+      id: '/_authenticated/app/kunden/$customerId'
+      path: '/kunden/$customerId'
+      fullPath: '/app/kunden/$customerId'
+      preLoaderRoute: typeof AuthenticatedAppKundenCustomerIdRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
     '/_authenticated/app/profil/': {
       id: '/_authenticated/app/profil/'
       path: '/profil'
@@ -635,6 +655,7 @@ interface AuthenticatedAppRouteChildren {
   AuthenticatedAppZeitenRoute: typeof AuthenticatedAppZeitenRoute
   AuthenticatedAppIndexRoute: typeof AuthenticatedAppIndexRoute
   AuthenticatedAppBaustellenIdRoute: typeof AuthenticatedAppBaustellenIdRouteWithChildren
+  AuthenticatedAppKundenCustomerIdRoute: typeof AuthenticatedAppKundenCustomerIdRoute
   AuthenticatedAppProfilDatenRoute: typeof AuthenticatedAppProfilDatenRoute
   AuthenticatedAppProfilDokumenteRoute: typeof AuthenticatedAppProfilDokumenteRoute
   AuthenticatedAppBaustellenIndexRoute: typeof AuthenticatedAppBaustellenIndexRoute
@@ -653,6 +674,7 @@ const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppIndexRoute: AuthenticatedAppIndexRoute,
   AuthenticatedAppBaustellenIdRoute:
     AuthenticatedAppBaustellenIdRouteWithChildren,
+  AuthenticatedAppKundenCustomerIdRoute: AuthenticatedAppKundenCustomerIdRoute,
   AuthenticatedAppProfilDatenRoute: AuthenticatedAppProfilDatenRoute,
   AuthenticatedAppProfilDokumenteRoute: AuthenticatedAppProfilDokumenteRoute,
   AuthenticatedAppBaustellenIndexRoute: AuthenticatedAppBaustellenIndexRoute,

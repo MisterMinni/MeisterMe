@@ -1,5 +1,6 @@
+import { Link } from "@tanstack/react-router";
 import { useMemo, useState, type FormEvent } from "react";
-import { Plus, Search, UsersRound } from "lucide-react";
+import { ArrowRight, BrainCircuit, Plus, Search, UsersRound } from "lucide-react";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
@@ -117,6 +118,13 @@ export function CustomersPanel({ data, tenantId, userId, canWrite, onChanged }: 
                     {customer.phone && <p>{customer.phone}</p>}
                     {(address.street || address.city) && <p>{[address.street, [address.postalCode, address.city].filter(Boolean).join(" ")].filter(Boolean).join(", ")}</p>}
                   </div>
+                  <Link
+                    to="/app/kunden/$customerId"
+                    params={{ customerId: customer.id }}
+                    className="mt-4 flex items-center gap-2 border-t border-border pt-3 text-sm font-semibold text-brand hover:underline"
+                  >
+                    <BrainCircuit className="h-4 w-4" /> Work-Segment öffnen <ArrowRight className="ml-auto h-4 w-4" />
+                  </Link>
                 </article>
               );
             })}
